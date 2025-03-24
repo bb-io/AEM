@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <workspaceFilter version="1.0">
-    <filter root="/apps/aem-connector/clientlibs"/>
-    <filter root="/apps/aem-connector/components"/>
-    <filter root="/apps/aem-connector/i18n"/>
+    <filter root="/apps/bb-aem-connector/clientlibs"/>
+    <filter root="/apps/bb-aem-connector/components"/>
+    <filter root="/apps/bb-aem-connector/i18n"/>
 </workspaceFilter>

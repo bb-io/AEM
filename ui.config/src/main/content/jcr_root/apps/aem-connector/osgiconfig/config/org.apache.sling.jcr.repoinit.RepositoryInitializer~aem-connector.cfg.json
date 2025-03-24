@@ -1,7 +1,0 @@
-{
-    "scripts": [
-        "create path (sling:OrderedFolder) /content/dam/aem-connector",
-        "create path (nt:unstructured) /content/dam/aem-connector/jcr:content",
-        "set properties on /content/dam/aem-connector/jcr:content\n  set cq:conf{String} to /conf/aem-connector\n  set jcr:title{String} to \"Blackbird AEM Connector\"\nend"
-    ]
-}

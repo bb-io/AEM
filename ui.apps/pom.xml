@@ -22,7 +22,7 @@
     <!-- ====================================================================== -->
     <parent>
         <groupId>io.blackbird</groupId>
-        <artifactId>aem-connector</artifactId>
+        <artifactId>bb-aem-connector</artifactId>
         <version>0.0.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
@@ -30,7 +30,7 @@
     <!-- ====================================================================== -->
     <!-- P R O J E C T  D E S C R I P T I O N                                   -->
     <!-- ====================================================================== -->
-    <artifactId>aem-connector.ui.apps</artifactId>
+    <artifactId>bb-aem-connector.ui.apps</artifactId>
     <packaging>content-package</packaging>
     <name>Blackbird AEM Connector - UI apps</name>
     <description>UI apps package for Blackbird AEM Connector</description>
@@ -52,12 +52,12 @@
                         <cloudManagerTarget>none</cloudManagerTarget>
                     </properties>
                     <group>io.blackbird</group>
-                    <name>aem-connector.ui.apps</name>
+                    <name>bb-aem-connector.ui.apps</name>
                     <packageType>application</packageType>
                     <repositoryStructurePackages>
                         <repositoryStructurePackage>
                             <groupId>io.blackbird</groupId>
-                            <artifactId>aem-connector.ui.apps.structure</artifactId>
+                            <artifactId>bb-aem-connector.ui.apps.structure</artifactId>
                         </repositoryStructurePackage>
                     </repositoryStructurePackages>
                     <dependencies>
@@ -112,7 +112,7 @@
     <dependencies>
         <dependency>
             <groupId>io.blackbird</groupId>
-            <artifactId>aem-connector.core</artifactId>
+            <artifactId>bb-aem-connector.core</artifactId>
             <version>${project.version}</version>
         </dependency>
 
@@ -120,7 +120,7 @@
 
         <dependency>
             <groupId>io.blackbird</groupId>
-            <artifactId>aem-connector.ui.apps.structure</artifactId>
+            <artifactId>bb-aem-connector.ui.apps.structure</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>

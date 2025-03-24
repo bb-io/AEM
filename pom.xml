@@ -19,7 +19,7 @@
       
   <groupId>io.blackbird</groupId>
       
-  <artifactId>aem-connector</artifactId>
+  <artifactId>bb-aem-connector</artifactId>
       
   <packaging>pom</packaging>
       

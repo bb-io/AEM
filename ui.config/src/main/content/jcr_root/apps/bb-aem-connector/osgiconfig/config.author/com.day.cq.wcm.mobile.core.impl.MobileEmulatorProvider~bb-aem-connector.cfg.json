@@ -1,0 +1,6 @@
+{
+  "mobile.resourceTypes": [
+    "bb-aem-connector/components/page"
+  ],
+  "README": "Indicate which page resource types should display the mobile emulators."
+}

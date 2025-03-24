@@ -19,12 +19,12 @@
 
     <parent>
         <groupId>io.blackbird</groupId>
-        <artifactId>aem-connector</artifactId>
+        <artifactId>bb-aem-connector</artifactId>
         <version>0.0.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>aem-connector.it.tests</artifactId>
+    <artifactId>bb-aem-connector.it.tests</artifactId>
     <name>Blackbird AEM Connector - Integration Tests</name>
     <description>Integration Tests for Blackbird AEM Connector</description>
 

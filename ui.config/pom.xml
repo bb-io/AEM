@@ -22,7 +22,7 @@
     <!-- ====================================================================== -->
     <parent>
         <groupId>io.blackbird</groupId>
-        <artifactId>aem-connector</artifactId>
+        <artifactId>bb-aem-connector</artifactId>
         <version>0.0.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
@@ -30,7 +30,7 @@
     <!-- ====================================================================== -->
     <!-- P R O J E C T  D E S C R I P T I O N                                   -->
     <!-- ====================================================================== -->
-    <artifactId>aem-connector.ui.config</artifactId>
+    <artifactId>bb-aem-connector.ui.config</artifactId>
     <packaging>content-package</packaging>
     <name>Blackbird AEM Connector - UI config</name>
     <description>UI config package for Blackbird AEM Connector</description>
@@ -54,7 +54,7 @@
                     <repositoryStructurePackages>
                         <repositoryStructurePackage>
                             <groupId>io.blackbird</groupId>
-                            <artifactId>aem-connector.ui.apps.structure</artifactId>
+                            <artifactId>bb-aem-connector.ui.apps.structure</artifactId>
                         </repositoryStructurePackage>
                     </repositoryStructurePackages>
                 </configuration>
@@ -69,7 +69,7 @@
     <dependencies>
         <dependency>
             <groupId>io.blackbird</groupId>
-            <artifactId>aem-connector.ui.apps.structure</artifactId>
+            <artifactId>bb-aem-connector.ui.apps.structure</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>

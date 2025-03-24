@@ -19,11 +19,11 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>io.blackbird</groupId>
-        <artifactId>aem-connector</artifactId>
+        <artifactId>bb-aem-connector</artifactId>
         <version>0.0.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <artifactId>aem-connector.core</artifactId>
+    <artifactId>bb-aem-connector.core</artifactId>
     <name>Blackbird AEM Connector - Core</name>
     <description>Core bundle for Blackbird AEM Connector</description>
     <build>

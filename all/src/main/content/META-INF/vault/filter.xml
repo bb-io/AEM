@@ -15,6 +15,6 @@
   ~ limitations under the License.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
 <workspaceFilter version="1.0">
-    <filter root="/apps/aem-connector-packages"/>
-    <filter root="/apps/aem-connector-vendor-packages"/>
+    <filter root="/apps/bb-aem-connector-packages"/>
+    <filter root="/apps/bb-aem-connector-vendor-packages"/>
 </workspaceFilter>

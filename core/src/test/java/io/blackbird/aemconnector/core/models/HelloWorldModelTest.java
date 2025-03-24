@@ -48,7 +48,7 @@ class HelloWorldModelTest {
         // prepare a page with a test resource
         page = context.create().page("/content/mypage");
         resource = context.create().resource(page, "hello",
-            "sling:resourceType", "aem-connector/components/helloworld");
+            "sling:resourceType", "bb-aem-connector/components/helloworld");
 
         // create sling model
         hello = resource.adaptTo(HelloWorldModel.class);
