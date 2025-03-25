@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jcr:root xmlns:sling="http://sling.apache.org/jcr/sling/1.0" xmlns:jcr="http://www.jcp.org/jcr/1.0"
+          jcr:primaryType="sling:OsgiConfig"
+          scripts="[
+            create service user blackbird-content-structure-reader-service,
+            set ACL for blackbird-content-structure-reader-service&#010;
+              allow jcr:read on /content&#010;
+            end,
+            create service user blackbird-updates-reader-service,
+            set ACL for blackbird-updates-reader-service&#010;
+              allow jcr:read on /content&#010;
+            end,
+            create service user blackbird-page-content-reader-service,
+            set ACL for blackbird-page-content-reader-service&#010;
+              allow jcr:read on /content&#010;
+            end,
+            create service user blackbird-translation-writer-service,
+            set ACL for blackbird-translation-writer-service&#010;
+              allow jcr:read\,rep:write on /content&#010;
+            end
+          ]"
+/>
