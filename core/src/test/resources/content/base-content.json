@@ -1,0 +1,167 @@
+{
+  "bb-aem-connector": {
+    "jcr:primaryType": "cq:Page",
+    "jcr:content": {
+      "jcr:primaryType": "cq:PageContent",
+      "jcr:title": "Blackbird AEM Connector",
+      "cq:template": "/conf/bb-aem-connector/settings/wcm/templates/page-content",
+      "sling:configRef": "/conf/bb-aem-connector",
+      "cq:redirectTarget": "/content/bb-aem-connector/us/en",
+      "sling:redirect": true,
+      "sling:redirectStatus": 302,
+      "cq:conf": "/conf/bb-aem-connector",
+      "sling:resourceType": "bb-aem-connector/components/page",
+      "cq:allowedTemplates": [
+        "/conf/bb-aem-connector/settings/wcm/templates/(?!xf-).*"
+      ],
+      "image": {
+        "jcr:primaryType": "nt:unstructured",
+        "file": {
+          "jcr:primaryType": "nt:file",
+          "jcr:content": {
+            "jcr:primaryType": "nt:resource",
+            "jcr:mixinTypes": [
+              "dam:Thumbnails"
+            ],
+            "jcr:mimeType": "image/png",
+            "jcr:data": 2991,
+            "jcr:uuid": "e0d1216d-bbef-40a7-9620-35daf4893c60",
+            "dam:thumbnails": {
+              "jcr:primaryType": "nt:folder"
+            }
+          }
+        }
+      }
+    },
+    "us": {
+      "jcr:primaryType": "cq:Page",
+      "jcr:content": {
+        "jcr:primaryType": "cq:PageContent",
+        "jcr:title": "us",
+        "cq:template": "/conf/bb-aem-connector/settings/wcm/templates/page-content",
+        "cq:redirectTarget": "/content/bb-aem-connector/us/en",
+        "sling:resourceType": "bb-aem-connector/components/page"
+      },
+      "en": {
+        "jcr:primaryType": "cq:Page",
+        "jcr:content": {
+          "jcr:primaryType": "cq:PageContent",
+          "jcr:title": "en",
+          "cq:cifSearchResultsPage": "/content/bb-aem-connector/us/en/search",
+          "cq:template": "/conf/bb-aem-connector/settings/wcm/templates/page-content",
+          "cq:contextHubSegmentsPath": "/etc/segmentation/contexthub",
+          "pageTitle": "Blackbird AEM Connector",
+          "sling:resourceType": "bb-aem-connector/components/page",
+          "cq:contextHubPath": "/etc/cloudsettings/default/contexthub",
+          "cq:cifCategoryPage": "/content/bb-aem-connector/us/en/products/category-page",
+          "cq:allowedTemplates": [
+            "/conf/bb-aem-connector/settings/wcm/templates/(?!(landing|root)).*"
+          ],
+          "cq:cifProductPage": "/content/bb-aem-connector/us/en/products/product-page",
+          "navRoot": true,
+          "root": {
+            "jcr:primaryType": "nt:unstructured",
+            "layout": "responsiveGrid",
+            "sling:resourceType": "bb-aem-connector/components/container",
+            "container": {
+              "jcr:primaryType": "nt:unstructured",
+              "sling:resourceType": "bb-aem-connector/components/container"
+            }
+          }
+        },
+        "my-account": {
+          "jcr:primaryType": "cq:Page",
+          "jcr:content": {
+            "jcr:primaryType": "cq:PageContent",
+            "jcr:title": "My Account",
+            "cq:template": "/conf/bb-aem-connector/settings/wcm/templates/page-content",
+            "hideInNav": "true",
+            "pageTitle": "My Account",
+            "sling:resourceType": "bb-aem-connector/components/page",
+            "root": {
+              "jcr:primaryType": "nt:unstructured",
+              "sling:resourceType": "bb-aem-connector/components/container"
+            }
+          },
+          "address-book": {
+            "jcr:primaryType": "cq:Page",
+            "jcr:content": {
+              "jcr:primaryType": "cq:PageContent",
+              "jcr:title": "Address Book",
+              "cq:template": "/conf/bb-aem-connector/settings/wcm/templates/page-content",
+              "pageTitle": "Address Book",
+              "sling:resourceType": "bb-aem-connector/components/page"
+            }
+          },
+          "account-details": {
+            "jcr:primaryType": "cq:Page",
+            "jcr:content": {
+              "jcr:primaryType": "cq:PageContent",
+              "jcr:title": "My Account Details",
+              "cq:template": "/conf/bb-aem-connector/settings/wcm/templates/page-content",
+              "sling:resourceType": "bb-aem-connector/components/page"
+            }
+          }
+        },
+        "products": {
+          "jcr:primaryType": "cq:Page",
+          "jcr:content": {
+            "jcr:primaryType": "cq:PageContent",
+            "jcr:title": "Catalog Page",
+            "cq:template": "/conf/bb-aem-connector/settings/wcm/templates/catalog-page",
+            "showMainCategories": true,
+            "sling:resourceType": "bb-aem-connector/components/commerce/catalogpage"
+          },
+          "category-page": {
+            "jcr:primaryType": "cq:Page",
+            "jcr:content": {
+              "jcr:primaryType": "cq:PageContent",
+              "jcr:title": "Category page",
+              "cq:template": "/conf/bb-aem-connector/settings/wcm/templates/category-page",
+              "sling:resourceType": "bb-aem-connector/components/page"
+            }
+          },
+          "product-page": {
+            "jcr:primaryType": "cq:Page",
+            "jcr:content": {
+              "jcr:primaryType": "cq:PageContent",
+              "jcr:title": "Product page",
+              "cq:template": "/conf/bb-aem-connector/settings/wcm/templates/product-page",
+              "sling:resourceType": "bb-aem-connector/components/page"
+            }
+          }
+        },
+        "reset-password": {
+          "jcr:primaryType": "cq:Page",
+          "jcr:content": {
+            "jcr:primaryType": "cq:PageContent",
+            "jcr:title": "Reset Password",
+            "cq:template": "/conf/bb-aem-connector/settings/wcm/templates/page-content",
+            "hideInNav": true,
+            "pageTitle": "Reset Password",
+            "sling:resourceType": "bb-aem-connector/components/page",
+            "root": {
+              "jcr:primaryType": "nt:unstructured",
+              "sling:resourceType": "bb-aem-connector/components/container"
+            }
+          }
+        },
+        "search": {
+          "jcr:primaryType": "cq:Page",
+          "jcr:content": {
+            "jcr:primaryType": "cq:PageContent",
+            "jcr:title": "Search Results",
+            "cq:template": "/conf/bb-aem-connector/settings/wcm/templates/page-content",
+            "hideInNav": "true",
+            "sling:resourceType": "bb-aem-connector/components/page",
+            "root": {
+              "jcr:primaryType": "nt:unstructured",
+              "layout": "responsiveGrid",
+              "sling:resourceType": "bb-aem-connector/components/container"
+            }
+          }
+        }
+      }
+    }
+  }
+}
