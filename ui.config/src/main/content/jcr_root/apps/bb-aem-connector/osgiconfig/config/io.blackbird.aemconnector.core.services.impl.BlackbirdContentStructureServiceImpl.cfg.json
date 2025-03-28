@@ -1,0 +1,3 @@
+{
+  "whiteListPrimaryType": ["cq:Page", "cq:PageContent", "nt:unstructured"]
+}

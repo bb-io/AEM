@@ -1,0 +1,115 @@
+openapi: 3.0.4
+info:
+  title: Blackbird AEM Connector –  OpenAPI 3.0
+  version: 1.0.0
+  description: >
+    API endpoints for blackbird aem connector for interacting with an AEM environment
+
+tags:
+  - name: Content
+    description: Process Structured JCR Content
+
+paths:
+  /services/bb-aem-connector/content.json{contentPath}:
+    get:
+      tags:
+        - Content
+      summary: Get structured JCR content from a given resource path
+      description: |
+        This endpoint returns structured JCR nodes and their properties as JSON.
+
+        - The URL **must end with `.json`** to trigger AEM servlet resolution and JSON rendering.
+        - The `{contentPath}` is a required suffix representing the JCR path to the root node.
+        - If no content path is provided, a **400 Bad Request** is returned.
+        - If the specified content path cannot be resolved in the JCR, a **404 Not Found** is returned.
+
+        Examples:
+        `/services/bb-aem-connector/content.json/content/bb-aem-connector/us/en`
+        `/services/bb-aem-connector/content.json/content/mysite/page/jcr:content`
+      parameters:
+        - name: contentPath
+          in: path
+          required: true
+          description: >
+            The JCR path to read, passed as a suffix. Must start with a `/`.
+          schema:
+            type: string
+            example: /content/bb-aem-connector/us/en
+      responses:
+        '200':
+          description: Structured content for the specified JCR path
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  values:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/BlackbirdJcrNode'
+              examples:
+                ExampleResponse:
+                  summary: Example structured response
+                  value:
+                    values:
+                      - name: jcr:content
+                        path: /content/bb-aem-connector/us/en/search/jcr:content
+                        properties:
+                          - name: jcr:primaryType
+                            value: cq:PageContent
+                            multiValue: false
+                          - name: jcr:createdBy
+                            value: admin
+                            multiValue: false
+                          - name: cq:allowedTemplates
+                            values:
+                              - /conf/bb-aem-connector/settings/wcm/templates/(?!(landing|root)).*
+                            multiValue: true
+        '400':
+          description: Bad Request – missing content path
+        '404':
+          description: Not Found – JCR path in contentPath could not be resolved
+
+components:
+  schemas:
+    BlackbirdJcrNode:
+      type: object
+      description: |
+        Represents a JCR node with its name, full path, and a list of content properties.
+        - Typically represents nodes like `jcr:content` or pages under a given content path.
+      properties:
+        name:
+          type: string
+          description: Name of the JCR node (e.g. "jcr:content")
+        path:
+          type: string
+          description: Full path to the node in the JCR repository (e.g. "/content/site/page/jcr:content")
+        properties:
+          type: array
+          description: List of serialized properties associated with this node.
+          items:
+            $ref: '#/components/schemas/BlackbirdJcrProperty'
+
+    BlackbirdJcrProperty:
+      type: object
+      description: |
+        Represents a single property from a JCR node.
+        Skips empty values, so a property can either be single-valued or multi-valued depending on the use case.
+        - Use `value` for single-value properties
+        - Use `values` for multi-value properties
+        - The `multiValue` field indicates which mode is used
+      properties:
+        name:
+          type: string
+          description: The name of the JCR property (e.g. "jcr:title", "cq:tags")
+        value:
+          type: string
+          description: The property's single value. Present only when `multiValue` is `false`.
+        values:
+          type: array
+          description: A list of values if the property is multi-valued.
+          items:
+            type: string
+        multiValue:
+          type: boolean
+          description: Indicates whether the property has multiple values
