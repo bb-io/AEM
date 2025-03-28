@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workspaceFilter version="1.0">
+    <filter root="/apps/bb-aem-connector/clientlibs"/>
+    <filter root="/apps/bb-aem-connector/components"/>
+    <filter root="/apps/bb-aem-connector/i18n"/>
+</workspaceFilter>

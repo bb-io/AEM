@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workspaceFilter version="1.0">
+    <filter root="/conf/bb-aem-connector" mode="merge"/>
+    <filter root="/content/bb-aem-connector" mode="merge"/>
+    <filter root="/content/dam/bb-aem-connector" mode="merge">
+        <exclude pattern="/content/dam/bb-aem-connector(/.*)?"/>
+        <include pattern="/content/dam/bb-aem-connector/jcr:content(/.*)?"/>
+    </filter>
+    <filter root="/content/dam/bb-aem-connector/asset.jpg" mode="merge"/>
+    <filter root="/content/experience-fragments/bb-aem-connector" mode="merge"/>
+</workspaceFilter>
