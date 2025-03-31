@@ -23,7 +23,7 @@ public class BlackbirdPageEventViewerDto implements Serializable {
     String rootPath;
     String startDate;
     String endDate;
-    Set<String> events;
+    transient Set<String> events;
     long offset;
     long limit;
     @JsonProperty("total")
@@ -33,5 +33,5 @@ public class BlackbirdPageEventViewerDto implements Serializable {
     int results;
 
     @JsonInclude(JsonInclude.Include.ALWAYS)
-    List<BlackbirdEventViewerPage> pages;
+    transient List<BlackbirdEventViewerPage> pages;
 }
