@@ -6,6 +6,7 @@ import com.day.cq.search.QueryBuilder;
 import com.day.cq.search.result.Hit;
 import com.day.cq.search.result.SearchResult;
 import io.blackbird.aemconnector.core.dto.BlackbirdPageEventSearchResult;
+import io.blackbird.aemconnector.core.exceptions.BlackbirdInternalErrorException;
 import io.blackbird.aemconnector.core.models.BlackbirdEventViewerPage;
 import io.blackbird.aemconnector.core.objects.PageEventSearchParams;
 import io.blackbird.aemconnector.core.services.BlackbirdPageEventService;
@@ -44,7 +45,7 @@ public class BlackbirdPageEventServiceImpl implements BlackbirdPageEventService 
     private BlackbirdServiceUserResolverProvider serviceUserResolverProvider;
 
     @Override
-    public BlackbirdPageEventSearchResult searchPageEvents(PageEventSearchParams params) {
+    public BlackbirdPageEventSearchResult searchPageEvents(PageEventSearchParams params) throws LoginException, BlackbirdInternalErrorException {
         Map<String, String> queryMap = new HashMap<>();
         queryMap.put("type", "cq:Page");
         queryMap.put("path", params.getRootPath());
@@ -102,10 +103,7 @@ public class BlackbirdPageEventServiceImpl implements BlackbirdPageEventService 
         List<BlackbirdEventViewerPage> pages = new ArrayList<>();
         int results = 0;
 
-
-
         try (ResourceResolver resourceResolver = serviceUserResolverProvider.getPageContentReaderResolver()) {
-
             Query query = queryBuilder.createQuery(PredicateGroup.create(queryMap), resourceResolver.adaptTo(Session.class));
             SearchResult result = query.getResult();
             totalMatches = result.getTotalMatches();
@@ -122,8 +120,10 @@ public class BlackbirdPageEventServiceImpl implements BlackbirdPageEventService 
             }
         } catch (LoginException e) {
             log.error("Cannot access content reader, {}", e.getMessage());
+            throw e;
         } catch (RepositoryException e) {
             log.error("Failed to get resource SearchResult, {}", e.getMessage());
+            throw new BlackbirdInternalErrorException(e.getMessage());
         }
 
         return BlackbirdPageEventSearchResult.builder()

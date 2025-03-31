@@ -2,18 +2,22 @@ package io.blackbird.aemconnector.core.servlets;
 
 import io.blackbird.aemconnector.core.dto.BlackbirdPageEventSearchResult;
 import io.blackbird.aemconnector.core.dto.BlackbirdPageEventViewerDto;
+import io.blackbird.aemconnector.core.exceptions.BlackbirdHttpErrorException;
+import io.blackbird.aemconnector.core.exceptions.BlackbirdInternalErrorException;
 import io.blackbird.aemconnector.core.objects.PageEventSearchParams;
 import io.blackbird.aemconnector.core.services.BlackbirdPageEventService;
 import io.blackbird.aemconnector.core.servlets.internal.BlackbirdAbstractBaseServlet;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
+import org.apache.sling.api.resource.LoginException;
 import org.apache.sling.api.servlets.HttpConstants;
 import org.apache.sling.servlets.annotations.SlingServletResourceTypes;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.servlet.Servlet;
+import javax.servlet.http.HttpServletResponse;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collections;
@@ -39,7 +43,7 @@ public class BlackbirdPageEventViewerServlet extends BlackbirdAbstractBaseServle
     private BlackbirdPageEventService blackbirdPageEventService;
 
     @Override
-    public Serializable getSerializableObject(SlingHttpServletRequest request, SlingHttpServletResponse response) {
+    public Serializable getSerializableObject(SlingHttpServletRequest request, SlingHttpServletResponse response) throws BlackbirdHttpErrorException {
 
         String rootPath = request.getParameter(ROOT_PATH);
         String startDate = request.getParameter(START_DATE);
@@ -48,14 +52,24 @@ public class BlackbirdPageEventViewerServlet extends BlackbirdAbstractBaseServle
         long limit = parseLongOrDefault(request.getParameter(LIMIT), -1);
         Set<String> events = getEventsParams(request.getParameterValues(EVENTS));
 
-        BlackbirdPageEventSearchResult searchResult = blackbirdPageEventService.searchPageEvents(PageEventSearchParams.builder()
-                .rootPath(rootPath)
-                .startDate(startDate)
-                .endDate(endDate)
-                .events(events)
-                .offset(offset)
-                .limit(limit)
-                .build());
+        BlackbirdPageEventSearchResult searchResult;
+        try {
+            searchResult = blackbirdPageEventService.searchPageEvents(PageEventSearchParams.builder()
+                    .rootPath(rootPath)
+                    .startDate(startDate)
+                    .endDate(endDate)
+                    .events(events)
+                    .offset(offset)
+                    .limit(limit)
+                    .build());
+        } catch (LoginException e) {
+            throw new BlackbirdHttpErrorException(
+                    HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized", e.getMessage());
+        } catch (BlackbirdInternalErrorException e) {
+            throw new BlackbirdHttpErrorException(
+                    HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Internal Server Error", e.getMessage()
+            );
+        }
 
         return BlackbirdPageEventViewerDto.builder()
                 .rootPath(rootPath)
