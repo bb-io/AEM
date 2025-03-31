@@ -70,6 +70,80 @@ paths:
         '404':
           description: Not Found – JCR path in contentPath could not be resolved
 
+  /services/bb-aem-connector/pages/events.json:
+    get:
+      tags:
+        - Page Events Viewer
+      summary: Info about pages that were created or modified during a definite period of time.
+      description: |
+        Info about pages that were created or modified during a definite period of time.
+        Examples:
+                `/services/bb-aem-connector/pages/events?rootPath=/content/bb-aem-connector&startDate=2025-03-24&endDate=2025-03-26&offset=3limit=5&events=modified&events=created`
+      parameters:
+        - in: query
+          name: rootPath
+          description: The path under which pages are searched.
+          schema:
+            type: string
+            example: /content/my-site
+        - in: query
+          name: startDate
+          required: true
+          description: Start date for filtering events (in ISO8601 format YYYY-MM-DDTHH:mm:ss.SSSZ or partial representations, like YYYY-MM-DD)
+          schema:
+            type: string
+            example: 2025-03-15
+        - in: query
+          name: endDate
+          required: true
+          description: End date for filtering events (in ISO8601 format YYYY-MM-DDTHH:mm:ss.SSSZ or partial representations, like YYYY-MM-DD).
+          schema:
+            type: string
+            example: 2025-03-31
+        - in: query
+          name: offset
+          required: false
+          description: Offset for pagination. Defaults to 0.
+          schema:
+            type: integer
+            default: 0
+        - in: query
+          name: limit
+          required: false
+          description: Limit for pagination. Defaults to -1 (no limit).
+          schema:
+            type: integer
+            default: -1
+        - in: query
+          name: events
+          required: false
+          description: A list of event types to filter. Multiple values can be provided.
+          schema:
+            type: array
+            items:
+              type: string
+            example: [ "created", "modified" ]
+
+      responses:
+        '200':
+          description: A json object representing the page event viewer data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlackbirdPageEventViewerDta'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlackbirdErrorResponse'
+        '500':
+          description: Internal Server Error - an error occurred while processing the request
+          content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/BlackbirdErrorResponse'
+
 components:
   schemas:
     BlackbirdJcrNode:
@@ -113,3 +187,98 @@ components:
         multiValue:
           type: boolean
           description: Indicates whether the property has multiple values
+
+    BlackbirdPageEventViewerDto:
+      type: object
+      description: Represents the response data for a page events search.
+      properties:
+        rootPath:
+          type: string
+          description: The JCR root path used for the search.
+          example: /content/my-site
+        startDate:
+          type: string
+          description: The start date for filtering events.
+          example: 2025-03-01
+        endDate:
+          type: string
+          description: The end date for filtering events.
+          example: 2025-03-05
+        offset:
+          type: integer
+          description: The pagination offset.
+          example: 0
+        limit:
+          type: integer
+          description: The pagination limit.
+          example: 8
+        events:
+          type: array
+          description: A list of event types that were used for filtering.
+          items:
+            type: string
+          example: [ "created" ]
+        totalMatches:
+          type: integer
+          description: Total number of matching pages.
+          example: 100
+        hasMore:
+          type: boolean
+          description: Indicates if there are more pages beyond the total matches.
+          example: false
+        results:
+          type: integer
+          description: The number of results returned.
+          example: 10
+        pages:
+          type: array
+          description: A list of pages.
+          items:
+            $ref: '#/components/schemas/BlackbirdEventViewerPage'
+
+    BlackbirdEventViewerPage:
+      type: object
+      description: Represents a page for Page Event Viewer servlet
+      properties:
+        title:
+          type: string
+          description: page title
+          example: Home Page
+        path:
+          type: string
+          description: page path
+          example: /content/my-site/home
+        created:
+          type: string
+          description: the date pages was created
+          example: 2025-03-15
+        modified:
+          type: string
+          description: the date page was modified
+          example: 2025-03-20
+
+    BlackbirdErrorResponse:
+      type: object
+      description: Represents an error response.
+      properties:
+        status:
+          type: integer
+          description: HTTP status code.
+          example: 400
+        error:
+          type: string
+          description: Short error description.
+          example: "Bad Request"
+        message:
+          type: string
+          description: Detailed error message.
+          example: "Invalid request parameters"
+        path:
+          type: string
+          description: The request path that resulted in the error.
+          example: "/services/bb-aem-connector/pages-events"
+        timestamp:
+          type: string
+          format: date-time
+          description: Timestamp of the error in yyyy-MM-dd HH:mm:ss format (UTC).
+          example: "2025-03-31 12:34:56"

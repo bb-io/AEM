@@ -12,6 +12,7 @@ import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.injectorspecific.Self;
 
 import javax.annotation.PostConstruct;
+import java.io.Serializable;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
@@ -21,7 +22,7 @@ import java.util.function.Predicate;
 @Model(adaptables = Resource.class, adapters = BlackbirdEventViewerPage.class, defaultInjectionStrategy = DefaultInjectionStrategy.OPTIONAL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Getter
-public class BlackbirdEventViewerPage {
+public class BlackbirdEventViewerPage implements Serializable {
 
     @Getter(AccessLevel.NONE)
     @Self
