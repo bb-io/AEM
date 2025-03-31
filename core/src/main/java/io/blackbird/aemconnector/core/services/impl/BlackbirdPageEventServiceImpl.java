@@ -98,10 +98,10 @@ public class BlackbirdPageEventServiceImpl implements BlackbirdPageEventService 
                 ? "@jcr:created"
                 : "@jcr:content/cq:lastModified");
 
-        long totalMatches = 0;
-        boolean hasMore = false;
+        long totalMatches;
+        boolean hasMore;
         List<BlackbirdEventViewerPage> pages = new ArrayList<>();
-        int results = 0;
+        int results;
 
         try (ResourceResolver resourceResolver = serviceUserResolverProvider.getPageContentReaderResolver()) {
             Query query = queryBuilder.createQuery(PredicateGroup.create(queryMap), resourceResolver.adaptTo(Session.class));
