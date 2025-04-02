@@ -23,7 +23,6 @@ import static org.mockito.Mockito.when;
 @ExtendWith({AemContextExtension.class, MockitoExtension.class})
 class BlackbirdContentStructureServletTest {
     private static final String SUFFIX = "/content/bb-aem-connector";
-    private static final String SERVLET_RESOURCE_TYPE = "/services/bb-aem-connector/content";
 
     private BlackbirdContentStructureServlet fixture = new BlackbirdContentStructureServlet();
 
@@ -35,8 +34,8 @@ class BlackbirdContentStructureServletTest {
         context.registerService(BlackbirdContentStructureService.class, service);
 
         context.registerInjectActivateService(fixture);
-        context.create().resource(SERVLET_RESOURCE_TYPE);
-        context.currentResource(SERVLET_RESOURCE_TYPE);
+        context.create().resource("/content/services/bb-aem-connector/content");
+        context.currentResource("/content/services/bb-aem-connector/content");
     }
 
     @Test

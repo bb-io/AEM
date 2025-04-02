@@ -10,7 +10,7 @@ tags:
     description: Process Structured JCR Content
 
 paths:
-  /services/bb-aem-connector/content.json{contentPath}:
+  /content/services/bb-aem-connector/content.json{contentPath}:
     get:
       tags:
         - Content
@@ -24,8 +24,8 @@ paths:
         - If the specified content path cannot be resolved in the JCR, a **404 Not Found** is returned.
 
         Examples:
-        `/services/bb-aem-connector/content.json/content/bb-aem-connector/us/en`
-        `/services/bb-aem-connector/content.json/content/mysite/page/jcr:content`
+        `/content/services/bb-aem-connector/content.json/content/bb-aem-connector/us/en`
+        `/content/services/bb-aem-connector/content.json/content/mysite/page/jcr:content`
       parameters:
         - name: contentPath
           in: path
@@ -78,7 +78,7 @@ paths:
       description: |
         Info about pages that were created or modified during a definite period of time.
         Examples:
-                `/services/bb-aem-connector/pages/events?rootPath=/content/bb-aem-connector&startDate=2025-03-24&endDate=2025-03-26&offset=3limit=5&events=modified&events=created`
+                `/content/services/bb-aem-connector/pages/events?rootPath=/content/bb-aem-connector&startDate=2025-03-24&endDate=2025-03-26&offset=3limit=5&events=modified&events=created`
       parameters:
         - in: query
           name: rootPath
@@ -276,7 +276,7 @@ components:
         path:
           type: string
           description: The request path that resulted in the error.
-          example: "/services/bb-aem-connector/pages-events"
+          example: "/content/services/bb-aem-connector/pages/events"
         timestamp:
           type: string
           format: date-time

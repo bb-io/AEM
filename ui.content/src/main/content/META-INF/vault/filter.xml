@@ -8,5 +8,5 @@
     </filter>
     <filter root="/content/dam/bb-aem-connector/asset.jpg" mode="merge"/>
     <filter root="/content/experience-fragments/bb-aem-connector" mode="merge"/>
-    <filter root="/services/bb-aem-connector" mode="merge"/>
+    <filter root="/content/services/bb-aem-connector" mode="merge"/>
 </workspaceFilter>
