@@ -7,6 +7,7 @@ import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
 import org.apache.sling.api.servlets.HttpConstants;
 import org.apache.sling.api.servlets.ServletResolverConstants;
+import org.apache.sling.servlets.annotations.SlingServletResourceTypes;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -14,13 +15,13 @@ import javax.servlet.Servlet;
 import java.io.Serializable;
 
 
-@Component(service = {Servlet.class},
-        property = {
-                ServletResolverConstants.SLING_SERVLET_RESOURCE_TYPES + "=" + BlackbirdContentStructureServlet.RESOURCE_TYPE,
-                ServletResolverConstants.SLING_SERVLET_METHODS + "=" + HttpConstants.METHOD_GET
-        })
+@Component(service = Servlet.class)
+@SlingServletResourceTypes(
+        resourceTypes = BlackbirdContentStructureServlet.RESOURCE_TYPE,
+        methods = HttpConstants.METHOD_GET
+)
 public class BlackbirdContentStructureServlet extends BlackbirdAbstractBaseServlet {
-    public static final String RESOURCE_TYPE = BASE_SERVLET_PATH + "/content";
+    public static final String RESOURCE_TYPE = "bb-aem-connector/services/content";
 
     @Reference
     private transient BlackbirdContentStructureService contentStructureService;
