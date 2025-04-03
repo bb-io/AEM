@@ -1,5 +1,6 @@
 package io.blackbird.aemconnector.core.objects;
 
+import com.day.cq.commons.jcr.JcrConstants;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceWrapper;
 
@@ -22,7 +23,7 @@ public class CqPageResource extends ResourceWrapper {
 
     @Override
     public Iterator<Resource> listChildren() {
-        return Optional.ofNullable(getChild("jcr:content"))
+        return Optional.ofNullable(getChild(JcrConstants.JCR_CONTENT))
                 .map(res -> List.of(res).iterator())
                 .orElse(Collections.emptyIterator());
     }
