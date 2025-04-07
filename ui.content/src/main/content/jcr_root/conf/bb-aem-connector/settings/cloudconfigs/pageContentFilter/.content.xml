@@ -178,5 +178,8 @@
         <item55
                 jcr:primaryType="nt:unstructured"
                 property="cq:cifProductPage"/>
+        <item56
+                jcr:primaryType="nt:unstructured"
+                property="cq:styleIds"/>
     </blacklistedPropertyNames>
 </jcr:root>

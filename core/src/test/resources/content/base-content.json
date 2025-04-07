@@ -160,6 +160,22 @@
               "sling:resourceType": "bb-aem-connector/components/container"
             }
           }
+        },
+        "testPage": {
+          "jcr:primaryType": "cq:Page",
+          "jcr:content": {
+            "jcr:primaryType": "cq:PageContent",
+            "jcr:title": "Category page",
+            "text": "Welcome to the hotel California",
+            "cq:template": "/conf/bb-aem-connector/settings/wcm/templates/page-content",
+            "hideInNav": "true",
+            "sling:resourceType": "bb-aem-connector/components/page",
+            "root": {
+              "jcr:primaryType": "nt:unstructured",
+              "layout": "responsiveGrid",
+              "sling:resourceType": "bb-aem-connector/components/container"
+            }
+          }
         }
       }
     }
