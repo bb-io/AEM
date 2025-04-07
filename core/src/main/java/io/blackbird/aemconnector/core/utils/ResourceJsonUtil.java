@@ -1,5 +1,6 @@
 package io.blackbird.aemconnector.core.utils;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -8,7 +9,7 @@ import org.apache.sling.api.resource.ValueMap;
 
 import java.math.BigDecimal;
 import java.util.Map;
-import java.util.function.Function;
+import java.util.function.Predicate;
 
 public final class ResourceJsonUtil {
     private static final ObjectMapper mapper = new ObjectMapper();
@@ -20,7 +21,7 @@ public final class ResourceJsonUtil {
         return serializeRecursively(resource, (p) -> true, (n) -> true);
     }
 
-    public static ObjectNode serializeRecursively(Resource resource, Function<String, Boolean> propertyFilter, Function<String, Boolean> nodeFilter) {
+    public static ObjectNode serializeRecursively(Resource resource, Predicate<String> propertyFilter, Predicate<String> nodeFilter) {
         ObjectNode node = mapper.createObjectNode();
 
         ValueMap props = resource.getValueMap();
@@ -29,31 +30,15 @@ public final class ResourceJsonUtil {
             String key = entry.getKey();
             Object value = entry.getValue();
 
-            if (!propertyFilter.apply(key)) {
+            if (!propertyFilter.test(key)) {
                 continue;
             }
 
-            if (value instanceof String) {
-                node.put(key, (String) value);
-            } else if (value instanceof Boolean) {
-                node.put(key, (Boolean) value);
-            } else if (value instanceof Integer) {
-                node.put(key, (Integer) value);
-            } else if (value instanceof Long) {
-                node.put(key, (Long) value);
-            } else if (value instanceof BigDecimal) {
-                node.put(key, (BigDecimal) value); }
-            else if (value instanceof Double) {
-                node.put(key, (Double) value);
-            } else if (value instanceof Object[]) {
-                node.set(key, serializeObjectArray((Object[]) value));
-            } else {
-                node.put(key, String.valueOf(value));
-            }
+            node.set(key, toJsonNode(value));
         }
 
         for (Resource child : resource.getChildren()) {
-            if (!nodeFilter.apply(child.getName())) {
+            if (!nodeFilter.test(child.getName())) {
                 continue;
             }
 
@@ -63,27 +48,29 @@ public final class ResourceJsonUtil {
         return node;
     }
 
-    private static ArrayNode serializeObjectArray(Object[] array) {
-        ArrayNode jsonArray = mapper.createArrayNode();
-
-        for (Object item : array) {
-            if (item instanceof String) {
-                jsonArray.add((String) item);
-            } else if (item instanceof Integer) {
-                jsonArray.add((Integer) item);
-            } else if (item instanceof Long) {
-                jsonArray.add((Long) item);
-            } else if (item instanceof Double) {
-                jsonArray.add((Double) item);
-            } else if (item instanceof Boolean) {
-                jsonArray.add((Boolean) item);
-            } else if (item instanceof BigDecimal) {
-                jsonArray.add((BigDecimal) item);
-            } else {
-                jsonArray.add(String.valueOf(item));
-            }
+    private static JsonNode toJsonNode(Object value) {
+        if (value == null) {
+            return mapper.nullNode();
         }
-
-        return jsonArray;
+        if (value instanceof String) {
+            return mapper.getNodeFactory().textNode((String) value);
+        } else if (value instanceof Boolean) {
+            return mapper.getNodeFactory().booleanNode((Boolean) value);
+        } else if (value instanceof Integer) {
+            return mapper.getNodeFactory().numberNode((Integer) value);
+        } else if (value instanceof Long) {
+            return mapper.getNodeFactory().numberNode((Long) value);
+        } else if (value instanceof BigDecimal) {
+            return mapper.getNodeFactory().numberNode((BigDecimal) value);
+        } else if (value instanceof Double) {
+            return mapper.getNodeFactory().numberNode((Double) value);
+        } else if (value instanceof Object[]) {
+            ArrayNode arrayNode = mapper.createArrayNode();
+            for (Object element : (Object[]) value) {
+                arrayNode.add(toJsonNode(element));
+            }
+            return arrayNode;
+        }
+        return mapper.getNodeFactory().textNode(String.valueOf(value));
     }
 }
