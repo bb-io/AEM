@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jcr:root xmlns:sling="http://sling.apache.org/jcr/sling/1.0" xmlns:granite="http://www.adobe.com/jcr/granite/1.0"
+          xmlns:cq="http://www.day.com/jcr/cq/1.0" xmlns:jcr="http://www.jcp.org/jcr/1.0"
+          xmlns:nt="http://www.jcp.org/jcr/nt/1.0"
+          jcr:primaryType="cq:Page">
+    <jcr:content
+            jcr:primaryType="nt:unstructured"
+            jcr:title="Blackbird Connector Settings"
+            sling:vanityPath="/blackbird/configuration"
+            sling:resourceType="granite/ui/components/coral/foundation/page">
+        <head jcr:primaryType="nt:unstructured">
+            <viewport
+                    jcr:primaryType="nt:unstructured"
+                    sling:resourceType="granite/ui/components/coral/foundation/admin/page/viewport"/>
+            <meta
+                    jcr:primaryType="nt:unstructured"
+                    sling:resourceType="granite/ui/components/coral/foundation/meta"
+                    content="chrome=1"
+                    name="X-UA-Compatible"/>
+            <favicon
+                    jcr:primaryType="nt:unstructured"
+                    sling:resourceType="granite/ui/components/coral/foundation/page/favicon"/>
+            <clientlibs
+                    jcr:primaryType="nt:unstructured"
+                    sling:resourceType="granite/ui/components/coral/foundation/includeclientlibs"
+                    categories="[coralui3,granite.ui.coral.foundation,cq.authoring.dialog.rte.coralui3]"/>
+        </head>
+        <body
+                jcr:primaryType="nt:unstructured"
+                sling:resourceType="granite/ui/components/coral/foundation/page/body">
+            <items jcr:primaryType="nt:unstructured">
+                <form
+                        granite:id="edit-configuration-properties-form"
+                        jcr:primaryType="nt:unstructured"
+                        sling:resourceType="granite/ui/components/coral/foundation/form"
+                        action="/conf/bb-aem-connector/settings/cloudconfigs"
+                        dataPath="/conf/bb-aem-connector/settings/cloudconfigs"
+                        foundationForm="{Boolean}true"
+                        async="{Boolean}true"
+                        autocomplete="off"
+                        novalidate="{Boolean}false"
+                        maximized="{Boolean}true"
+                        method="post"
+                        style="vertical">
+                    <successresponse
+                            jcr:primaryType="nt:unstructured"
+                            sling:resourceType="granite/ui/components/coral/foundation/form/responses/redirect"
+                            href="/aem/start.html"/>
+                    <granite:data
+                            jcr:primaryType="nt:unstructured"
+                            content-path="/conf/bb-aem-connector/settings/cloudconfigs"/>
+                    <items jcr:primaryType="nt:unstructured">
+                        <wizard
+                                jcr:primaryType="nt:unstructured"
+                                jcr:title="Blackbird Connector Settings"
+                                sling:resourceType="granite/ui/components/coral/foundation/wizard"
+                                cancelHref="/">
+                            <items jcr:primaryType="nt:unstructured">
+                                <propertiesContainer
+                                        jcr:primaryType="nt:unstructured"
+                                        sling:resourceType="granite/ui/components/coral/foundation/container"
+                                        maximized="{Boolean}true">
+                                    <items jcr:primaryType="nt:unstructured">
+                                        <container
+                                                jcr:primaryType="nt:unstructured"
+                                                jcr:title="Page Content Filter"
+                                                sling:resourceType="granite/ui/components/coral/foundation/container"
+                                                margin="{Boolean}true">
+                                            <items jcr:primaryType="nt:unstructured">
+                                                <tabs
+                                                        jcr:primaryType="nt:unstructured"
+                                                        granite:class="cq-blackbird-configuration-properties-container-tabs"
+                                                        sling:resourceType="granite/ui/components/coral/foundation/tabs"
+                                                        size="L">
+                                                    <items jcr:primaryType="nt:unstructured">
+                                                        <pageContentFilter
+                                                                jcr:primaryType="nt:unstructured"
+                                                                jcr:title="Page Content Filter"
+                                                                sling:resourceType="granite/ui/components/coral/foundation/fixedcolumns"
+                                                                margin="{Boolean}true">
+                                                            <items jcr:primaryType="nt:unstructured">
+                                                                <container
+                                                                        jcr:primaryType="nt:unstructured"
+                                                                        sling:resourceType="granite/ui/components/coral/foundation/container">
+                                                                    <items jcr:primaryType="nt:unstructured">
+                                                                        <blacklistedNodeNames
+                                                                                jcr:primaryType="nt:unstructured"
+                                                                                sling:resourceType="granite/ui/components/coral/foundation/form/multifield"
+                                                                                composite="{Boolean}true"
+                                                                                deleteHint="{Boolean}true"
+                                                                                fieldDescription="List of node names that should be excluded from JSON export"
+                                                                                fieldLabel="Blacklisted Node Names">
+                                                                            <field
+                                                                                    jcr:primaryType="nt:unstructured"
+                                                                                    sling:resourceType="granite/ui/components/coral/foundation/container"
+                                                                                    name="pageContentFilter/blacklistedNodeNames">
+                                                                                <items jcr:primaryType="nt:unstructured">
+                                                                                    <attribute
+                                                                                            jcr:primaryType="nt:unstructured"
+                                                                                            sling:resourceType="granite/ui/components/coral/foundation/form/textfield"
+                                                                                            required="{Boolean}true"
+                                                                                            name="property"/>
+                                                                                </items>
+                                                                            </field>
+                                                                        </blacklistedNodeNames>
+                                                                        <blacklistedPropertyNames
+                                                                                jcr:primaryType="nt:unstructured"
+                                                                                sling:resourceType="granite/ui/components/coral/foundation/form/multifield"
+                                                                                composite="{Boolean}true"
+                                                                                deleteHint="{Boolean}true"
+                                                                                fieldDescription="List of property names that should be excluded from JSON export"
+                                                                                fieldLabel="Blacklisted Property Names">
+                                                                            <field
+                                                                                    jcr:primaryType="nt:unstructured"
+                                                                                    sling:resourceType="granite/ui/components/coral/foundation/container"
+                                                                                    name="pageContentFilter/blacklistedPropertyNames">
+                                                                                <items jcr:primaryType="nt:unstructured">
+                                                                                    <attribute
+                                                                                            jcr:primaryType="nt:unstructured"
+                                                                                            sling:resourceType="granite/ui/components/coral/foundation/form/textfield"
+                                                                                            required="{Boolean}true"
+                                                                                            name="property"/>
+                                                                                </items>
+                                                                            </field>
+                                                                        </blacklistedPropertyNames>
+                                                                    </items>
+                                                                </container>
+                                                            </items>
+                                                        </pageContentFilter>
+                                                    </items>
+                                                </tabs>
+                                            </items>
+                                        </container>
+                                    </items>
+                                    <parentConfig jcr:primaryType="nt:unstructured">
+                                        <next
+                                                granite:class="foundation-wizard-control"
+                                                jcr:primaryType="nt:unstructured"
+                                                sling:resourceType="granite/ui/components/coral/foundation/button"
+                                                text="Save"
+                                                type="submit"
+                                                variant="primary">
+                                        </next>
+                                    </parentConfig>
+                                </propertiesContainer>
+                            </items>
+                        </wizard>
+                    </items>
+                </form>
+            </items>
+        </body>
+    </jcr:content>
+</jcr:root>

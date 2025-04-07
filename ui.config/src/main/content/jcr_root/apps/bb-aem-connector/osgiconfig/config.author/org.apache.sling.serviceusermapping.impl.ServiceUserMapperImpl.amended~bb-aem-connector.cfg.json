@@ -3,6 +3,7 @@
     "bb-aem-connector.core:blackbird-content-structure-reader-service=[blackbird-content-structure-reader-service]",
     "bb-aem-connector.core:blackbird-updates-reader-service=[blackbird-updates-reader-service]",
     "bb-aem-connector.core:blackbird-page-content-reader-service=[blackbird-page-content-reader-service]",
-    "bb-aem-connector.core:blackbird-translation-writer-service=[blackbird-translation-writer-service]"
+    "bb-aem-connector.core:blackbird-translation-writer-service=[blackbird-translation-writer-service]",
+    "bb-aem-connector.core:blackbird-configuration-service=[blackbird-configuration-service]"
   ]
 }

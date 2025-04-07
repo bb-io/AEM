@@ -16,11 +16,13 @@ public class BlackbirdServiceUserResolverProviderImpl implements BlackbirdServic
     private static final String UPDATES_READER_SERVICE_NAME = "blackbird-updates-reader-service";
     private static final String PAGE_CONTENT_READER_SERVICE_NAME = "blackbird-page-content-reader-service";
     private static final String TRANSLATION_WRITER_SERVICE_NAME = "blackbird-translation-writer-service";
+    private static final String CONFIGURATION_SERVICE_NAME = "blackbird-configuration-service";
 
     private static final Map<String, Object> CONTENT_STRUCTURE_READER_PARAMS = Map.of(ResourceResolverFactory.SUBSERVICE, CONTENT_STRUCTURE_READER_SERVICE_NAME);
     private static final Map<String, Object> UPDATES_READER_PARAMS = Map.of(ResourceResolverFactory.SUBSERVICE, UPDATES_READER_SERVICE_NAME);
     private static final Map<String, Object> PAGE_CONTENT_READER_PARAMS = Map.of(ResourceResolverFactory.SUBSERVICE, PAGE_CONTENT_READER_SERVICE_NAME);
     private static final Map<String, Object> TRANSLATION_WRITER_PARAMS = Map.of(ResourceResolverFactory.SUBSERVICE, TRANSLATION_WRITER_SERVICE_NAME);
+    private static final Map<String, Object> CONFIGURATION_PARAMS = Map.of(ResourceResolverFactory.SUBSERVICE, CONFIGURATION_SERVICE_NAME);
 
     @Reference
     private ResourceResolverFactory resourceResolverFactory;
@@ -43,6 +45,11 @@ public class BlackbirdServiceUserResolverProviderImpl implements BlackbirdServic
     @Override
     public ResourceResolver getTranslationWriterResolver() throws LoginException {
         return resourceResolverFactory.getServiceResourceResolver(TRANSLATION_WRITER_PARAMS);
+    }
+
+    @Override
+    public ResourceResolver getConfigurationResolver() throws LoginException {
+        return resourceResolverFactory.getServiceResourceResolver(CONFIGURATION_PARAMS);
     }
 
 }

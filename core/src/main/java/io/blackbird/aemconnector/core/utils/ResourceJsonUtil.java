@@ -8,6 +8,7 @@ import org.apache.sling.api.resource.ValueMap;
 
 import java.math.BigDecimal;
 import java.util.Map;
+import java.util.function.Function;
 
 public final class ResourceJsonUtil {
     private static final ObjectMapper mapper = new ObjectMapper();
@@ -16,6 +17,10 @@ public final class ResourceJsonUtil {
     }
 
     public static ObjectNode serializeRecursively(Resource resource) {
+        return serializeRecursively(resource, (p) -> true, (n) -> true);
+    }
+
+    public static ObjectNode serializeRecursively(Resource resource, Function<String, Boolean> propertyFilter, Function<String, Boolean> nodeFilter) {
         ObjectNode node = mapper.createObjectNode();
 
         ValueMap props = resource.getValueMap();
@@ -23,6 +28,10 @@ public final class ResourceJsonUtil {
         for (Map.Entry<String, Object> entry : props.entrySet()) {
             String key = entry.getKey();
             Object value = entry.getValue();
+
+            if (!propertyFilter.apply(key)) {
+                continue;
+            }
 
             if (value instanceof String) {
                 node.put(key, (String) value);
@@ -44,7 +53,11 @@ public final class ResourceJsonUtil {
         }
 
         for (Resource child : resource.getChildren()) {
-            node.set(child.getName(), serializeRecursively(child));
+            if (!nodeFilter.apply(child.getName())) {
+                continue;
+            }
+
+            node.set(child.getName(), serializeRecursively(child, propertyFilter, nodeFilter));
         }
 
         return node;

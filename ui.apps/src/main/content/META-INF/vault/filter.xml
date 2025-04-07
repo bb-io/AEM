@@ -3,4 +3,6 @@
     <filter root="/apps/bb-aem-connector/clientlibs"/>
     <filter root="/apps/bb-aem-connector/components"/>
     <filter root="/apps/bb-aem-connector/i18n"/>
+    <filter root="/apps/cq/core/content/nav/tools/cloudservices/blackbirdtranslation"/>
+    <filter root="/apps/cq/blackbird/content/configuration"/>
 </workspaceFilter>

@@ -1,0 +1,32 @@
+{
+  "bb-aem-connector": {
+    "jcr:primaryType": "cq:Page",
+    "settings": {
+      "jcr:primaryType": "nt:unstructured",
+      "cloudconfigs": {
+        "jcr:primaryType": "nt:unstructured",
+        "pageContentFilter": {
+          "jcr:primaryType": "nt:unstructured",
+          "blacklistedPropertyNames": {
+            "jcr:primaryType": "nt:unstructured",
+            "item0": {
+              "jcr:primaryType": "nt:unstructured",
+              "property": "jcr:lastModified"
+            },
+            "item1": {
+              "jcr:primaryType": "nt:unstructured",
+              "property": "jcr:created"
+            }
+          },
+          "blacklistedNodeNames": {
+            "jcr:primaryType": "nt:unstructured",
+            "item0": {
+              "jcr:primaryType": "nt:unstructured",
+              "property": "rep:policy"
+            }
+          }
+        }
+      }
+    }
+  }
+}
