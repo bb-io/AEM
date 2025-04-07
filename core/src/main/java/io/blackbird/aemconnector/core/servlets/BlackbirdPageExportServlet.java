@@ -3,6 +3,7 @@ package io.blackbird.aemconnector.core.servlets;
 import com.day.cq.wcm.api.Page;
 import io.blackbird.aemconnector.core.exceptions.BlackbirdHttpErrorException;
 import io.blackbird.aemconnector.core.objects.CqPageResource;
+import io.blackbird.aemconnector.core.services.BlackbirdPageContentFilterService;
 import io.blackbird.aemconnector.core.servlets.internal.BlackbirdAbstractBaseServlet;
 import io.blackbird.aemconnector.core.utils.ResourceJsonUtil;
 import org.apache.sling.api.SlingHttpServletRequest;
@@ -12,10 +13,12 @@ import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.api.servlets.HttpConstants;
 import org.apache.sling.servlets.annotations.SlingServletResourceTypes;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 import javax.servlet.Servlet;
 import javax.servlet.http.HttpServletResponse;
 import java.io.Serializable;
+import java.util.Set;
 
 @Component(service = Servlet.class)
 @SlingServletResourceTypes(
@@ -25,6 +28,9 @@ import java.io.Serializable;
 public class BlackbirdPageExportServlet extends BlackbirdAbstractBaseServlet {
     public static final String RESOURCE_TYPE = "bb-aem-connector/services/page-exporter";
     public static final String PAGE_PATH_PARAM = "pagePath";
+
+    @Reference
+    private BlackbirdPageContentFilterService blackbirdPageContentFilterService;
 
     @Override
     public Serializable getSerializableObject(SlingHttpServletRequest request, SlingHttpServletResponse response) throws BlackbirdHttpErrorException {
@@ -48,7 +54,11 @@ public class BlackbirdPageExportServlet extends BlackbirdAbstractBaseServlet {
                     "Conflict", String.format("Page exists but has no jcr:content node. Path: %s", pagePath));
         }
 
-        return ResourceJsonUtil.serializeRecursively(new CqPageResource(resource));
+        Set<String> blacklistedPropertyNames = blackbirdPageContentFilterService.getBlacklistedPropertyNames();
+        Set<String> blacklistedNodeNames = blackbirdPageContentFilterService.getBlacklistedNodeNames();
+        return ResourceJsonUtil.serializeRecursively(new CqPageResource(resource),
+                (p) -> !blacklistedPropertyNames.contains(p),
+                (n) -> !blacklistedNodeNames.contains(n));
     }
 
     private static Resource getResource(SlingHttpServletRequest request, String pagePath) throws BlackbirdHttpErrorException {

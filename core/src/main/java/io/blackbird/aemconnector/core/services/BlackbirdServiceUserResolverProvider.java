@@ -13,4 +13,6 @@ public interface BlackbirdServiceUserResolverProvider {
 
     ResourceResolver getTranslationWriterResolver() throws LoginException;
 
+    ResourceResolver getConfigurationResolver() throws LoginException;
+
 }
