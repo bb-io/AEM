@@ -22,10 +22,10 @@ import java.util.Set;
 
 @Component(service = Servlet.class)
 @SlingServletResourceTypes(
-        resourceTypes = BlackbirdPageExportServlet.RESOURCE_TYPE,
+        resourceTypes = BlackbirdPageExporterServlet.RESOURCE_TYPE,
         methods = HttpConstants.METHOD_GET
 )
-public class BlackbirdPageExportServlet extends BlackbirdAbstractBaseServlet {
+public class BlackbirdPageExporterServlet extends BlackbirdAbstractBaseServlet {
     public static final String RESOURCE_TYPE = "bb-aem-connector/services/page-exporter";
     public static final String PAGE_PATH_PARAM = "pagePath";
 
