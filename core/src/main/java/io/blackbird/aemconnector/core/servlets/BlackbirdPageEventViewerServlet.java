@@ -43,7 +43,7 @@ public class BlackbirdPageEventViewerServlet extends BlackbirdAbstractBaseServle
     private BlackbirdPageEventService blackbirdPageEventService;
 
     @Override
-    public Serializable getSerializableObject(SlingHttpServletRequest request, SlingHttpServletResponse response) throws BlackbirdHttpErrorException {
+    public Serializable buildResponsePayload(SlingHttpServletRequest request, SlingHttpServletResponse response) throws BlackbirdHttpErrorException {
 
         String rootPath = request.getParameter(ROOT_PATH);
         String startDate = request.getParameter(START_DATE);

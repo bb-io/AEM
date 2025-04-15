@@ -1,5 +1,7 @@
 package io.blackbird.aemconnector.core.servlets;
 
+import io.blackbird.aemconnector.core.constants.ServletConstants;
+import io.blackbird.aemconnector.core.exceptions.BlackbirdHttpErrorException;
 import io.blackbird.aemconnector.core.models.BlackbirdContentStructureModel;
 import io.blackbird.aemconnector.core.services.BlackbirdContentStructureService;
 import io.wcm.testing.mock.aem.junit5.AemContext;
@@ -12,9 +14,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.Serializable;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
@@ -22,7 +26,7 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith({AemContextExtension.class, MockitoExtension.class})
 class BlackbirdContentStructureServletTest {
-    private static final String SUFFIX = "/content/bb-aem-connector";
+    private static final String CONTENT_PATH = "/content/bb-aem-connector";
 
     private BlackbirdContentStructureServlet fixture = new BlackbirdContentStructureServlet();
 
@@ -39,31 +43,32 @@ class BlackbirdContentStructureServletTest {
     }
 
     @Test
-    void returnsRealModelWhenSuffixIsValid(AemContext context) {
-        context.requestPathInfo().setSuffix(SUFFIX);
-        when(service.getContentStructure(eq(SUFFIX))).thenReturn(any(BlackbirdContentStructureModel.class));
+    void returnsRealModelWhenParamIsValid(AemContext context) throws BlackbirdHttpErrorException {
+        context.request().setParameterMap(Map.of(ServletConstants.CONTENT_PATH_PARAM, CONTENT_PATH));
 
-        fixture.getSerializableObject(context.request(), context.response());
+        when(service.getContentStructure(eq(CONTENT_PATH))).thenReturn(new BlackbirdContentStructureModel());
+
+        fixture.buildResponsePayload(context.request(), context.response());
 
         assertEquals(HttpServletResponse.SC_OK, context.response().getStatus());
-        verify(service).getContentStructure(eq(SUFFIX));
+        verify(service).getContentStructure(eq(CONTENT_PATH));
     }
 
     @Test
-    void nullResultWhenSuffixMissing(AemContext context) {
-        context.requestPathInfo().setSuffix("");
+    void throwsBadRequestWhenPagePathParamMissing(AemContext context) {
 
-        Serializable result = fixture.getSerializableObject(context.request(), context.response());
+        BlackbirdHttpErrorException ex = assertThrows(BlackbirdHttpErrorException.class, () -> fixture.buildResponsePayload(context.request(), context.response()));
 
-        assertNull(result);
+        assertEquals(HttpServletResponse.SC_BAD_REQUEST, ex.getStatus());
     }
 
     @Test
-    void nullResultWhenSuffixNotFound(AemContext context) {
-        context.requestPathInfo().setSuffix("/content/does-not-exist");
+    void throwNotFoundWhenPathNotFound(AemContext context) throws BlackbirdHttpErrorException {
+        context.request().setParameterMap(Map.of(ServletConstants.CONTENT_PATH_PARAM, CONTENT_PATH));
+        when(service.getContentStructure(eq(CONTENT_PATH))).thenReturn(null);
 
-        Serializable result = fixture.getSerializableObject(context.request(), context.response());
 
-        assertNull(result);
+        BlackbirdHttpErrorException ex = assertThrows(BlackbirdHttpErrorException.class, () -> fixture.buildResponsePayload(context.request(), context.response()));
+        assertEquals(HttpServletResponse.SC_NOT_FOUND, ex.getStatus());
     }
 }

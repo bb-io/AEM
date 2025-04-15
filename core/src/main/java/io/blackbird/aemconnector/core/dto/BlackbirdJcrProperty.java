@@ -3,6 +3,8 @@ package io.blackbird.aemconnector.core.dto;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -17,7 +19,11 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonPropertyOrder({"name", "value", "values"})
 public class BlackbirdJcrProperty implements Serializable {
+    @Setter
+    @Getter
     private String name;
+    @Setter
+    @Getter
     private String value;
     private List<String> values;
 
@@ -36,22 +42,6 @@ public class BlackbirdJcrProperty implements Serializable {
 
     public boolean isMultiValue() {
         return values != null;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
     }
 
     public List<String> getValues() {

@@ -19,6 +19,8 @@ import java.util.Calendar;
 import java.util.Optional;
 import java.util.function.Predicate;
 
+import static com.day.cq.commons.jcr.JcrConstants.JCR_CREATED;
+
 @Model(adaptables = Resource.class, adapters = BlackbirdEventViewerPage.class, defaultInjectionStrategy = DefaultInjectionStrategy.OPTIONAL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Getter
@@ -43,7 +45,7 @@ public class BlackbirdEventViewerPage implements Serializable {
         path = page.getPath();
 
         ValueMap properties = page.getProperties();
-        Instant createDate = Optional.ofNullable(properties.get("jcr:created", Calendar.class))
+        Instant createDate = Optional.ofNullable(properties.get(JCR_CREATED, Calendar.class))
                 .map(Calendar::toInstant).orElse(null);
 
         created = createDate == null ? null : createDate.toString();
