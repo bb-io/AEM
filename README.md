@@ -1,3 +1,25 @@
+# Blackbird AEM Connector
+
+## Blackbird AEM Connector –  OpenAPI 3.0
+The YAML specification [included in the documentation](https://github.com/bb-io/AEM/blob/main/docs/openapi/BlackBird%20AEM%20connector.yaml) follows the OpenApi 3.0 standard and is designed to be compatible with Swagger UI and other OpenAPI tools.
+
+You can paste this YAML directly into tools like [Swagger Editor](https://editor-next.swagger.io/) or integrate it into an internal API portal for interactive exploration
+
+## Configure Authorization (JWT)
+Follow the [official documentation](https://experienceleague.adobe.com/en/docs/experience-manager-learn/getting-started-with-aem-headless/authentication/service-credentials) to create a Technical Account for the needed AEM Author program or use the next steps.
+
+### Steps to create Technical Account
+1. Open [Cloud Manager](https://experience.adobe.com/cloud-manager/landing.html).
+2. Select needed program. ![image auth step 2](docs/images/auth_step_2.png)
+3. Open Developer Console for needed Author environment. ![image auth step 3](docs/images/auth_step_3.png)
+4. Switch to `Integrations` tab and `Create new technical account`. ![image auth step 4](docs/images/auth_step_4.png)
+5. Unfold created private key and `View` the data. ![image auth step 5](docs/images/auth_step_5.png)
+6. Use the `Download` button to obtain the raw data and store it in a file or another location from which it will be used for integration. ![image auth step 6](docs/images/auth_step_6.png)
+
+### Validate integration
+To validate the integration, code samples for different programming languages can be used ([GitHub link](https://github.com/AdobeDocs/adobe-dev-console/blob/main/samples/adobe-jwt-dotnet/Program.cs)).
+
+
 # Sample AEM project template
 
 This is a project template for AEM-based applications. It is intended as a best-practice set of examples as well as a potential starting point to develop your own functionality.
