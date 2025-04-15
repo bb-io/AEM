@@ -3,6 +3,8 @@ package io.blackbird.aemconnector.core.dto;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -20,25 +22,13 @@ import static org.apache.sling.api.SlingConstants.PROPERTY_PATH;
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonPropertyOrder({"name", PROPERTY_PATH, "properties"})
 public class BlackbirdJcrNode implements Serializable {
+    @Getter
+    @Setter
     private String name;
+    @Getter
+    @Setter
     private String path;
     private List<BlackbirdJcrProperty> properties;
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setPath(String path) {
-        this.path = path;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getPath() {
-        return path;
-    }
 
     public List<BlackbirdJcrProperty> getProperties() {
         return properties == null ? Collections.emptyList() : new ArrayList<>(properties);

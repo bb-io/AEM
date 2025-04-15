@@ -41,7 +41,7 @@ public class BlackbirdPageImporterServlet extends BlackbirdAbstractBaseServlet {
     private transient BlackbirdPageCopyMergeService pageCopyMergeService;
 
     @Override
-    public Serializable getSerializableObject(SlingHttpServletRequest request, SlingHttpServletResponse response) throws BlackbirdHttpErrorException {
+    public Serializable buildResponsePayload(SlingHttpServletRequest request, SlingHttpServletResponse response) throws BlackbirdHttpErrorException {
 
         JsonNode payload = getRequestPayload(request);
 

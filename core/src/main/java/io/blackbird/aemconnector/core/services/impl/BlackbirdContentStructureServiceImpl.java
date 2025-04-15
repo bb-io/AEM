@@ -4,6 +4,7 @@ import io.blackbird.aemconnector.core.dto.BlackbirdJcrNode;
 import io.blackbird.aemconnector.core.models.BlackbirdContentStructureModel;
 import io.blackbird.aemconnector.core.services.BlackbirdContentStructureService;
 import io.blackbird.aemconnector.core.services.BlackbirdServiceUserResolverProvider;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.sling.api.resource.LoginException;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
@@ -12,8 +13,6 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.Designate;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import java.util.Arrays;
@@ -24,10 +23,10 @@ import java.util.stream.Collectors;
 
 import static com.day.cq.commons.jcr.JcrConstants.JCR_PRIMARYTYPE;
 
+@Slf4j
 @Component(service = BlackbirdContentStructureService.class)
 @Designate(ocd = BlackbirdContentStructureServiceImpl.Config.class)
 public class BlackbirdContentStructureServiceImpl implements BlackbirdContentStructureService {
-    private static final Logger LOG = LoggerFactory.getLogger(BlackbirdContentStructureServiceImpl.class);
 
     @Reference
     private BlackbirdServiceUserResolverProvider resolverProvider;
@@ -49,7 +48,7 @@ public class BlackbirdContentStructureServiceImpl implements BlackbirdContentStr
     public BlackbirdContentStructureModel getContentStructure(String path) {
         try (ResourceResolver resolver = resolverProvider.getContentStructureReaderResolver()) {
             Resource resource = resolver.getResource(path);
-            LOG.info("Getting content for path {}", path);
+            log.info("Getting content for path {}", path);
             if (resource != null) {
                 BlackbirdContentStructureModel contentStructureModel = resource.adaptTo(BlackbirdContentStructureModel.class);
                 if (contentStructureModel != null) {
@@ -66,9 +65,8 @@ public class BlackbirdContentStructureServiceImpl implements BlackbirdContentStr
                 return null;
             }
         } catch (LoginException e) {
-            LOG.error("Cannot access content structure reader", e);
+            log.error("Cannot access content structure reader", e);
         }
         return null;
     }
-
 }

@@ -10,7 +10,7 @@ tags:
     description: Process Structured JCR Content
 
 paths:
-  /content/services/bb-aem-connector/content.json{contentPath}:
+  /content/services/bb-aem-connector/content.json:
     get:
       tags:
         - Content
@@ -19,16 +19,16 @@ paths:
         This endpoint returns structured JCR nodes and their properties as JSON.
 
         - The URL **must end with `.json`** to trigger AEM servlet resolution and JSON rendering.
-        - The `{contentPath}` is a required suffix representing the JCR path to the root node.
+        - The `contentPath` is a required query parameter representing the JCR path to the root node.
         - If no content path is provided, a **400 Bad Request** is returned.
         - If the specified content path cannot be resolved in the JCR, a **404 Not Found** is returned.
 
         Examples:
-        `/content/services/bb-aem-connector/content.json/content/bb-aem-connector/us/en`
-        `/content/services/bb-aem-connector/content.json/content/mysite/page/jcr:content`
+        `/content/services/bb-aem-connector/content.json?contentPath=/content/bb-aem-connector/us/en`
+        `/content/services/bb-aem-connector/content.json?contentPath=/content/mysite/page/jcr:content`
       parameters:
-        - name: contentPath
-          in: path
+        - in: query
+          name: contentPath
           required: true
           description: >
             The JCR path to read, passed as a suffix. Must start with a `/`.
@@ -66,9 +66,18 @@ paths:
                               - /conf/bb-aem-connector/settings/wcm/templates/(?!(landing|root)).*
                             multiValue: true
         '400':
-          description: Bad Request – missing content path
+          description: Bad Request – Missing required query parameter contentPath
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlackbirdErrorResponse'
         '404':
-          description: Not Found – JCR path in contentPath could not be resolved
+          description: Not Found – Content Not found for path
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlackbirdErrorResponse'
+
   /content/services/bb-aem-connector/pages/events.json:
     get:
       tags:

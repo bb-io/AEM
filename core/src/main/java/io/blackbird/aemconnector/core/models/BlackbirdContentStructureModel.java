@@ -63,7 +63,7 @@ public class BlackbirdContentStructureModel implements Serializable {
      * Maps value map value to a serializable DTO, supports single field, multified and several data types
      * Might also use instanceof Calendar for Date objects
      *
-     * @return
+     * @return BlackbirdJcrProperty
      */
     private BlackbirdJcrProperty toJcrProperty(String key, Object value) {
         if (value instanceof String) {

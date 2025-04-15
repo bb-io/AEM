@@ -47,7 +47,7 @@ public class BlackbirdAbstractBaseServletTest {
     public void testDoGetValid() throws IOException {
         servlet = new BlackbirdAbstractBaseServlet() {
             @Override
-            public Serializable getSerializableObject(SlingHttpServletRequest request, SlingHttpServletResponse response) {
+            public Serializable buildResponsePayload(SlingHttpServletRequest request, SlingHttpServletResponse response) {
                 Map<String, String> dummyData = new HashMap<>();
                 dummyData.put("key", "value");
                 return (Serializable) dummyData;
@@ -71,10 +71,12 @@ public class BlackbirdAbstractBaseServletTest {
     public void testDoGetSerializableNull() throws IOException {
         servlet = new BlackbirdAbstractBaseServlet() {
             @Override
-            public Serializable getSerializableObject(SlingHttpServletRequest request, SlingHttpServletResponse response) {
+            public Serializable buildResponsePayload(SlingHttpServletRequest request, SlingHttpServletResponse response) {
                 return null;
             }
         };
+
+        when(response.getWriter()).thenReturn(printWriter);
 
         servlet.doGet(request, response);
 
