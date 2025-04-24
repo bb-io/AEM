@@ -14,6 +14,8 @@ paths:
     get:
       tags:
         - Content
+      security:
+        - bearerAuth: []
       summary: Get structured JCR content from a given resource path
       description: |
         This endpoint returns structured JCR nodes and their properties as JSON.
@@ -82,6 +84,8 @@ paths:
     get:
       tags:
         - Page Events Viewer
+      security:
+        - bearerAuth: []
       summary: Info about pages that were created or modified during a definite period of time.
       description: |
         Info about pages that were created or modified during a definite period of time.
@@ -155,6 +159,8 @@ paths:
     get:
       tags:
         - Page Exporter
+      security:
+        - bearerAuth: []
       summary: Export AEM Page Content
       description: |
         This API endpoint exports the content of an AEM page in JSON format. It serializes the page content recursively, filtering out blacklisted properties
@@ -205,6 +211,8 @@ paths:
     post:
       tags:
         - Page Importer
+      security:
+        - bearerAuth: []
       summary: Import a Page with Merged Content
       description: >
         Copies an existing page from a given source path, merges the page with the provided JSON content, 
@@ -277,6 +285,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/BlackbirdErrorResponse'
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Bearer authentication token
   schemas:
     BlackbirdJcrNode:
       type: object
