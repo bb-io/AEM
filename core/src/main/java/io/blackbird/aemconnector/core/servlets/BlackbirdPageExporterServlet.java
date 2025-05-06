@@ -4,11 +4,14 @@ import com.day.cq.wcm.api.Page;
 import io.blackbird.aemconnector.core.exceptions.BlackbirdHttpErrorException;
 import io.blackbird.aemconnector.core.objects.CqPageResource;
 import io.blackbird.aemconnector.core.services.BlackbirdPageContentFilterService;
+import io.blackbird.aemconnector.core.services.BlackbirdServiceUserResolverProvider;
 import io.blackbird.aemconnector.core.servlets.internal.BlackbirdAbstractBaseServlet;
+import io.blackbird.aemconnector.core.utils.ObjectUtils;
 import io.blackbird.aemconnector.core.utils.ResourceJsonUtil;
 import io.blackbird.aemconnector.core.utils.ServletParameterHelper;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
+import org.apache.sling.api.resource.LoginException;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.api.servlets.HttpConstants;
@@ -17,9 +20,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.servlet.Servlet;
-import javax.servlet.http.HttpServletResponse;
 import java.io.Serializable;
-import java.util.Optional;
 import java.util.Set;
 
 @Component(service = Servlet.class)
@@ -33,19 +34,14 @@ public class BlackbirdPageExporterServlet extends BlackbirdAbstractBaseServlet {
     @Reference
     private BlackbirdPageContentFilterService blackbirdPageContentFilterService;
 
+    @Reference
+    private BlackbirdServiceUserResolverProvider resolverProvider;
+
     @Override
     public Serializable buildResponsePayload(SlingHttpServletRequest request, SlingHttpServletResponse response) throws BlackbirdHttpErrorException {
         String pagePath = ServletParameterHelper.getRequiredPagePath(request);
 
-        Resource resource = getPagePathResource(request, pagePath);
-
-        Page page = Optional.ofNullable(resource.adaptTo(Page.class)).orElseThrow(() -> new BlackbirdHttpErrorException(
-                HttpServletResponse.SC_BAD_REQUEST,
-                "Bad Request", String.format("'%s' is not a cq Page", pagePath)));
-
-        Optional.ofNullable(page.getContentResource()).orElseThrow(() -> new BlackbirdHttpErrorException(
-                HttpServletResponse.SC_CONFLICT,
-                "Conflict", String.format("Page exists but has no jcr:content node. Path: %s", pagePath)));
+        Resource resource = getPageResourceByPath(pagePath);
 
         Set<String> blacklistedPropertyNames = blackbirdPageContentFilterService.getBlacklistedPropertyNames();
         Set<String> blacklistedNodeNames = blackbirdPageContentFilterService.getBlacklistedNodeNames();
@@ -54,12 +50,26 @@ public class BlackbirdPageExporterServlet extends BlackbirdAbstractBaseServlet {
                 (n) -> !blacklistedNodeNames.contains(n));
     }
 
-    private static Resource getPagePathResource(SlingHttpServletRequest request, String pagePath) throws BlackbirdHttpErrorException {
-        ResourceResolver resourceResolver = request.getResourceResolver();
-        Resource resource = resourceResolver.getResource(pagePath);
+    private Resource getPageResourceByPath(String pagePath) throws BlackbirdHttpErrorException {
+        try (ResourceResolver resourceResolver = resolverProvider.getPageContentReaderResolver()) {
+            Resource resource = ObjectUtils.ensureNotNull(
+                    resourceResolver.getResource(pagePath),
+                    () -> BlackbirdHttpErrorException.notFound(
+                            String.format("'%s' was not found", pagePath)));
 
-        return Optional.ofNullable(resource).orElseThrow(() -> new BlackbirdHttpErrorException(
-                HttpServletResponse.SC_NOT_FOUND,
-                "Not Found", String.format("'%s' was not found", pagePath)));
+            Page page = ObjectUtils.ensureNotNull(
+                    resource.adaptTo(Page.class),
+                    () -> BlackbirdHttpErrorException.badRequest(
+                            String.format("'%s' is not a cq Page", pagePath)));
+
+            ObjectUtils.ensureNotNull(
+                    page.getContentResource(),
+                    () -> BlackbirdHttpErrorException.conflict(
+                            String.format("Page exists but has no jcr:content node. Path: %s", pagePath)));
+            
+            return resource;
+        } catch (LoginException e) {
+            throw BlackbirdHttpErrorException.unauthorized(e.getMessage());
+        }
     }
 }

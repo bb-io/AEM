@@ -19,7 +19,6 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.servlet.Servlet;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
@@ -58,12 +57,9 @@ public class BlackbirdPageImporterServlet extends BlackbirdAbstractBaseServlet {
             node.put("path", page.getPath());
             return node;
         } catch (BlackbirdPageCopyMergeException e) {
-            throw new BlackbirdHttpErrorException(
-                    HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-                    "Internal Server Error", e.getMessage());
+            throw BlackbirdHttpErrorException.internalServerError(e.getMessage());
         } catch (LoginException e) {
-            throw new BlackbirdHttpErrorException(
-                    HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized", e.getMessage());
+            throw BlackbirdHttpErrorException.unauthorized(e.getMessage());
         }
     }
 
@@ -72,16 +68,14 @@ public class BlackbirdPageImporterServlet extends BlackbirdAbstractBaseServlet {
             String requestBody = IOUtils.toString(request.getInputStream(), StandardCharsets.UTF_8);
             return objectMapper.readTree(requestBody);
         } catch (IOException e) {
-            throw new BlackbirdHttpErrorException(
-                    HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-                    "Internal Server Error", e.getMessage());
+            throw BlackbirdHttpErrorException.internalServerError(e.getMessage());
         }
     }
 
     private void validateParams(String sourcePath, String targetPath, JsonNode targetContent) throws BlackbirdHttpErrorException {
         if (ObjectUtils.anyNull(sourcePath, targetPath) || targetContent.isMissingNode() || !targetContent.isObject()) {
-            throw new BlackbirdHttpErrorException(HttpServletResponse.SC_BAD_REQUEST,
-                    "Bad Request", String.format("Missing required fields: %s, %s, or %s", SOURCE_PATH, TARGET_PATH, TARGET_CONTENT));
+            throw BlackbirdHttpErrorException.badRequest(
+                    String.format("Missing required fields: %s, %s, or %s", SOURCE_PATH, TARGET_PATH, TARGET_CONTENT));
         }
     }
 }

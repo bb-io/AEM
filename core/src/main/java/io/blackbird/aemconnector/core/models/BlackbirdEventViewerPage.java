@@ -2,22 +2,25 @@ package io.blackbird.aemconnector.core.models;
 
 import com.day.cq.wcm.api.Page;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.AccessLevel;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import io.blackbird.aemconnector.core.utils.jackson.InstantSerializer;
 import lombok.Getter;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.sling.api.resource.Resource;
-import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.models.annotations.DefaultInjectionStrategy;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.injectorspecific.Self;
+import org.apache.sling.models.annotations.injectorspecific.ValueMapValue;
 
-import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 import java.io.Serializable;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import static com.day.cq.commons.jcr.JcrConstants.JCR_CREATED;
 
@@ -26,39 +29,39 @@ import static com.day.cq.commons.jcr.JcrConstants.JCR_CREATED;
 @Getter
 public class BlackbirdEventViewerPage implements Serializable {
 
-    @Getter(AccessLevel.NONE)
-    @Self
-    private transient Page page;
-
     private String title;
     private String path;
-    private String created;
-    private String modified;
+    @JsonSerialize(using = InstantSerializer.class)
+    private Instant created;
+    @JsonSerialize(using = InstantSerializer.class)
+    private Instant modified;
 
-    @PostConstruct
-    public void init() {
-       if (page == null) {
-           return;
-       }
+    @Inject
+    public BlackbirdEventViewerPage(@Self Page page,
+                                    @ValueMapValue(name = JCR_CREATED) Calendar pageCreatedDate) {
+        if (page == null) {
+            return;
+        }
 
-        title = ObjectUtils.firstNonNull(page.getPageTitle(), page.getTitle(), page.getName());
+        title = getPageTitle(page);
         path = page.getPath();
-
-        ValueMap properties = page.getProperties();
-        Instant createDate = Optional.ofNullable(properties.get(JCR_CREATED, Calendar.class))
-                .map(Calendar::toInstant).orElse(null);
-
-        created = createDate == null ? null : createDate.toString();
-
+        created = Optional.ofNullable(pageCreatedDate).map(Calendar::toInstant).orElse(null);
         modified = Optional.ofNullable(page.getLastModified())
                 .map(Calendar::toInstant)
-                .filter(Predicate.not(modifiedDate -> isCreatedAndModifiedDatesEqual(createDate, modifiedDate)))
-                .map(Instant::toString).orElse(null);
+                .filter(Predicate.not(modifiedDate -> isSameDates(created, modifiedDate)))
+                .orElse(null);
     }
 
-    private boolean isCreatedAndModifiedDatesEqual(Instant created, Instant modified) {
+    private boolean isSameDates(Instant created, Instant modified) {
         return ObjectUtils.allNotNull(created, modified)
                 && created.truncatedTo(ChronoUnit.SECONDS)
                 .equals(modified.truncatedTo(ChronoUnit.SECONDS));
+    }
+
+    private String getPageTitle(Page page) {
+        return Stream.of(page.getPageTitle(), page.getTitle(), page.getName())
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse(null);
     }
 }
