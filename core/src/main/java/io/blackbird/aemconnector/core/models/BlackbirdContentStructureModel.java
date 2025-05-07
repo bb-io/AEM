@@ -13,10 +13,13 @@ import org.apache.sling.models.annotations.injectorspecific.Self;
 
 import javax.annotation.PostConstruct;
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Model(adaptables = Resource.class, adapters = BlackbirdContentStructureModel.class, defaultInjectionStrategy = DefaultInjectionStrategy.OPTIONAL)
@@ -68,6 +71,11 @@ public class BlackbirdContentStructureModel implements Serializable {
     private BlackbirdJcrProperty toJcrProperty(String key, Object value) {
         if (value instanceof String) {
             return new BlackbirdJcrProperty(key, (String) value);
+        } else if (value instanceof Calendar) {
+            return Optional.of((Calendar) value)
+                    .map(Calendar::toInstant)
+                    .map(Instant::toString)
+                    .map(date -> new BlackbirdJcrProperty(key, date)).orElse(null);
         } else if (value instanceof String[]) {
             return new BlackbirdJcrProperty(key, Arrays.asList((String[]) value));
         } else if (value instanceof Object[]) {

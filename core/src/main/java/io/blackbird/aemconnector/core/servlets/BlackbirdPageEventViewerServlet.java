@@ -7,6 +7,7 @@ import io.blackbird.aemconnector.core.exceptions.BlackbirdInternalErrorException
 import io.blackbird.aemconnector.core.objects.PageEventSearchParams;
 import io.blackbird.aemconnector.core.services.BlackbirdPageEventService;
 import io.blackbird.aemconnector.core.servlets.internal.BlackbirdAbstractBaseServlet;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
@@ -45,7 +46,7 @@ public class BlackbirdPageEventViewerServlet extends BlackbirdAbstractBaseServle
     @Override
     public Serializable buildResponsePayload(SlingHttpServletRequest request, SlingHttpServletResponse response) throws BlackbirdHttpErrorException {
 
-        String rootPath = request.getParameter(ROOT_PATH);
+        String rootPath = ObjectUtils.defaultIfNull(request.getParameter(ROOT_PATH), "/");
         String startDate = request.getParameter(START_DATE);
         String endDate = request.getParameter(END_DATE);
         long offset = parseLongOrDefault(request.getParameter(OFFSET), 0);
@@ -63,12 +64,9 @@ public class BlackbirdPageEventViewerServlet extends BlackbirdAbstractBaseServle
                     .limit(limit)
                     .build());
         } catch (LoginException e) {
-            throw new BlackbirdHttpErrorException(
-                    HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized", e.getMessage());
+            throw BlackbirdHttpErrorException.unauthorized(e.getMessage());
         } catch (BlackbirdInternalErrorException e) {
-            throw new BlackbirdHttpErrorException(
-                    HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Internal Server Error", e.getMessage()
-            );
+            throw BlackbirdHttpErrorException.internalServerError(e.getMessage());
         }
 
         return BlackbirdPageEventViewerDto.builder()

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.blackbird.aemconnector.core.dto.BlackbirdErrorResponse;
 import io.blackbird.aemconnector.core.exceptions.BlackbirdHttpErrorException;
+import io.blackbird.aemconnector.core.utils.ObjectUtils;
 import io.blackbird.aemconnector.core.vo.BlackbirdRequestFilter;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
@@ -40,7 +41,10 @@ public abstract class BlackbirdAbstractBaseServlet extends SlingAllMethodsServle
         try {
             ensureValidRequest(request);
             Serializable payload = buildResponsePayload(request, response);
-            ensurePayloadNotNull(payload);
+
+            ObjectUtils.ensureNotNull(payload,
+                    () -> BlackbirdHttpErrorException.notFound("No Content available"));
+
             configureResponseHeaders(response);
             writeJsonResponse(response, payload);
             response.setStatus(successStatusCode);
@@ -54,14 +58,6 @@ public abstract class BlackbirdAbstractBaseServlet extends SlingAllMethodsServle
         }
     }
 
-    private void ensurePayloadNotNull(Serializable payload) throws BlackbirdHttpErrorException {
-        if (payload == null) {
-            throw new BlackbirdHttpErrorException(
-                    HttpServletResponse.SC_NOT_FOUND,
-                    "Not Found", "No Content available");
-        }
-    }
-
     private void writeJsonResponse(SlingHttpServletResponse response, Serializable payload) throws IOException {
         response.getWriter().write(OBJECT_MAPPER.writeValueAsString(payload));
     }
@@ -69,9 +65,7 @@ public abstract class BlackbirdAbstractBaseServlet extends SlingAllMethodsServle
     private void ensureValidRequest(SlingHttpServletRequest request) throws BlackbirdHttpErrorException {
         boolean isValidRequest = readRequestFilter(request);
         if (!isValidRequest) {
-            throw new BlackbirdHttpErrorException(
-                    HttpServletResponse.SC_BAD_REQUEST,
-                    "Bad Request",
+            throw BlackbirdHttpErrorException.badRequest(
                     "Request rejected. It failed to meet the filtering criteria");
         }
     }

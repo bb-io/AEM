@@ -4,6 +4,7 @@ import io.blackbird.aemconnector.core.exceptions.BlackbirdHttpErrorException;
 import io.blackbird.aemconnector.core.models.BlackbirdContentStructureModel;
 import io.blackbird.aemconnector.core.services.BlackbirdContentStructureService;
 import io.blackbird.aemconnector.core.servlets.internal.BlackbirdAbstractBaseServlet;
+import io.blackbird.aemconnector.core.utils.ObjectUtils;
 import io.blackbird.aemconnector.core.utils.ServletParameterHelper;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
@@ -13,9 +14,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.servlet.Servlet;
-import javax.servlet.http.HttpServletResponse;
 import java.io.Serializable;
-import java.util.Optional;
 
 
 @Component(service = Servlet.class)
@@ -34,8 +33,8 @@ public class BlackbirdContentStructureServlet extends BlackbirdAbstractBaseServl
         String contentPath = ServletParameterHelper.getRequiredContentPath(request);
         BlackbirdContentStructureModel contentStructure = contentStructureService.getContentStructure(contentPath);
 
-        return Optional.ofNullable(contentStructure).orElseThrow(() ->
-                new BlackbirdHttpErrorException(HttpServletResponse.SC_NOT_FOUND,
-                "Not Found", String.format("Content Not found for path: %s", contentPath)));
+        return ObjectUtils.ensureNotNull(contentStructure,
+                () -> BlackbirdHttpErrorException.notFound(
+                        String.format("Content Not found for path: %s", contentPath)));
     }
 }

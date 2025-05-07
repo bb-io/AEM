@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.function.Predicate;
 
 public final class ResourceJsonUtil {
-    private static final ObjectMapper mapper = new ObjectMapper();
+    private static final ObjectMapper MAPPER = new ObjectMapper();
 
     private ResourceJsonUtil() {
     }
@@ -22,7 +22,7 @@ public final class ResourceJsonUtil {
     }
 
     public static ObjectNode serializeRecursively(Resource resource, Predicate<String> propertyFilter, Predicate<String> nodeFilter) {
-        ObjectNode node = mapper.createObjectNode();
+        ObjectNode node = MAPPER.createObjectNode();
 
         ValueMap props = resource.getValueMap();
 
@@ -50,27 +50,27 @@ public final class ResourceJsonUtil {
 
     private static JsonNode toJsonNode(Object value) {
         if (value == null) {
-            return mapper.nullNode();
+            return MAPPER.nullNode();
         }
         if (value instanceof String) {
-            return mapper.getNodeFactory().textNode((String) value);
+            return MAPPER.getNodeFactory().textNode((String) value);
         } else if (value instanceof Boolean) {
-            return mapper.getNodeFactory().booleanNode((Boolean) value);
+            return MAPPER.getNodeFactory().booleanNode((Boolean) value);
         } else if (value instanceof Integer) {
-            return mapper.getNodeFactory().numberNode((Integer) value);
+            return MAPPER.getNodeFactory().numberNode((Integer) value);
         } else if (value instanceof Long) {
-            return mapper.getNodeFactory().numberNode((Long) value);
+            return MAPPER.getNodeFactory().numberNode((Long) value);
         } else if (value instanceof BigDecimal) {
-            return mapper.getNodeFactory().numberNode((BigDecimal) value);
+            return MAPPER.getNodeFactory().numberNode((BigDecimal) value);
         } else if (value instanceof Double) {
-            return mapper.getNodeFactory().numberNode((Double) value);
+            return MAPPER.getNodeFactory().numberNode((Double) value);
         } else if (value instanceof Object[]) {
-            ArrayNode arrayNode = mapper.createArrayNode();
+            ArrayNode arrayNode = MAPPER.createArrayNode();
             for (Object element : (Object[]) value) {
                 arrayNode.add(toJsonNode(element));
             }
             return arrayNode;
         }
-        return mapper.getNodeFactory().textNode(String.valueOf(value));
+        return MAPPER.getNodeFactory().textNode(String.valueOf(value));
     }
 }
