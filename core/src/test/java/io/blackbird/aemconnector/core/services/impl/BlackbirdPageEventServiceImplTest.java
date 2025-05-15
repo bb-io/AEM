@@ -6,6 +6,7 @@ import com.day.cq.search.Query;
 import com.day.cq.search.QueryBuilder;
 import com.day.cq.search.result.Hit;
 import com.day.cq.search.result.SearchResult;
+import com.google.common.collect.Sets;
 import io.blackbird.aemconnector.core.dto.BlackbirdPageEventSearchResult;
 import io.blackbird.aemconnector.core.exceptions.BlackbirdInternalErrorException;
 import io.blackbird.aemconnector.core.models.BlackbirdEventViewerPage;
@@ -23,6 +24,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -72,7 +74,7 @@ class BlackbirdPageEventServiceImplTest {
                 .endDate("2025-03-05")
                 .limit(8)
                 .offset(0)
-                .events(Set.of(BlackbirdPageEventServiceImpl.CREATED))
+                .events(Sets.newHashSet(BlackbirdPageEventServiceImpl.CREATED))
                 .build();
         BlackbirdPageEventSearchResult result = target.searchPageEvents(params);
 
@@ -102,7 +104,7 @@ class BlackbirdPageEventServiceImplTest {
                 .endDate("2025-03-05")
                 .limit(8)
                 .offset(0)
-                .events(Set.of(BlackbirdPageEventServiceImpl.MODIFIED))
+                .events(Sets.newHashSet(BlackbirdPageEventServiceImpl.MODIFIED))
                 .build();
         BlackbirdPageEventSearchResult result = target.searchPageEvents(params);
 
@@ -131,7 +133,7 @@ class BlackbirdPageEventServiceImplTest {
                 .endDate("2025-03-05")
                 .limit(8)
                 .offset(0)
-                .events(Set.of(BlackbirdPageEventServiceImpl.CREATED, BlackbirdPageEventServiceImpl.MODIFIED))
+                .events(Sets.newHashSet(BlackbirdPageEventServiceImpl.CREATED, BlackbirdPageEventServiceImpl.MODIFIED))
                 .build();
         BlackbirdPageEventSearchResult result = target.searchPageEvents(params);
 
@@ -162,7 +164,7 @@ class BlackbirdPageEventServiceImplTest {
                 .endDate("2025-03-05")
                 .limit(8)
                 .offset(0)
-                .events(Set.of(BlackbirdPageEventServiceImpl.CREATED, BlackbirdPageEventServiceImpl.MODIFIED))
+                .events(Sets.newHashSet(BlackbirdPageEventServiceImpl.CREATED, BlackbirdPageEventServiceImpl.MODIFIED))
                 .build();
 
         when(serviceUserResolverProvider.getPageContentReaderResolver())
@@ -181,7 +183,7 @@ class BlackbirdPageEventServiceImplTest {
                 .endDate("2025-03-05")
                 .limit(8)
                 .offset(0)
-                .events(Set.of(BlackbirdPageEventServiceImpl.CREATED, BlackbirdPageEventServiceImpl.MODIFIED))
+                .events(Sets.newHashSet(BlackbirdPageEventServiceImpl.CREATED, BlackbirdPageEventServiceImpl.MODIFIED))
                 .build();
 
         when(serviceUserResolverProvider.getPageContentReaderResolver()).thenReturn(resourceResolver);
@@ -192,7 +194,7 @@ class BlackbirdPageEventServiceImplTest {
         when(searchResult.getTotalMatches()).thenReturn(1L);
         when(searchResult.hasMore()).thenReturn(false);
 
-        List<Hit> hits = List.of(hit);
+        List<Hit> hits = Collections.singletonList(hit);
         when(searchResult.getHits()).thenReturn(hits);
         when(hit.getResource()).thenThrow(new RepositoryException("Repository error"));
 
@@ -210,7 +212,7 @@ class BlackbirdPageEventServiceImplTest {
         when(searchResult.getTotalMatches()).thenReturn(1L);
         when(searchResult.hasMore()).thenReturn(false);
 
-        List<Hit> hits = List.of(hit);
+        List<Hit> hits = Collections.singletonList(hit);
         when(searchResult.getHits()).thenReturn(hits);
         when(hit.getResource()).thenReturn(resource);
         when(resource.adaptTo(BlackbirdEventViewerPage.class)).thenReturn(blackbirdEventViewerPage);

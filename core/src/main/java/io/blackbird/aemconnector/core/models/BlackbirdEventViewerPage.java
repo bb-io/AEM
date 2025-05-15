@@ -48,7 +48,7 @@ public class BlackbirdEventViewerPage implements Serializable {
         created = Optional.ofNullable(pageCreatedDate).map(Calendar::toInstant).orElse(null);
         modified = Optional.ofNullable(page.getLastModified())
                 .map(Calendar::toInstant)
-                .filter(Predicate.not(modifiedDate -> isSameDates(created, modifiedDate)))
+                .filter(modifiedDate -> !isSameDates(created, modifiedDate))
                 .orElse(null);
     }
 

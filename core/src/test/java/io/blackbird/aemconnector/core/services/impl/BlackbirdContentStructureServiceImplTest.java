@@ -12,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Collections;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -28,7 +29,7 @@ class BlackbirdContentStructureServiceImplTest {
     void setUp(AemContext context) throws LoginException {
         context.registerService(BlackbirdServiceUserResolverProvider.class, resolverProvider);
         when(resolverProvider.getContentStructureReaderResolver()).thenReturn(context.resourceResolver());
-        Map<String, Object> config = Map.of(
+        Map<String, Object> config = Collections.singletonMap(
                 "whiteListPrimaryType", new String[] { "cq:Page", "cq:PageContent", "nt:unstructured" }
         );
         context.registerInjectActivateService(fixture, config);
