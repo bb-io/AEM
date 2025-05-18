@@ -15,12 +15,11 @@ import javax.jcr.Node;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 public class PageManagerStub implements PageManager {
 
-    private ResourceResolver resourceResolver;
-    private PageManager pageManagerDelegate;
+    private final ResourceResolver resourceResolver;
+    private final PageManager pageManagerDelegate;
 
     public PageManagerStub(ResourceResolver resourceResolver, PageManager pageManagerDelegate) {
         this.resourceResolver = resourceResolver;
@@ -63,6 +62,11 @@ public class PageManagerStub implements PageManager {
     }
 
     @Override
+    public Resource move(Resource resource, String s, String s1, boolean b, boolean b1, String[] strings, String[] strings1, String s2) throws WCMException {
+        return null;
+    }
+
+    @Override
     public Resource move(Resource resource, String s, String s1, boolean b, boolean b1, String[] strings) throws WCMException {
         return null;
     }
@@ -72,10 +76,10 @@ public class PageManagerStub implements PageManager {
         return null;
     }
 
-    @Override
-    public Resource override(CopyOptions copyOptions) throws WCMException {
-        return null;
-    }
+//    @Override
+//    public Resource override(CopyOptions copyOptions) throws WCMException {
+//        return null;
+//    }
 
     @Override
     public Resource copy(CopyOptions copyOptions) throws WCMException {

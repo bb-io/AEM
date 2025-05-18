@@ -111,9 +111,6 @@
             <artifactId>bb-aem-connector.core</artifactId>
             <version>${project.version}</version>
         </dependency>
-
-
-
         <dependency>
             <groupId>io.blackbird</groupId>
             <artifactId>bb-aem-connector.ui.apps.structure</artifactId>
@@ -121,9 +118,19 @@
             <type>zip</type>
         </dependency>
 
+<!--        <dependency>-->
+<!--            <groupId>com.adobe.aem</groupId>-->
+<!--            <artifactId>aem-sdk-api</artifactId>-->
+<!--        </dependency>-->
+
+        <dependency>
+            <groupId>com.adobe.cq</groupId>
+            <artifactId>core.wcm.components.core</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>com.adobe.aem</groupId>
-            <artifactId>aem-sdk-api</artifactId>
+            <artifactId>uber-jar</artifactId>
         </dependency>
 
         <!-- HTL dependencies needed for the HTL Maven Plugin source code generation -->

@@ -46,11 +46,13 @@
         <vault.user>admin</vault.user>
         <vault.password>admin</vault.password>
         <frontend-maven-plugin.version>1.12.0</frontend-maven-plugin.version>
-        <core.wcm.components.version>2.26.0</core.wcm.components.version>
+<!--        <core.wcm.components.version>2.26.0</core.wcm.components.version>-->
+        <core.wcm.components.version>2.22.12</core.wcm.components.version>
         <bnd.version>6.4.0</bnd.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <aem.sdk.api>2025.3.19823.20250304T101418Z-250200</aem.sdk.api>
+<!--        <aem.sdk.api>2025.3.19823.20250304T101418Z-250200</aem.sdk.api>-->
+        <uber.jar.version>6.5.20</uber.jar.version>
         <aemanalyser.version>1.6.6</aemanalyser.version>
         <componentGroupName>Blackbird AEM Connector</componentGroupName>
     </properties>
@@ -94,8 +96,8 @@
                                     <version>[3.3.9,)</version>
                                 </requireMavenVersion>
                                 <requireJavaVersion>
-                                    <message>Maven must be executed with a Java 11 JRE or higher.</message>
-                                    <version>11</version>
+                                    <message>Maven must be executed with a Java 8 JRE or higher.</message>
+                                    <version>1.8.0</version>
                                 </requireJavaVersion>
                             </rules>
                         </configuration>
@@ -108,7 +110,8 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <release>11</release>
+                    <source>1.8</source>
+                    <target>1.8</target>
                 </configuration>
             </plugin>
         </plugins>
@@ -528,10 +531,50 @@ Bundle-DocURL:
     <!-- ====================================================================== -->
     <dependencyManagement>
         <dependencies>
+            <!-- OSGi Dependencies -->
+            <dependency>
+                <groupId>org.osgi</groupId>
+                <artifactId>org.osgi.annotation.versioning</artifactId>
+                <version>1.1.0</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.osgi</groupId>
+                <artifactId>org.osgi.service.metatype.annotations</artifactId>
+                <version>1.4.0</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.osgi</groupId>
+                <artifactId>org.osgi.service.component.annotations</artifactId>
+                <version>1.4.0</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.osgi</groupId>
+                <artifactId>org.osgi.service.component</artifactId>
+                <version>1.4.0</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.sling</groupId>
+                <artifactId>org.apache.sling.servlets.annotations</artifactId>
+                <version>1.2.4</version>
+                <scope>provided</scope>
+            </dependency>
+
+
+
+            <!--            <dependency>-->
+<!--                <groupId>com.adobe.aem</groupId>-->
+<!--                <artifactId>aem-sdk-api</artifactId>-->
+<!--                <version>${aem.sdk.api}</version>-->
+<!--                <scope>provided</scope>-->
+<!--            </dependency>-->
             <dependency>
                 <groupId>com.adobe.aem</groupId>
-                <artifactId>aem-sdk-api</artifactId>
-                <version>${aem.sdk.api}</version>
+                <artifactId>uber-jar</artifactId>
+                <version>${uber.jar.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -569,7 +612,7 @@ Bundle-DocURL:
             <dependency>
                 <groupId>io.wcm</groupId>
                 <artifactId>io.wcm.testing.aem-mock.junit5</artifactId>
-                <version>5.5.4</version>
+                <version>5.1.2</version>
                 <scope>test</scope>
                 <exclusions>
                     <exclusion>
