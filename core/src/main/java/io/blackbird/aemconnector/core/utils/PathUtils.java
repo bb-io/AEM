@@ -1,6 +1,9 @@
 package io.blackbird.aemconnector.core.utils;
 
 public class PathUtils {
+
+    public static final String PATH_SEPARATOR = "/";
+
     private PathUtils() {}
 
     public static String getName(String path) {
@@ -8,7 +11,7 @@ public class PathUtils {
             return null;
         }
 
-        int lastSlash = path.lastIndexOf("/");
+        int lastSlash = path.lastIndexOf(PATH_SEPARATOR);
 
         return lastSlash < 0
                 ? path
