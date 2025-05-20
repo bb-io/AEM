@@ -10,6 +10,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.jcr.Node;
 import javax.jcr.Property;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -210,7 +211,7 @@ class ResourceTypeRuleTest {
         Property property = mock(Property.class);
         TranslationPropertyRule propertyRule1 = mock(TranslationPropertyRule.class);
         TranslationPropertyRule propertyRule2 = mock(TranslationPropertyRule.class);
-        List<TranslationPropertyRule> propertyRules = List.of(propertyRule1, propertyRule2);
+        List<TranslationPropertyRule> propertyRules = Arrays.asList(propertyRule1, propertyRule2);
 
         when(propertyRule1.appliesTo(property)).thenReturn(false);
         when(propertyRule2.appliesTo(property)).thenReturn(false);
@@ -235,7 +236,7 @@ class ResourceTypeRuleTest {
         Node resourceTypeNode = mock(Node.class);
         TranslationPropertyRule propertyRule1 = mock(TranslationPropertyRule.class);
         TranslationPropertyRule propertyRule2 = mock(TranslationPropertyRule.class);
-        List<TranslationPropertyRule> propertyRules = List.of(propertyRule1, propertyRule2);
+        List<TranslationPropertyRule> propertyRules = Arrays.asList(propertyRule1, propertyRule2);
 
         try (MockedStatic<RepositoryUtils> repositoryUtils = Mockito.mockStatic(RepositoryUtils.class)) {
             repositoryUtils.when(() -> RepositoryUtils.getParentWithProperty(property, SLING_RESOURCE_TYPE_PROPERTY))

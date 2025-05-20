@@ -19,7 +19,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import static com.day.cq.commons.jcr.JcrConstants.JCR_CREATED;
