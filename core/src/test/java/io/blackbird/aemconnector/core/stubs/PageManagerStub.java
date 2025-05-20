@@ -14,6 +14,7 @@ import org.apache.sling.api.resource.ResourceResolver;
 import javax.jcr.Node;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 public class PageManagerStub implements PageManager {
@@ -159,12 +160,12 @@ public class PageManagerStub implements PageManager {
 
     @Override
     public Collection<Template> getTemplates(String s) {
-        return List.of();
+        return Collections.emptyList();
     }
 
     @Override
     public Collection<Blueprint> getBlueprints(String s) {
-        return List.of();
+        return Collections.emptyList();
     }
 
     @Override
@@ -179,27 +180,27 @@ public class PageManagerStub implements PageManager {
 
     @Override
     public Collection<Revision> getRevisions(String s, Calendar calendar) throws WCMException {
-        return List.of();
+        return Collections.emptyList();
     }
 
     @Override
     public Collection<Revision> getRevisions(String s, Calendar calendar, boolean b) throws WCMException {
-        return List.of();
+        return Collections.emptyList();
     }
 
     @Override
     public Collection<Revision> getChildRevisions(String s, Calendar calendar) throws WCMException {
-        return List.of();
+        return Collections.emptyList();
     }
 
     @Override
     public Collection<Revision> getChildRevisions(String s, Calendar calendar, boolean b) throws WCMException {
-        return List.of();
+        return Collections.emptyList();
     }
 
     @Override
     public Collection<Revision> getChildRevisions(String s, String s1, Calendar calendar) throws WCMException {
-        return List.of();
+        return Collections.emptyList();
     }
 
     @Override

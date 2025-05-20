@@ -73,7 +73,6 @@ public class BlackbirdPageCopyMergeServiceImpl implements BlackbirdPageCopyMerge
         options.destination = targetPath;
         options.shallow = true;
         options.resolveConflict = true;
-        options.overridePage = true;
         options.autoSave = true;
 
         pageManager.copy(options);

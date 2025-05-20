@@ -20,6 +20,7 @@ import javax.jcr.Node;
 import javax.jcr.Property;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -37,7 +38,7 @@ public class TranslationRulesServiceImpl implements TranslationRulesService {
     private static final String APPS_RULES_FILE_PATH = "/apps/settings/translation/rules/translation_rules.xml";
     private static final String LEGACY_ETC_RULES_FILE_PATH = "/etc/workflow/models/translation/translation_rules.xml";
     private static final String LIBS_RULES_FILE_PATH = "/libs/settings/translation/rules/translation_rules.xml";
-    private static final List<String> RULE_FILES_PRIORITY_LIST = List.of(
+    private static final List<String> RULE_FILES_PRIORITY_LIST = Arrays.asList(
             CONF_RULES_FILE_PATH,
             APPS_RULES_FILE_PATH,
             LEGACY_ETC_RULES_FILE_PATH,

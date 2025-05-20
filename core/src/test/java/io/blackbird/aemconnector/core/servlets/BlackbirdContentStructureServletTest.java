@@ -14,6 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -44,7 +45,7 @@ class BlackbirdContentStructureServletTest {
 
     @Test
     void returnsRealModelWhenParamIsValid(AemContext context) throws BlackbirdHttpErrorException {
-        context.request().setParameterMap(Map.of(ServletConstants.CONTENT_PATH_PARAM, CONTENT_PATH));
+        context.request().setParameterMap(Collections.singletonMap(ServletConstants.CONTENT_PATH_PARAM, CONTENT_PATH));
 
         when(service.getContentStructure(eq(CONTENT_PATH))).thenReturn(new BlackbirdContentStructureModel());
 
@@ -64,7 +65,7 @@ class BlackbirdContentStructureServletTest {
 
     @Test
     void throwNotFoundWhenPathNotFound(AemContext context) throws BlackbirdHttpErrorException {
-        context.request().setParameterMap(Map.of(ServletConstants.CONTENT_PATH_PARAM, CONTENT_PATH));
+        context.request().setParameterMap(Collections.singletonMap(ServletConstants.CONTENT_PATH_PARAM, CONTENT_PATH));
         when(service.getContentStructure(eq(CONTENT_PATH))).thenReturn(null);
 
 

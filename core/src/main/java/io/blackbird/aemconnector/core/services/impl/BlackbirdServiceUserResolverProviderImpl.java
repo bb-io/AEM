@@ -7,6 +7,7 @@ import org.apache.sling.api.resource.ResourceResolverFactory;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import java.util.Collections;
 import java.util.Map;
 
 @Component(service = BlackbirdServiceUserResolverProvider.class, immediate = true)
@@ -18,11 +19,11 @@ public class BlackbirdServiceUserResolverProviderImpl implements BlackbirdServic
     private static final String TRANSLATION_WRITER_SERVICE_NAME = "blackbird-translation-writer-service";
     private static final String TRANSLATION_RULES_READER_SERVICE_NAME = "blackbird-translation-rules-reader-service";
 
-    private static final Map<String, Object> CONTENT_STRUCTURE_READER_PARAMS = Map.of(ResourceResolverFactory.SUBSERVICE, CONTENT_STRUCTURE_READER_SERVICE_NAME);
-    private static final Map<String, Object> UPDATES_READER_PARAMS = Map.of(ResourceResolverFactory.SUBSERVICE, UPDATES_READER_SERVICE_NAME);
-    private static final Map<String, Object> PAGE_CONTENT_READER_PARAMS = Map.of(ResourceResolverFactory.SUBSERVICE, PAGE_CONTENT_READER_SERVICE_NAME);
-    private static final Map<String, Object> TRANSLATION_WRITER_PARAMS = Map.of(ResourceResolverFactory.SUBSERVICE, TRANSLATION_WRITER_SERVICE_NAME);
-    private static final Map<String, Object> TRANSLATION_RULES_READER_PARAMS = Map.of(ResourceResolverFactory.SUBSERVICE, TRANSLATION_RULES_READER_SERVICE_NAME);
+    private static final Map<String, Object> CONTENT_STRUCTURE_READER_PARAMS = Collections.singletonMap(ResourceResolverFactory.SUBSERVICE, CONTENT_STRUCTURE_READER_SERVICE_NAME);
+    private static final Map<String, Object> UPDATES_READER_PARAMS = Collections.singletonMap(ResourceResolverFactory.SUBSERVICE, UPDATES_READER_SERVICE_NAME);
+    private static final Map<String, Object> PAGE_CONTENT_READER_PARAMS = Collections.singletonMap(ResourceResolverFactory.SUBSERVICE, PAGE_CONTENT_READER_SERVICE_NAME);
+    private static final Map<String, Object> TRANSLATION_WRITER_PARAMS = Collections.singletonMap(ResourceResolverFactory.SUBSERVICE, TRANSLATION_WRITER_SERVICE_NAME);
+    private static final Map<String, Object> TRANSLATION_RULES_READER_PARAMS = Collections.singletonMap(ResourceResolverFactory.SUBSERVICE, TRANSLATION_RULES_READER_SERVICE_NAME);
 
     @Reference
     private ResourceResolverFactory resourceResolverFactory;

@@ -19,7 +19,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import static com.day.cq.commons.jcr.JcrConstants.JCR_CREATED;
@@ -48,7 +47,7 @@ public class BlackbirdEventViewerPage implements Serializable {
         created = Optional.ofNullable(pageCreatedDate).map(Calendar::toInstant).orElse(null);
         modified = Optional.ofNullable(page.getLastModified())
                 .map(Calendar::toInstant)
-                .filter(Predicate.not(modifiedDate -> isSameDates(created, modifiedDate)))
+                .filter(modifiedDate -> !isSameDates(created, modifiedDate))
                 .orElse(null);
     }
 

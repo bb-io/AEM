@@ -97,6 +97,6 @@ public class BlackbirdPageEventViewerServlet extends BlackbirdAbstractBaseServle
                 .map(Arrays::asList)
                 .orElse(Collections.emptyList()).stream()
                 .filter(StringUtils::isNotEmpty)
-                .collect(Collectors.toUnmodifiableSet());
+                .collect(Collectors.toSet());
     }
 }
