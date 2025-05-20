@@ -2,12 +2,12 @@ package io.blackbird.aemconnector.core.servlets;
 
 import com.day.cq.wcm.api.Page;
 import io.blackbird.aemconnector.core.exceptions.BlackbirdHttpErrorException;
-import io.blackbird.aemconnector.core.objects.CqPageResource;
-import io.blackbird.aemconnector.core.services.BlackbirdPageContentFilterService;
+import io.blackbird.aemconnector.core.exceptions.BlackbirdInternalErrorException;
 import io.blackbird.aemconnector.core.services.BlackbirdServiceUserResolverProvider;
+import io.blackbird.aemconnector.core.services.TranslationRulesService;
 import io.blackbird.aemconnector.core.servlets.internal.BlackbirdAbstractBaseServlet;
+import io.blackbird.aemconnector.core.utils.Node2JsonUtil;
 import io.blackbird.aemconnector.core.utils.ObjectUtils;
-import io.blackbird.aemconnector.core.utils.ResourceJsonUtil;
 import io.blackbird.aemconnector.core.utils.ServletParameterHelper;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
@@ -19,9 +19,9 @@ import org.apache.sling.servlets.annotations.SlingServletResourceTypes;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import javax.jcr.Node;
 import javax.servlet.Servlet;
 import java.io.Serializable;
-import java.util.Set;
 
 @Component(service = Servlet.class)
 @SlingServletResourceTypes(
@@ -32,7 +32,7 @@ public class BlackbirdPageExporterServlet extends BlackbirdAbstractBaseServlet {
     public static final String RESOURCE_TYPE = "bb-aem-connector/services/page-exporter";
 
     @Reference
-    private BlackbirdPageContentFilterService blackbirdPageContentFilterService;
+    private TranslationRulesService translationRulesService;
 
     @Reference
     private BlackbirdServiceUserResolverProvider resolverProvider;
@@ -40,19 +40,16 @@ public class BlackbirdPageExporterServlet extends BlackbirdAbstractBaseServlet {
     @Override
     public Serializable buildResponsePayload(SlingHttpServletRequest request, SlingHttpServletResponse response) throws BlackbirdHttpErrorException {
         String pagePath = ServletParameterHelper.getRequiredPagePath(request);
-        Set<String> blacklistedPropertyNames = blackbirdPageContentFilterService.getBlacklistedPropertyNames();
-        Set<String> blacklistedNodeNames = blackbirdPageContentFilterService.getBlacklistedNodeNames();
 
         try (ResourceResolver resourceResolver = resolverProvider.getPageContentReaderResolver()) {
 
-            Resource resource = getPageResourceByPath(pagePath, resourceResolver);
+            Resource pageContentResource = getPageResourceByPath(pagePath, resourceResolver);
 
-            return ResourceJsonUtil.serializeRecursively(resource,
-                    (p) -> !blacklistedPropertyNames.contains(p),
-                    (n) -> !blacklistedNodeNames.contains(n));
-
+            return Node2JsonUtil.serializeRecursively(pageContentResource.adaptTo(Node.class), translationRulesService);
         } catch (LoginException e) {
             throw BlackbirdHttpErrorException.unauthorized(e.getMessage());
+        } catch (BlackbirdInternalErrorException e) {
+            throw BlackbirdHttpErrorException.internalServerError(e.getMessage());
         }
     }
 
@@ -73,6 +70,6 @@ public class BlackbirdPageExporterServlet extends BlackbirdAbstractBaseServlet {
                 () -> BlackbirdHttpErrorException.conflict(
                         String.format("Page exists but has no jcr:content node. Path: %s", pagePath)));
 
-        return new CqPageResource(resource);
+        return resource;
     }
 }

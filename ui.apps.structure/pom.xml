@@ -48,16 +48,6 @@
 
                         <!-- DAM folder root, will be created via repoinit -->
                         <filter><root>/content/dam/bb-aem-connector</root></filter>
-
-                        <!-- Common overlay roots -->
-                        <filter><root>/apps/cq</root></filter>
-                        <filter><root>/apps/cq/core</root></filter>
-                        <filter><root>/apps/cq/core/content</root></filter>
-                        <filter><root>/apps/cq/core/content/nav</root></filter>
-                        <filter><root>/apps/cq/core/content/nav/tools</root></filter>
-                        <filter><root>/apps/cq/core/content/nav/tools/cloudservices</root></filter>
-                        <filter><root>/apps/cq/blackbird</root></filter>
-                        <filter><root>/apps/cq/blackbird/content</root></filter>
                     </filters>
                 </configuration>
             </plugin>

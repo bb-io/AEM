@@ -1,9 +1,9 @@
 package io.blackbird.aemconnector.core.utils;
 
-import org.apache.johnzon.core.JsonPointerUtil;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 class PathUtilsTest {
 

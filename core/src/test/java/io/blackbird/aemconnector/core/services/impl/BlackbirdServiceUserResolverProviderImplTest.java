@@ -78,15 +78,15 @@ class BlackbirdServiceUserResolverProviderImplTest {
     }
 
     @Test
-    void shouldReturnConfigurationResourceResolver() throws LoginException {
+    void shouldReturnTranslationRulesReaderResolver() throws LoginException {
         // GIVEN
 
         // WHEN
-        target.getConfigurationResolver();
+        target.getTranslationRulesReaderResolver();
 
         // THEN
         Mockito.verify(resourceResolverFactory).getServiceResourceResolver(captor.capture());
-        Assertions.assertEquals("blackbird-configuration-service", captor.getValue().get(ResourceResolverFactory.SUBSERVICE));
+        Assertions.assertEquals("blackbird-translation-rules-reader-service", captor.getValue().get(ResourceResolverFactory.SUBSERVICE));
     }
 
 }

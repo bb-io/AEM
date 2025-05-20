@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?><nodelist>
+    <node path="/content">
+        <property name="testProp" translate="false" inherit="true" updateDestinationLanguage="true"/>
+        <property name="testProp2"/>
+        <node pathContains="/cq:annotations">
+            <property name="text" translate="false"/>
+        </node>
+        <node resourceType="core/test/components/button">
+            <property name="name" translate="false"/>
+            <property name="model" translate="false"/>
+        </node>
+        <filter>
+            <node containsProperty="test" propertyValue="rest"/>
+        </filter>
+    </node>
+    <node path="/content/test">
+        <property name="testProp3" inherit="true" translate="true" updateDestinationLanguage="false"/>
+        <node resourceType="core/test/components/button">
+            <property name="name" translate="false"/>
+        </node>
+        <filter>
+            <node containsProperty="test"/>
+        </filter>
+        <node pathContains="/cq:annotations">
+            <property name="text" translate="false"/>
+        </node>
+    </node>
+    <node path="/content/test/skip">
+        <property inherit="true" translate="true" updateDestinationLanguage="false"/>
+        <node resourceType="core/test/components/button"/>
+        <filter>
+            <node containsProperty="test"/>
+        </filter>
+        <node pathContains="/cq:annotations">
+            <property translate="false"/>
+        </node>
+    </node>
+    <node>
+        <property name="the whole context should be skipped because the context path is not specified"/>
+    </node>
+    <assetNode assetReferenceAttribute="fragmentPath" checkInChildNodes="false" createLangCopy="true" resourceType="cq/experience-fragments/editor/components/experiencefragment"/>
+    <assetNode checkInChildNodes="false" createLangCopy="true" resourceType="cq/experience-fragments/editor/components/experiencefragment"/>
+    <assetNode assetReferenceAttribute="fragmentPath" createLangCopy="true" resourceType="cq/experience-fragments/editor/components/experiencefragment"/>
+    <assetNode assetReferenceAttribute="fragmentPath" checkInChildNodes="false" resourceType="cq/experience-fragments/editor/components/experiencefragment"/>
+    <assetNode assetReferenceAttribute="fragmentPath" checkInChildNodes="false" createLangCopy="true"/>
+</nodelist>
