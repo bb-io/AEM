@@ -101,7 +101,7 @@ public class TranslationRulesServiceImpl implements TranslationRulesService {
 
         try (ResourceResolver resolver = serviceUserResolverProvider.getTranslationRulesReaderResolver()) {
             Optional<InputStream> translationRulesInputStream = getTranslationRulesFileInputStream(resolver);
-            if (translationRulesInputStream.isEmpty()) {
+            if (!translationRulesInputStream.isPresent()) {
                 log.trace("No translation rules InputStream found");
                 return TranslationRules.EMPTY;
             }

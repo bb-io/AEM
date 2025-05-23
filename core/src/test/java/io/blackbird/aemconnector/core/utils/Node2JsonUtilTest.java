@@ -1,6 +1,5 @@
 package io.blackbird.aemconnector.core.utils;
 
-import com.day.cq.wcm.api.constants.NameConstants;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.blackbird.aemconnector.core.exceptions.BlackbirdInternalErrorException;
 import io.blackbird.aemconnector.core.services.TranslationRulesService;
@@ -23,6 +22,7 @@ import javax.jcr.RepositoryException;
 import java.math.BigDecimal;
 import java.util.Calendar;
 
+import static com.day.cq.wcm.api.NameConstants.NT_PAGE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -57,7 +57,7 @@ class Node2JsonUtilTest {
                 "enabled", false);
 
         context.create().resource("/content/test/page",
-                JcrConstants.JCR_PRIMARYTYPE, NameConstants.NT_PAGE);
+                JcrConstants.JCR_PRIMARYTYPE, NT_PAGE);
 
         Calendar calendar = Calendar.getInstance();
         calendar.set(2023, Calendar.JANUARY, 1, 12, 0, 0);
