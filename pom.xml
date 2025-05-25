@@ -55,6 +55,14 @@
         <componentGroupName>Blackbird AEM Connector</componentGroupName>
     </properties>
 
+    <repositories>
+        <repository>
+            <id>project.local</id>
+            <name>Third Party Project</name>
+            <url>file://${project.basedir}/repository</url>
+        </repository>
+    </repositories>
+
     <build>
         <plugins>
             <!-- Maven Release Plugin -->
@@ -618,6 +626,12 @@ Bundle-DocURL:
                 <artifactId>lombok</artifactId>
                 <version>1.18.36</version>
                 <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.third.party</groupId>
+                <artifactId>third-party.all</artifactId>
+                <version>0.0.1-SNAPSHOT</version>
+                <type>zip</type>
             </dependency>
         </dependencies>
     </dependencyManagement>
