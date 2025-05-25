@@ -60,6 +60,12 @@
             <id>project.local</id>
             <name>Third Party Project</name>
             <url>file://${project.basedir}/repository</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
         </repository>
     </repositories>
 

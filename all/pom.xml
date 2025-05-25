@@ -201,6 +201,11 @@
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>
-
+        <dependency>
+            <groupId>com.third.party</groupId>
+            <artifactId>third-party.all</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+            <type>zip</type>
+        </dependency>
     </dependencies>
 </project>
