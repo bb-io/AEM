@@ -77,6 +77,11 @@
                             <type>zip</type>
                             <target>/apps/bb-aem-connector-packages/application/install</target>
                         </embedded>
+                        <embedded>
+                            <groupId>com.third.party</groupId>
+                            <artifactId>third-party.all</artifactId>
+                            <type>zip</type>
+                        </embedded>
                     </embeddeds>
                 </configuration>
             </plugin>
