@@ -1,6 +1,7 @@
 package io.blackbird.aemconnector.core.services.impl.detectors;
 
 import com.day.cq.commons.jcr.JcrConstants;
+import com.day.cq.dam.api.DamConstants;
 import io.blackbird.aemconnector.core.services.ContentType;
 import io.blackbird.aemconnector.core.services.ContentTypeDetector;
 import org.apache.sling.api.resource.Resource;
@@ -11,7 +12,8 @@ import org.osgi.service.component.annotations.Component;
 public class ContentFragmentDetector implements ContentTypeDetector {
     @Override
     public boolean detects(Resource resource) {
-        if (resource == null || !resource.isResourceType("dam:Asset")) {
+
+        if (resource == null || !resource.isResourceType(DamConstants.NT_DAM_ASSET)) {
             return false;
         }
 
