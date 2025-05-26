@@ -28,10 +28,10 @@ public class ContentExporterServlet extends BlackbirdAbstractBaseServlet {
     public static final String RESOURCE_TYPE = "bb-aem-connector/services/content-exporter";
 
     @Reference
-    private ContentTypeService contentTypeService;
+    private transient ContentTypeService contentTypeService;
 
     @Reference
-    private ContentExportService contentExportService;
+    private transient ContentExportService contentExportService;
 
     @Override
     public Serializable buildResponsePayload(SlingHttpServletRequest request, SlingHttpServletResponse response) throws BlackbirdHttpErrorException {
