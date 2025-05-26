@@ -16,6 +16,6 @@ public class ContentFragmentExporter implements ContentExporter {
 
     @Override
     public Serializable export(Resource resource) {
-        return null;
+        throw new UnsupportedOperationException("Export for Content Fragment not yet implemented");
     }
 }

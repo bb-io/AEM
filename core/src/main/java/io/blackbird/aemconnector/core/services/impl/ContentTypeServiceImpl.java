@@ -5,6 +5,7 @@ import io.blackbird.aemconnector.core.services.BlackbirdServiceUserResolverProvi
 import io.blackbird.aemconnector.core.services.ContentType;
 import io.blackbird.aemconnector.core.services.ContentTypeDetector;
 import io.blackbird.aemconnector.core.services.ContentTypeService;
+import io.blackbird.aemconnector.core.utils.ObjectUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.sling.api.resource.LoginException;
 import org.apache.sling.api.resource.Resource;
@@ -14,7 +15,6 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
-import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -42,13 +42,13 @@ public class ContentTypeServiceImpl implements ContentTypeService {
     }
 
     @Override
-    public ContentType resolveContentType(String path) {
+    public ContentType resolveContentType(String path) throws BlackbirdServiceException {
         try (ResourceResolver resolver = serviceUserResolverProvider.getContentStructureReaderResolver()) {
             Resource resource = resolver.getResource(path);
 
-            if (resource == null) {
-                return ContentType.UNKNOWN;
-            }
+            ObjectUtils.ensureNotNull(resource,
+                    () -> new BlackbirdServiceException(String.format(
+                            "No resource found at path: %s", path)));
 
             return detectors.stream()
                     .filter(detector -> detector.detects(resource))
@@ -58,7 +58,7 @@ public class ContentTypeServiceImpl implements ContentTypeService {
                     .findFirst().orElse(ContentType.UNKNOWN);
 
         } catch (LoginException e) {
-            log.error("Failed to resolve resource for path: {}", path);
+            log.error("Could not obtain resolver for path: {}, message: {}", path, e.getMessage(), e);
             throw new BlackbirdServiceException(e.getMessage(), e);
         }
     }

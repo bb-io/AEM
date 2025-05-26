@@ -16,6 +16,6 @@ public class ExperienceFragmentExporter implements ContentExporter {
 
     @Override
     public Serializable export(Resource resource) {
-        return null;
+        throw new UnsupportedOperationException("Export For Experience Fragment not yet implemented");
     }
 }
