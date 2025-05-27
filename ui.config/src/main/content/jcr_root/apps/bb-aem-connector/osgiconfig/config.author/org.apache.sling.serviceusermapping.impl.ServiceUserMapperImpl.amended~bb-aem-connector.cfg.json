@@ -4,6 +4,7 @@
     "bb-aem-connector.core:blackbird-updates-reader-service=[blackbird-updates-reader-service]",
     "bb-aem-connector.core:blackbird-page-content-reader-service=[blackbird-page-content-reader-service]",
     "bb-aem-connector.core:blackbird-translation-writer-service=[blackbird-translation-writer-service]",
-    "bb-aem-connector.core:blackbird-translation-rules-reader-service=[blackbird-translation-rules-reader-service]"
+    "bb-aem-connector.core:blackbird-translation-rules-reader-service=[blackbird-translation-rules-reader-service]",
+    "bb-aem-connector.core:blackbird-reference-reader-service=[blackbird-reference-reader-service]"
   ]
 }

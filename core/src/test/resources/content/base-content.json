@@ -173,7 +173,23 @@
             "root": {
               "jcr:primaryType": "nt:unstructured",
               "layout": "responsiveGrid",
-              "sling:resourceType": "bb-aem-connector/components/container"
+              "sling:resourceType": "bb-aem-connector/components/container",
+              "image": {
+                "jcr:primaryType": "nt:unstructured",
+                "fileReference": "/content/reference/image"
+              },
+              "container": {
+                "jcr:primaryType": "nt:unstructured",
+                "pageReference": "/content/bb-aem-connector/us/en/products"
+              },
+              "contentfragment": {
+                "jcr:primaryType": "nt:unstructured",
+                "fragmentPath": "/content/dam/reference/content-fragment"
+              },
+              "experiencefragment": {
+                "jcr:primaryType": "nt:unstructured",
+                "fragmentVariationPath": "/content/reference/experience-fragments"
+              }
             }
           }
         }
