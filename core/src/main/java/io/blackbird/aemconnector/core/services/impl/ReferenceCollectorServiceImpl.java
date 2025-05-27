@@ -22,6 +22,7 @@ import javax.jcr.Value;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Component(service = ReferenceCollectorService.class)
@@ -43,7 +44,7 @@ public class ReferenceCollectorServiceImpl implements ReferenceCollectorService 
                 return Collections.emptyList();
             }
             List<ContentReference> references = new ArrayList<>();
-            collectAllReferences(rootResource, resolver, references);
+            collectAllReferences(rootResource, references);
             return references;
         } catch (LoginException ex) {
             log.error("Cannot access Reference Reader", ex);
@@ -51,28 +52,21 @@ public class ReferenceCollectorServiceImpl implements ReferenceCollectorService 
         return Collections.emptyList();
     }
 
-    private void collectAllReferences(Resource resource, ResourceResolver resolver, List<ContentReference> references) {
-        collectReferencesFromPageTemplate(resource, resolver, references);
-        collectReferencesFromProperties(resource, resolver, references);
+    private void collectAllReferences(Resource resource, List<ContentReference> references) {
+        collectReferencesFromPageTemplate(resource, references);
+        collectReferencesFromProperties(resource, references);
     }
 
-    private void collectReferencesFromPageTemplate(Resource resource, ResourceResolver resolver, List<ContentReference> references) {
-        Page page = resource.adaptTo(Page.class);
-        if (page == null) {
-            return;
-        }
-        Template template = page.getTemplate();
-        if (template == null) {
-            return;
-        }
-        Resource templateStructureResource = resolver.getResource(template.getPath() + STRUCTURE_JCR_CONTENT);
-        if (templateStructureResource == null) {
-            return;
-        }
-        collectReferencesFromProperties(templateStructureResource, resolver, references);
+    private void collectReferencesFromPageTemplate(Resource resource, List<ContentReference> references) {
+        Optional.ofNullable(resource.adaptTo(Page.class))
+                .map(Page::getTemplate)
+                .map(Template::getPath)
+                .map(path -> path + STRUCTURE_JCR_CONTENT)
+                .map(resource.getResourceResolver()::getResource)
+                .ifPresent(res -> collectReferencesFromProperties(res, references));
     }
 
-    private void collectReferencesFromProperties(Resource resource, ResourceResolver resolver, List<ContentReference> references) {
+    private void collectReferencesFromProperties(Resource resource, List<ContentReference> references) {
         Node node = resource.adaptTo(Node.class);
         if (node == null) {
             return;
@@ -81,8 +75,9 @@ public class ReferenceCollectorServiceImpl implements ReferenceCollectorService 
             PropertyIterator propertyIterator = node.getProperties();
             while (propertyIterator.hasNext()) {
                 Property property = propertyIterator.nextProperty();
-                if (!translationRulesService.isAssetReference(property).equals(TranslationRulesService.IsAssetReference.NOT_REFERENCE)) {
-                    if (property.isMultiple()) {
+                ResourceResolver resolver = resource.getResourceResolver();
+                if (!TranslationRulesService.IsAssetReference.NOT_REFERENCE.equals(translationRulesService.isAssetReference(property))) {
+                     if (property.isMultiple()) {
                         Value[] values = property.getValues();
                         for (Value value : values) {
                             addReference(value.getString(), resolver, references);
@@ -96,7 +91,7 @@ public class ReferenceCollectorServiceImpl implements ReferenceCollectorService 
             log.error(String.format("Cannot collect references from properties for resource %s", resource.getPath()), ex);
         }
         for (Resource child : resource.getChildren()) {
-            collectReferencesFromProperties(child, resolver, references);
+            collectReferencesFromProperties(child, references);
         }
     }
 
@@ -107,7 +102,7 @@ public class ReferenceCollectorServiceImpl implements ReferenceCollectorService 
         }
         ContentReference contentReference = new ContentReference(value);
         List<ContentReference> childReferences = new ArrayList<>();
-        collectReferencesFromProperties(referenceResource, resolver, childReferences);
+        collectReferencesFromProperties(referenceResource, childReferences);
         contentReference.getReferences().addAll(childReferences);
         references.add(contentReference);
     }
