@@ -27,6 +27,9 @@ public class AssetReferenceRule {
         if (null == parent) {
             throw new BlackbirdInternalErrorException("Can't get parent node of property " + RepositoryUtils.getPath(property));
         }
+        if (!RepositoryUtils.hasProperty(parent, SLING_RESOURCE_TYPE_PROPERTY)) {
+            return null;
+        }
         String parentResourceType = RepositoryUtils.getPropertyAsString(parent, SLING_RESOURCE_TYPE_PROPERTY);
         if (assetReferenceAttribute.equals(RepositoryUtils.getName(property))
                 && resourceType.equals(parentResourceType)) {

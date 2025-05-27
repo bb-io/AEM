@@ -1,75 +1,118 @@
 package io.blackbird.aemconnector.core.services.impl;
 
+import com.day.cq.wcm.api.Page;
+import com.day.cq.wcm.api.Template;
 import io.blackbird.aemconnector.core.dto.ContentReference;
 import io.blackbird.aemconnector.core.services.BlackbirdServiceUserResolverProvider;
-import io.blackbird.aemconnector.core.services.ReferenceCollectorService;
-import io.blackbird.aemconnector.core.testcontext.AppAemContext;
-import io.wcm.testing.mock.aem.junit5.AemContext;
-import io.wcm.testing.mock.aem.junit5.AemContextExtension;
+import io.blackbird.aemconnector.core.services.TranslationRulesService;
+import junitx.util.PrivateAccessor;
+import org.apache.sling.api.resource.Resource;
+import org.apache.sling.api.resource.ResourceResolver;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
+import javax.jcr.Node;
+import javax.jcr.Property;
+import javax.jcr.PropertyIterator;
+import javax.jcr.Value;
 import java.util.List;
 
 import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@ExtendWith({AemContextExtension.class, MockitoExtension.class})
-public class ReferenceCollectorServiceImplTest {
+class ReferenceCollectorServiceImplTest {
 
-    private final AemContext context = AppAemContext.newAemContext();
-
-    @Mock
+    private ReferenceCollectorServiceImpl service;
     private BlackbirdServiceUserResolverProvider resolverProvider;
-
-    private ReferenceCollectorService target;
+    private TranslationRulesService translationRulesService;
+    private ResourceResolver resolver;
 
     @BeforeEach
     void setUp() throws Exception {
-        context.load().json("/content/base-content.json", "/content");
-        context.registerService(BlackbirdServiceUserResolverProvider.class, resolverProvider);
-        target = context.registerInjectActivateService(new ReferenceCollectorServiceImpl());
-        when(resolverProvider.getReferenceReaderResolver()).thenReturn(context.resourceResolver());
+        resolverProvider = mock(BlackbirdServiceUserResolverProvider.class);
+        translationRulesService = mock(TranslationRulesService.class);
+        resolver = mock(ResourceResolver.class);
+
+        service = new ReferenceCollectorServiceImpl();
+        PrivateAccessor.setField(service, "resolverProvider", resolverProvider);
+        PrivateAccessor.setField(service, "translationRulesService", translationRulesService);
+
+        when(resolverProvider.getReferenceReaderResolver()).thenReturn(resolver);
     }
 
     @Test
     void shouldReturnEmptyReferencesWhenPageNotExists() {
-        List<ContentReference> result = target.getReferences("/content/non-existing-page");
+        when(resolver.getResource("/content/bb-aem-connector")).thenReturn(null);
 
-        assertEquals(0, result.size());
+        List<ContentReference> results = service.getReferences("/content/bb-aem-connector");
+
+        assertEquals(0, results.size());
     }
 
     @Test
-    void shouldReturnReferencesWhenPageContainsReferences() {
-        context.create().resource("/content/reference/image");
-        context.create().resource("/content/dam/reference/content-fragment");
-        context.create().resource("/content/reference/experience-fragments");
+    void shouldReturnReferencesWhenTemplateContainsReferences() throws Exception {
+        Resource rootResource = mock(Resource.class);
+        Node rootNode = mock(Node.class);
+        PropertyIterator propertyIterator = mock(PropertyIterator.class);
+        Property property = mock(Property.class);
+        Value value = mock(Value.class);
+        Resource damResource = mock(Resource.class);
+        Node damNode = mock(Node.class);
 
-        List<ContentReference> result = target.getReferences("/content/bb-aem-connector");
+        when(resolver.getResource("/content/bb-aem-connector")).thenReturn(rootResource);
+        when(rootResource.adaptTo(Node.class)).thenReturn(rootNode);
+        when(rootNode.getProperties()).thenReturn(propertyIterator);
+        when(propertyIterator.hasNext()).thenReturn(true, false);
+        when(propertyIterator.nextProperty()).thenReturn(property);
+        when(translationRulesService.isAssetReference(property)).thenReturn(TranslationRulesService.IsAssetReference.REFERENCE);
+        when(property.isMultiple()).thenReturn(false);
+        when(property.getValue()).thenReturn(value);
+        when(value.getString()).thenReturn("/content/reference/image");
+        when(resolver.getResource("/content/reference/image")).thenReturn(damResource);
+        when(damResource.adaptTo(Node.class)).thenReturn(damNode);
+        when(damNode.getProperties()).thenReturn(mock(PropertyIterator.class));
 
-        assertEquals(4, result.size());
-        assertTrue(result.stream().anyMatch(reference -> reference.getPath().equals("/content/reference/image")));
-        assertTrue(result.stream().anyMatch(reference -> reference.getPath().equals("/content/bb-aem-connector/us/en/products")));
-        assertTrue(result.stream().anyMatch(reference -> reference.getPath().equals("/content/dam/reference/content-fragment")));
-        assertTrue(result.stream().anyMatch(reference -> reference.getPath().equals("/content/reference/experience-fragments")));
+        List<ContentReference> results = service.getReferences("/content/bb-aem-connector");
+
+        assertEquals(1, results.size());
+        assertEquals("/content/reference/image", results.get(0).getPath());
     }
 
     @Test
-    void shouldReturnReferencesWhenTemplateContainsReferences() {
-        context.create().resource("/content/experience-fragments/header/master");
-        context.create().resource("/conf/bb-aem-connector/settings/wcm/templates/page-content", "jcr:primaryType", "cq:Template");
-        context.create().resource("/conf/bb-aem-connector/settings/wcm/templates/page-content/structure/jcr:content");
-        context.create().resource("/conf/bb-aem-connector/settings/wcm/templates/page-content/structure/jcr:content/experiencefragment-header", "fragmentVariationPath", "/content/experience-fragments/header/master");
+    void shouldReturnReferencesWhenPageContainsReferences() throws Exception {
+        Resource rootResource = mock(Resource.class);
+        Page rootPage = mock(Page.class);
+        Template template = mock(Template.class);
+        Resource templateResource = mock(Resource.class);
+        Node templateNode = mock(Node.class);
+        PropertyIterator propertyIterator = mock(PropertyIterator.class);
+        Property property = mock(Property.class);
+        Value value = mock(Value.class);
+        Resource xfResource = mock(Resource.class);
+        Node xfNode = mock(Node.class);
 
-        List<ContentReference> result = target.getReferences("/content/bb-aem-connector");
+        when(resolver.getResource("/content/bb-aem-connector")).thenReturn(rootResource);
+        when(rootResource.adaptTo(Page.class)).thenReturn(rootPage);
+        when(rootPage.getTemplate()).thenReturn(template);
+        when(template.getPath()).thenReturn("/conf/bb-aem-connector/templates/page-content");
+        when(resolver.getResource("/conf/bb-aem-connector/templates/page-content/structure/jcr:content")).thenReturn(templateResource);
+        when(templateResource.adaptTo(Node.class)).thenReturn(templateNode);
+        when(templateNode.getProperties()).thenReturn(propertyIterator);
+        when(propertyIterator.hasNext()).thenReturn(true, false);
+        when(propertyIterator.nextProperty()).thenReturn(property);
+        when(translationRulesService.isAssetReference(property)).thenReturn(TranslationRulesService.IsAssetReference.REFERENCE);
+        when(property.isMultiple()).thenReturn(false);
+        when(property.getValue()).thenReturn(value);
+        when(value.getString()).thenReturn("/content/experience-fragments/header/master");
+        when(resolver.getResource("/content/experience-fragments/header/master")).thenReturn(xfResource);
+        when(xfResource.adaptTo(Node.class)).thenReturn(xfNode);
+        when(xfNode.getProperties()).thenReturn(mock(PropertyIterator.class));
 
-        assertEquals(2, result.size());
-        assertTrue(result.stream().anyMatch(reference -> reference.getPath().equals("/content/bb-aem-connector/us/en/products")));
-        assertTrue(result.stream().anyMatch(reference -> reference.getPath().equals("/content/experience-fragments/header/master")));
+        List<ContentReference> results = service.getReferences("/content/bb-aem-connector");
+
+        assertEquals(1, results.size());
+        assertEquals("/content/experience-fragments/header/master", results.get(0).getPath());
     }
 
 }

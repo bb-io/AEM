@@ -3,38 +3,37 @@ package io.blackbird.aemconnector.core.services.impl;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.Template;
 import io.blackbird.aemconnector.core.dto.ContentReference;
+import io.blackbird.aemconnector.core.exceptions.BlackbirdInternalErrorException;
 import io.blackbird.aemconnector.core.services.BlackbirdServiceUserResolverProvider;
 import io.blackbird.aemconnector.core.services.ReferenceCollectorService;
+import io.blackbird.aemconnector.core.services.TranslationRulesService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.sling.api.resource.LoginException;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
-import org.apache.sling.api.resource.ValueMap;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import javax.jcr.Node;
+import javax.jcr.Property;
+import javax.jcr.PropertyIterator;
+import javax.jcr.RepositoryException;
+import javax.jcr.Value;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 @Slf4j
 @Component(service = ReferenceCollectorService.class)
 public class ReferenceCollectorServiceImpl implements ReferenceCollectorService {
 
-    private static final Set<String> REFERENCE_PROPERTY_NAMES = new HashSet<>(Arrays.asList(
-            "fileReference",
-            "pageReference",
-            "fragmentPath",
-            "fragmentVariationPath"
-    ));
     private static final String STRUCTURE_JCR_CONTENT = "/structure/jcr:content";
 
     @Reference
     private BlackbirdServiceUserResolverProvider resolverProvider;
+
+    @Reference
+    private TranslationRulesService translationRulesService;
 
     @Override
     public List<ContentReference> getReferences(String rootPath) {
@@ -74,18 +73,27 @@ public class ReferenceCollectorServiceImpl implements ReferenceCollectorService 
     }
 
     private void collectReferencesFromProperties(Resource resource, ResourceResolver resolver, List<ContentReference> references) {
-        ValueMap properties = resource.getValueMap();
-        for (Map.Entry<String, Object> entry : properties.entrySet()) {
-            if (REFERENCE_PROPERTY_NAMES.contains(entry.getKey())) {
-                Object value = entry.getValue();
-                if (value instanceof String) {
-                    addReference((String) value, resolver, references);
-                } else if (value instanceof String[]) {
-                    for (String val : (String[]) value) {
-                        addReference(val, resolver, references);
+        Node node = resource.adaptTo(Node.class);
+        if (node == null) {
+            return;
+        }
+        try {
+            PropertyIterator propertyIterator = node.getProperties();
+            while (propertyIterator.hasNext()) {
+                Property property = propertyIterator.nextProperty();
+                if (!translationRulesService.isAssetReference(property).equals(TranslationRulesService.IsAssetReference.NOT_REFERENCE)) {
+                    if (property.isMultiple()) {
+                        Value[] values = property.getValues();
+                        for (Value value : values) {
+                            addReference(value.getString(), resolver, references);
+                        }
+                    } else {
+                        addReference(property.getValue().getString(), resolver, references);
                     }
                 }
             }
+        } catch (RepositoryException | BlackbirdInternalErrorException ex) {
+            log.error(String.format("Cannot collect references from properties for resource %s", resource.getPath()), ex);
         }
         for (Resource child : resource.getChildren()) {
             collectReferencesFromProperties(child, resolver, references);
