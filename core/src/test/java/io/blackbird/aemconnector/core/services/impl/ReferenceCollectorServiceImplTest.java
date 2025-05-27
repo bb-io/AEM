@@ -61,6 +61,7 @@ class ReferenceCollectorServiceImplTest {
         Node damNode = mock(Node.class);
 
         when(resolver.getResource("/content/bb-aem-connector")).thenReturn(rootResource);
+        when(rootResource.getResourceResolver()).thenReturn(resolver);
         when(rootResource.adaptTo(Node.class)).thenReturn(rootNode);
         when(rootNode.getProperties()).thenReturn(propertyIterator);
         when(propertyIterator.hasNext()).thenReturn(true, false);
@@ -93,11 +94,13 @@ class ReferenceCollectorServiceImplTest {
         Node xfNode = mock(Node.class);
 
         when(resolver.getResource("/content/bb-aem-connector")).thenReturn(rootResource);
+        when(rootResource.getResourceResolver()).thenReturn(resolver);
         when(rootResource.adaptTo(Page.class)).thenReturn(rootPage);
         when(rootPage.getTemplate()).thenReturn(template);
         when(template.getPath()).thenReturn("/conf/bb-aem-connector/templates/page-content");
         when(resolver.getResource("/conf/bb-aem-connector/templates/page-content/structure/jcr:content")).thenReturn(templateResource);
         when(templateResource.adaptTo(Node.class)).thenReturn(templateNode);
+        when(templateResource.getResourceResolver()).thenReturn(resolver);
         when(templateNode.getProperties()).thenReturn(propertyIterator);
         when(propertyIterator.hasNext()).thenReturn(true, false);
         when(propertyIterator.nextProperty()).thenReturn(property);
