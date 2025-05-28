@@ -1,6 +1,7 @@
 package io.blackbird.aemconnector.core.services.impl.detectors;
 
-import com.day.cq.wcm.api.constants.NameConstants;
+import com.adobe.cq.xf.ExperienceFragmentVariation;
+import com.day.cq.wcm.api.Page;
 import io.blackbird.aemconnector.core.services.ContentType;
 import io.blackbird.aemconnector.core.services.ContentTypeDetector;
 import org.apache.sling.api.resource.Resource;
@@ -12,11 +13,9 @@ import java.util.Optional;
 public class ExperienceFragmentDetector implements ContentTypeDetector {
     @Override
     public boolean detects(Resource resource) {
-
         return Optional.ofNullable(resource)
-                .filter(res -> res.isResourceType(NameConstants.NT_PAGE))
-                .map(Resource::getPath)
-                .filter(path -> path.startsWith("/content/experience-fragments"))
+                .map(res -> res.adaptTo(Page.class))
+                .map(page -> page.adaptTo(ExperienceFragmentVariation.class))
                 .isPresent();
     }
 
