@@ -33,13 +33,13 @@ public class BlackbirdPageCopyMergeServiceImpl implements BlackbirdPageCopyMerge
     private BlackbirdServiceUserResolverProvider serviceUserResolverProvider;
 
     @Override
-    public Page copyAndMerge(String sourcePath, String targetPath, JsonNode targetContent) throws BlackbirdPageCopyMergeException, LoginException {
+    public Page copyAndMerge(String sourcePath, String targetPath, JsonNode targetContent) throws BlackbirdPageCopyMergeException {
 
         try (ResourceResolver resolver = serviceUserResolverProvider.getTranslationWriterResolver()) {
             PageManager pageManager = requireNonNull(resolver.adaptTo(PageManager.class), "Cannot adapt to PageManager");
 
             Page sourcePage = requireNonNull(pageManager.getPage(sourcePath),
-                    String.format("Source Page does not exist, %s", sourcePath));
+                    String.format("Source resource does not exist, %s", sourcePath));
 
             Page targetPage = pageManager.getPage(targetPath);
 
@@ -119,7 +119,7 @@ public class BlackbirdPageCopyMergeServiceImpl implements BlackbirdPageCopyMerge
             page = pageManager.getPage(path);
         }
         if (page == null) {
-            throw new BlackbirdPageCopyMergeException(String.format("root page doesn't exist for path: %s", pagePath));
+            throw new BlackbirdPageCopyMergeException(String.format("Root resource doesn't exist for path: %s", pagePath));
         }
         for (String pageName : nonExistentPages) {
             page = pageManager.create(page.getPath(), pageName, StringUtils.EMPTY, pageName, true);
