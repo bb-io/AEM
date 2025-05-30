@@ -548,34 +548,6 @@ components:
           type: string
           description: the date page was modified
           example: 2025-03-20
-        references:
-          type: array
-          description: content references for that page
-          items:
-            $ref: '#/components/schemas/BlackbirdEventViewerPageReference'
-
-    BlackbirdEventViewerPageReference:
-      type: object
-      description: Represents a reference for Page Event Viewer servlet
-      properties:
-        path:
-          type: string
-          description: reference path
-          example: /content/dam/my-site/reference
-        references:
-          type: array
-          description: references of current reference
-          items:
-            $ref: '#/components/schemas/BlackbirdEventViewerPageReferenceForCurrentReference'
-
-    BlackbirdEventViewerPageReferenceForCurrentReference:
-      type: object
-      description: Represents a reference for Page Event Viewer servlet
-      properties:
-        path:
-          type: string
-          description: reference path
-          example: /content/dam/my-site/reference1
 
     BlackbirdErrorResponse:
       type: object

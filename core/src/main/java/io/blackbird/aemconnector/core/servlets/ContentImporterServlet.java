@@ -35,6 +35,7 @@ public class ContentImporterServlet extends BlackbirdAbstractBaseServlet {
     private static final String SOURCE_PATH = "sourcePath";
     private static final String TARGET_PATH = "targetPath";
     private static final String TARGET_CONTENT = "targetContent";
+    private static final String REFERENCES = "references";
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -51,12 +52,13 @@ public class ContentImporterServlet extends BlackbirdAbstractBaseServlet {
         String sourcePath = payload.path(SOURCE_PATH).asText(null);
         String targetPath = payload.path(TARGET_PATH).asText(null);
         JsonNode targetContent = payload.path(TARGET_CONTENT);
+        JsonNode references = payload.path(REFERENCES);
 
         validateParams(sourcePath, targetPath, targetContent);
         ObjectNode node = objectMapper.createObjectNode();
         try {
             ContentType contentType = contentTypeService.resolveContentType(sourcePath);
-            Resource resource = contentImportService.importContent(sourcePath, targetPath, targetContent, contentType);
+            Resource resource = contentImportService.importContent(sourcePath, targetPath, targetContent, references, contentType);
             node.put("message", "Content imported successfully");
             node.put("path", resource.getPath());
             return node;

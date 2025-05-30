@@ -64,11 +64,12 @@ public class ExperienceFragmentImporterTest {
         String sourcePath = "/content/xf/source/variant";
         String targetPath = "/content/xf/target/variant";
         ObjectNode targetContent = objectMapper.createObjectNode().put("data", "test");
+        ObjectNode references = objectMapper.createObjectNode();
 
-        when(pageCopyMergeService.copyAndMerge(sourcePath, targetPath, targetContent)).thenReturn(mockPage);
+        when(pageCopyMergeService.copyAndMerge(sourcePath, targetPath, targetContent, references)).thenReturn(mockPage);
         when(mockPage.adaptTo(Resource.class)).thenReturn(mockResource);
 
-        Resource result = xfImporter.importResource(sourcePath, targetPath, targetContent);
+        Resource result = xfImporter.importResource(sourcePath, targetPath, targetContent, references);
 
         assertNotNull(result);
         assertEquals(mockResource, result);
@@ -79,12 +80,13 @@ public class ExperienceFragmentImporterTest {
         String sourcePath = "/content/xf/source/variant";
         String targetPath = "/content/xf/target/variant";
         ObjectNode targetContent = objectMapper.createObjectNode();
+        ObjectNode references = objectMapper.createObjectNode();
 
-        when(pageCopyMergeService.copyAndMerge(sourcePath, targetPath, targetContent))
+        when(pageCopyMergeService.copyAndMerge(sourcePath, targetPath, targetContent, references))
                 .thenThrow(new BlackbirdPageCopyMergeException("Merge failed"));
 
         BlackbirdServiceException exception = assertThrows(BlackbirdServiceException.class,
-                () -> xfImporter.importResource(sourcePath, targetPath, targetContent)
+                () -> xfImporter.importResource(sourcePath, targetPath, targetContent, references)
         );
 
         assertEquals("Can not import experience fragment, sourcePath: /content/xf/source/variant, " +
@@ -96,12 +98,13 @@ public class ExperienceFragmentImporterTest {
         String sourcePath = "/content/xf/source/variant";
         String targetPath = "/content/xf/target/variant";
         ObjectNode targetContent = objectMapper.createObjectNode();
+        ObjectNode references = objectMapper.createObjectNode();
 
-        when(pageCopyMergeService.copyAndMerge(sourcePath, targetPath, targetContent))
+        when(pageCopyMergeService.copyAndMerge(sourcePath, targetPath, targetContent, references))
                 .thenThrow(new LoginException("Login failed"));
 
         assertThrows(BlackbirdServiceException.class,
-                () -> xfImporter.importResource(sourcePath, targetPath, targetContent)
+                () -> xfImporter.importResource(sourcePath, targetPath, targetContent, references)
         );
     }
 }

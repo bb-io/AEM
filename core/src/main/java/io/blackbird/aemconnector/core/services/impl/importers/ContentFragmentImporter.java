@@ -16,7 +16,7 @@ public class ContentFragmentImporter implements ContentImporter {
     }
 
     @Override
-    public Resource importResource(String sourcePath, String targetPath, JsonNode targetContent) throws BlackbirdServiceException {
+    public Resource importResource(String sourcePath, String targetPath, JsonNode targetContent, JsonNode references) throws BlackbirdServiceException {
         throw new UnsupportedOperationException("Import for Content Fragment not yet implemented");
     }
 }

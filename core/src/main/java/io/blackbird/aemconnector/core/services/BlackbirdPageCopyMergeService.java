@@ -6,5 +6,5 @@ import io.blackbird.aemconnector.core.exceptions.BlackbirdPageCopyMergeException
 import org.apache.sling.api.resource.LoginException;
 
 public interface BlackbirdPageCopyMergeService {
-    Page copyAndMerge(String sourcePath, String targetPath, JsonNode targetContent) throws BlackbirdPageCopyMergeException, LoginException;
+    Page copyAndMerge(String sourcePath, String targetPath, JsonNode targetContent, JsonNode references) throws BlackbirdPageCopyMergeException, LoginException;
 }

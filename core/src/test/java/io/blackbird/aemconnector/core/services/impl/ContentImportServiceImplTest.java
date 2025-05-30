@@ -47,17 +47,18 @@ public class ContentImportServiceImplTest {
         String targetPath = "/content/target";
         ContentType contentType = ContentType.PAGE;
         ObjectNode targetContent = objectMapper.createObjectNode().put("jcr:title", "Test Page");
+        ObjectNode references = objectMapper.createObjectNode();
 
         when(mockImporter.canImport(contentType)).thenReturn(true);
-        when(mockImporter.importResource(sourcePath, targetPath, targetContent)).thenReturn(mockResource);
+        when(mockImporter.importResource(sourcePath, targetPath, targetContent, references)).thenReturn(mockResource);
 
         contentImportService.bindImporter(mockImporter);
 
-        Resource result = contentImportService.importContent(sourcePath, targetPath, targetContent, contentType);
+        Resource result = contentImportService.importContent(sourcePath, targetPath, targetContent, references, contentType);
 
         assertNotNull(result);
         assertEquals(mockResource, result);
-        verify(mockImporter).importResource(sourcePath, targetPath, targetContent);
+        verify(mockImporter).importResource(sourcePath, targetPath, targetContent, references);
     }
 
     @Test
@@ -66,18 +67,19 @@ public class ContentImportServiceImplTest {
         String targetPath = "/content/target";
         ContentType contentType = ContentType.EXPERIENCE_FRAGMENT;
         ObjectNode targetContent = objectMapper.createObjectNode().put("jcr:title", "Test Page");
+        ObjectNode references = objectMapper.createObjectNode();
 
         when(mockImporter.canImport(contentType)).thenReturn(true);
-        when(mockImporter.importResource(sourcePath, targetPath, targetContent)).thenReturn(mockResource);
+        when(mockImporter.importResource(sourcePath, targetPath, targetContent, references)).thenReturn(mockResource);
         when(mockResource.getPath()).thenReturn(targetPath);
 
         contentImportService.bindImporter(mockImporter);
 
-        Resource result = contentImportService.importContent(sourcePath, targetPath, targetContent, contentType);
+        Resource result = contentImportService.importContent(sourcePath, targetPath, targetContent, references, contentType);
 
         assertNotNull(result);
         assertEquals(mockResource, result);
-        verify(mockImporter).importResource(sourcePath, targetPath, targetContent);
+        verify(mockImporter).importResource(sourcePath, targetPath, targetContent, references);
     }
 
     @Test
@@ -86,13 +88,14 @@ public class ContentImportServiceImplTest {
         String targetPath = "/content/xf/target/variant";
         ContentType contentType = ContentType.UNKNOWN;
         ObjectNode targetContent = objectMapper.createObjectNode().put("data", "test");
+        ObjectNode references = objectMapper.createObjectNode();
 
         when(mockImporter.canImport(contentType)).thenReturn(false);
 
         contentImportService.bindImporter(mockImporter);
 
         BlackbirdServiceException ex = assertThrows(BlackbirdServiceException.class,
-                () -> contentImportService.importContent(sourcePath, targetPath, targetContent, contentType)
+                () -> contentImportService.importContent(sourcePath, targetPath, targetContent, references, contentType)
         );
 
         assertEquals("No importer for content type: UNKNOWN at /content/xf/source/variant", ex.getMessage());
