@@ -64,11 +64,12 @@ class PageImporterTest {
         String sourcePath = "/content/source";
         String targetPath = "/content/target";
         ObjectNode targetContent = objectMapper.createObjectNode().put("jcr:title", "Test Page");
+        ObjectNode references = objectMapper.createObjectNode();
 
-        when(pageCopyMergeService.copyAndMerge(sourcePath, targetPath, targetContent)).thenReturn(mockPage);
+        when(pageCopyMergeService.copyAndMerge(sourcePath, targetPath, targetContent, references)).thenReturn(mockPage);
         when(mockPage.adaptTo(Resource.class)).thenReturn(mockResource);
 
-        Resource result = pageImporter.importResource(sourcePath, targetPath, targetContent);
+        Resource result = pageImporter.importResource(sourcePath, targetPath, targetContent, references);
 
         assertNotNull(result);
         assertEquals(mockResource, result);
@@ -79,12 +80,13 @@ class PageImporterTest {
         String sourcePath = "/content/source";
         String targetPath = "/content/target";
         ObjectNode targetContent = objectMapper.createObjectNode();
+        ObjectNode references = objectMapper.createObjectNode();
 
-        when(pageCopyMergeService.copyAndMerge(sourcePath, targetPath, targetContent))
+        when(pageCopyMergeService.copyAndMerge(sourcePath, targetPath, targetContent, references))
                 .thenThrow(new BlackbirdPageCopyMergeException("Merge failed"));
 
         BlackbirdServiceException exception = assertThrows(BlackbirdServiceException.class,
-                () -> pageImporter.importResource(sourcePath, targetPath, targetContent)
+                () -> pageImporter.importResource(sourcePath, targetPath, targetContent, references)
         );
 
         assertEquals("Can not import page, sourcePath: /content/source, targetPath: /content/target", exception.getMessage());
@@ -95,12 +97,13 @@ class PageImporterTest {
         String sourcePath = "/content/source";
         String targetPath = "/content/target";
         ObjectNode targetContent = objectMapper.createObjectNode();
+        ObjectNode references = objectMapper.createObjectNode();
 
-        when(pageCopyMergeService.copyAndMerge(sourcePath, targetPath, targetContent))
+        when(pageCopyMergeService.copyAndMerge(sourcePath, targetPath, targetContent, references))
                 .thenThrow(new LoginException("Login failed"));
 
         assertThrows(BlackbirdServiceException.class,
-                () -> pageImporter.importResource(sourcePath, targetPath, targetContent)
+                () -> pageImporter.importResource(sourcePath, targetPath, targetContent, references)
         );
     }
 }
