@@ -79,15 +79,9 @@ public class BlackbirdPageCopyMergeServiceImpl implements BlackbirdPageCopyMerge
     }
 
     private void updateReference(String propertyPath, String propertyName, String referencePath, ResourceResolver resolver) {
-            /*Resource resource = resolver.getResource(propertyPath);
-            if (resource == null) {
-                return;
-            }
-            ModifiableValueMap properties = resource.adaptTo(ModifiableValueMap.class);
-            properties.put(propertyName, referencePath);*/
-            Optional.ofNullable(resolver.getResource(propertyPath))
-                    .map(resource -> resource.adaptTo(ModifiableValueMap.class))
-                    .ifPresent(properties -> properties.put(propertyName, referencePath));
+        Optional.ofNullable(resolver.getResource(propertyPath))
+                .map(resource -> resource.adaptTo(ModifiableValueMap.class))
+                .ifPresent(properties -> properties.put(propertyName, referencePath));
 
     }
 
