@@ -6,5 +6,5 @@ import org.apache.sling.api.resource.Resource;
 
 public interface ContentImportService {
 
-    Resource importContent(String sourcePath, String targetPath, JsonNode targetContent, ContentType contentType) throws BlackbirdServiceException;
+    Resource importContent(String sourcePath, String targetPath, JsonNode targetContent, JsonNode references, ContentType contentType) throws BlackbirdServiceException;
 }

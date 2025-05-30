@@ -24,9 +24,9 @@ public class PageImporter implements ContentImporter {
     }
 
     @Override
-    public Resource importResource(String sourcePath, String targetPath, JsonNode targetContent) throws BlackbirdServiceException {
+    public Resource importResource(String sourcePath, String targetPath, JsonNode targetContent, JsonNode references) throws BlackbirdServiceException {
         try {
-            Page page = pageCopyMergeService.copyAndMerge(sourcePath, targetPath, targetContent);
+            Page page = pageCopyMergeService.copyAndMerge(sourcePath, targetPath, targetContent, references);
             return page.adaptTo(Resource.class);
         } catch (BlackbirdPageCopyMergeException | LoginException ex) {
             throw new BlackbirdServiceException(String.format("Can not import page, sourcePath: %s, targetPath: %s", sourcePath, targetPath), ex);
