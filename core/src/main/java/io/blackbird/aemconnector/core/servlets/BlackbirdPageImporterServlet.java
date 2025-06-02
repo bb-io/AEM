@@ -52,7 +52,7 @@ public class BlackbirdPageImporterServlet extends BlackbirdAbstractBaseServlet {
         ObjectNode node = objectMapper.createObjectNode();
 
         try {
-            Page page = pageCopyMergeService.copyAndMerge(sourcePath, targetPath, targetContent);
+            Page page = pageCopyMergeService.copyAndMerge(sourcePath, targetPath, targetContent, null);
             node.put("message", "Page imported successfully");
             node.put("path", page.getPath());
             return node;
