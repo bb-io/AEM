@@ -2,10 +2,10 @@ package io.blackbird.aemconnector.core.services.impl;
 
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.Template;
-import io.blackbird.aemconnector.core.dto.ContentReference;
+import io.blackbird.aemconnector.core.dto.v1.ContentReference;
 import io.blackbird.aemconnector.core.exceptions.BlackbirdInternalErrorException;
 import io.blackbird.aemconnector.core.services.BlackbirdServiceUserResolverProvider;
-import io.blackbird.aemconnector.core.services.ReferenceCollectorService;
+import io.blackbird.aemconnector.core.services.v1.ReferenceCollectorService;
 import io.blackbird.aemconnector.core.services.TranslationRulesService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.sling.api.resource.LoginException;
@@ -95,12 +95,12 @@ public class ReferenceCollectorServiceImpl implements ReferenceCollectorService 
         }
     }
 
-    private void addReference(String value, ResourceResolver resolver, List<ContentReference> references) {
-        Resource referenceResource = resolver.getResource(value);
+    private void addReference(String path, ResourceResolver resolver, List<ContentReference> references) {
+        Resource referenceResource = resolver.getResource(path);
         if (referenceResource == null) {
             return;
         }
-        ContentReference contentReference = new ContentReference(value);
+        ContentReference contentReference = new ContentReference(path);
         List<ContentReference> childReferences = new ArrayList<>();
         collectReferencesFromProperties(referenceResource, childReferences);
         contentReference.getReferences().addAll(childReferences);

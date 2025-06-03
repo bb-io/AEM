@@ -112,4 +112,7 @@ public final class Node2JsonUtil {
         return !NT_PAGE.equals(node.getProperty(JCR_PRIMARYTYPE).getString());
     }
 
+    public static ObjectMapper getMapper() {
+        return MAPPER;
+    }
 }

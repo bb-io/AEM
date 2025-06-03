@@ -9,6 +9,7 @@ import io.blackbird.aemconnector.core.services.ContentType;
 import io.blackbird.aemconnector.core.services.TranslationRulesService;
 import io.blackbird.aemconnector.core.services.impl.exporters.ExperienceFragmentExporter;
 import io.blackbird.aemconnector.core.services.impl.exporters.PageExporter;
+import io.blackbird.aemconnector.core.services.v2.ReferenceCollectorService;
 import io.wcm.testing.mock.aem.junit5.AemContext;
 import io.wcm.testing.mock.aem.junit5.AemContextExtension;
 import org.apache.sling.api.resource.LoginException;
@@ -38,6 +39,8 @@ class ContentExportServiceImplTest {
     private BlackbirdServiceUserResolverProvider serviceUserResolverProvider;
     @Mock
     private TranslationRulesService translationRulesService;
+    @Mock
+    ReferenceCollectorService referenceCollectorService;
 
     private ContentExportServiceImpl target;
 
@@ -48,15 +51,15 @@ class ContentExportServiceImplTest {
         ResourceResolver spyResolver = Mockito.spy(context.resourceResolver());
         Mockito.doNothing().when(spyResolver).close();
 
-        when(serviceUserResolverProvider.getContentStructureReaderResolver()).thenReturn(spyResolver);
+        when(serviceUserResolverProvider.getContentExporterResolver()).thenReturn(spyResolver);
         Mockito.lenient().when(translationRulesService.isTranslatable(any(Property.class))).thenReturn(true);
         Mockito.lenient().when(translationRulesService.isTranslatable(any(Node.class))).thenReturn(TranslationRulesService.IsNodeTranslatable.TRANSLATABLE);
 
         context.registerService(BlackbirdServiceUserResolverProvider.class, serviceUserResolverProvider);
         context.registerService(TranslationRulesService.class, translationRulesService);
 
-        PageExporter pageExporter = context.registerInjectActivateService(new PageExporter());
-        ExperienceFragmentExporter experienceFragmentExporter = context.registerInjectActivateService(new ExperienceFragmentExporter());
+        PageExporter pageExporter = context.registerInjectActivateService(new PageExporter(referenceCollectorService, translationRulesService));
+        ExperienceFragmentExporter experienceFragmentExporter = context.registerInjectActivateService(new ExperienceFragmentExporter(referenceCollectorService, translationRulesService));
         target = context.registerInjectActivateService(new ContentExportServiceImpl());
 
         target.bindExporter(pageExporter);
