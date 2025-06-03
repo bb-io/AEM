@@ -17,4 +17,6 @@ public interface BlackbirdServiceUserResolverProvider {
 
     ResourceResolver getReferenceReaderResolver() throws LoginException;
 
+    ResourceResolver getContentExporterResolver() throws LoginException;
+
 }

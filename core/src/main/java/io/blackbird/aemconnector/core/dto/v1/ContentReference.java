@@ -1,4 +1,4 @@
-package io.blackbird.aemconnector.core.dto;
+package io.blackbird.aemconnector.core.dto.v1;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
