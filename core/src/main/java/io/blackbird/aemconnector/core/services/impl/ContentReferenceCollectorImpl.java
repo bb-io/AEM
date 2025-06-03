@@ -2,6 +2,7 @@ package io.blackbird.aemconnector.core.services.impl;
 
 import io.blackbird.aemconnector.core.dto.v2.ContentReference;
 import io.blackbird.aemconnector.core.exceptions.BlackbirdInternalErrorException;
+import io.blackbird.aemconnector.core.exceptions.ContentReferenceException;
 import io.blackbird.aemconnector.core.services.TranslationRulesService;
 import io.blackbird.aemconnector.core.services.v2.ReferenceCollectorService;
 import lombok.extern.slf4j.Slf4j;
@@ -29,54 +30,68 @@ public class ContentReferenceCollectorImpl implements ReferenceCollectorService 
     @Override
     public List<ContentReference> getReferences(Resource resource) {
 
-        List<ContentReference> references = new ArrayList<>();
-        Node root = resource.adaptTo(Node.class);
-
-        if (root == null) {
+        if (resource == null) {
+            log.warn("Reference collection requested with null resource");
             return Collections.emptyList();
         }
 
+        Node root = resource.adaptTo(Node.class);
+
+        if (root == null) {
+            log.warn("Could not adapt resource [{}] to JCR Node", resource.getPath());
+            return Collections.emptyList();
+        }
+
+        List<ContentReference> references = new ArrayList<>();
+
         try {
             collectReferencesFromProperties(root, references);
-        } catch (RepositoryException e) {
-            throw new RuntimeException(e);
+        } catch (RepositoryException | BlackbirdInternalErrorException e) {
+            String nodePath = getSafePath(root);
+            log.error("Failed collecting content references from node [{}]: {}", nodePath, e.getMessage(), e);
+            throw new ContentReferenceException("Error collecting content references from node: " + nodePath, e);
         }
 
         return references;
     }
 
-    private void collectReferencesFromProperties(Node node, List<ContentReference> references) throws RepositoryException {
-        if (node == null) {
-            return;
-        }
-        try {
-            PropertyIterator propertyIterator = node.getProperties();
-            while (propertyIterator.hasNext()) {
-                Property property = propertyIterator.nextProperty();
-                if (!TranslationRulesService.IsAssetReference.NOT_REFERENCE.equals(translationRulesService.isAssetReference(property))) {
-                    String propertyName = property.getName();
-                    String propertyPath = property.getPath();
-                    if (property.isMultiple()) {
-                        Value[] values = property.getValues();
-                        for (Value value : values) {
-                            references.add(
-                              new ContentReference(propertyName, propertyPath, value.toString()));
-                        }
-                    } else {
-                        String referencePath = property.getValue().getString();
-                        references.add(
-                            new ContentReference(propertyName, propertyPath, referencePath));
-                    }
-                }
+    private void collectReferencesFromProperties(Node node, List<ContentReference> references) throws RepositoryException, BlackbirdInternalErrorException {
+        PropertyIterator propertyIterator = node.getProperties();
+        while (propertyIterator.hasNext()) {
+            Property property = propertyIterator.nextProperty();
+
+            if (TranslationRulesService.IsAssetReference.NOT_REFERENCE
+                    .equals(translationRulesService.isAssetReference(property))) {
+                continue;
             }
-        } catch (RepositoryException | BlackbirdInternalErrorException ex) {
-            log.error(String.format("Cannot collect references from properties for node %s", node.getPath()), ex);
+
+            String propertyName = property.getName();
+            String parentPath = node.getPath();
+
+            if (property.isMultiple()) {
+                for (Value value : property.getValues()) {
+                    references.add(
+                      new ContentReference(propertyName, parentPath, value.toString()));
+                }
+            } else {
+                String referencePath = property.getValue().getString();
+                references.add(
+                    new ContentReference(propertyName, parentPath, referencePath));
+            }
         }
 
         NodeIterator nodeIterator = node.getNodes();
         while (nodeIterator.hasNext()) {
             Node child = nodeIterator.nextNode();
             collectReferencesFromProperties(child, references);
+        }
+    }
+
+    private String getSafePath(Node node) {
+        try {
+            return node.getPath();
+        } catch (RepositoryException e) {
+            return "[unresolvable path]";
         }
     }
 }
