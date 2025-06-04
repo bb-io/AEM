@@ -19,6 +19,7 @@ public class BlackbirdServiceUserResolverProviderImpl implements BlackbirdServic
     private static final String TRANSLATION_WRITER_SERVICE_NAME = "blackbird-translation-writer-service";
     private static final String TRANSLATION_RULES_READER_SERVICE_NAME = "blackbird-translation-rules-reader-service";
     private static final String REFERENCE_READER_SERVICE_NAME = "blackbird-reference-reader-service";
+    private static final String CONTENT_EXPORTER_SERVICE_NAME = "blackbird-content-exporter-service";
 
     private static final Map<String, Object> CONTENT_STRUCTURE_READER_PARAMS = Collections.singletonMap(ResourceResolverFactory.SUBSERVICE, CONTENT_STRUCTURE_READER_SERVICE_NAME);
     private static final Map<String, Object> UPDATES_READER_PARAMS = Collections.singletonMap(ResourceResolverFactory.SUBSERVICE, UPDATES_READER_SERVICE_NAME);
@@ -26,6 +27,7 @@ public class BlackbirdServiceUserResolverProviderImpl implements BlackbirdServic
     private static final Map<String, Object> TRANSLATION_WRITER_PARAMS = Collections.singletonMap(ResourceResolverFactory.SUBSERVICE, TRANSLATION_WRITER_SERVICE_NAME);
     private static final Map<String, Object> TRANSLATION_RULES_READER_PARAMS = Collections.singletonMap(ResourceResolverFactory.SUBSERVICE, TRANSLATION_RULES_READER_SERVICE_NAME);
     private static final Map<String, Object> REFERENCE_READER_PARAMS = Collections.singletonMap(ResourceResolverFactory.SUBSERVICE, REFERENCE_READER_SERVICE_NAME);
+    private static final Map<String, Object> CONTENT_EXPORTER_PARAMS = Collections.singletonMap(ResourceResolverFactory.SUBSERVICE, CONTENT_EXPORTER_SERVICE_NAME);
 
     @Reference
     private ResourceResolverFactory resourceResolverFactory;
@@ -58,6 +60,11 @@ public class BlackbirdServiceUserResolverProviderImpl implements BlackbirdServic
     @Override
     public ResourceResolver getReferenceReaderResolver() throws LoginException {
         return resourceResolverFactory.getServiceResourceResolver(REFERENCE_READER_PARAMS);
+    }
+
+    @Override
+    public ResourceResolver getContentExporterResolver() throws LoginException {
+        return resourceResolverFactory.getServiceResourceResolver(CONTENT_EXPORTER_PARAMS);
     }
 
 }

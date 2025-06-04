@@ -2,7 +2,7 @@ package io.blackbird.aemconnector.core.services.impl;
 
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.Template;
-import io.blackbird.aemconnector.core.dto.ContentReference;
+import io.blackbird.aemconnector.core.dto.v1.ContentReference;
 import io.blackbird.aemconnector.core.services.BlackbirdServiceUserResolverProvider;
 import io.blackbird.aemconnector.core.services.TranslationRulesService;
 import junitx.util.PrivateAccessor;

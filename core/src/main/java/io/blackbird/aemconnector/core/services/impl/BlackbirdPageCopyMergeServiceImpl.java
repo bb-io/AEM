@@ -54,9 +54,13 @@ public class BlackbirdPageCopyMergeServiceImpl implements BlackbirdPageCopyMerge
                 replaceExistingPageWithNewCopy(sourcePage, targetPage, resolver);
             }
 
-            mergeJsonIntoPage(resolver.getResource(targetPath), targetContent);
-            if (references != null) {
-                updatePageReferences(targetPath, references, resolver);
+            Resource targetResource = resolver.getResource(targetPath);
+            if (targetResource != null) {
+                mergeJsonIntoPage(targetResource, targetContent);
+            }
+
+            if (references != null && references.isArray() && targetResource != null) {
+                updatePageReferences(targetResource, references);
             }
             resolver.commit();
             return pageManager.getPage(targetPath);
@@ -67,19 +71,19 @@ public class BlackbirdPageCopyMergeServiceImpl implements BlackbirdPageCopyMerge
         }
     }
 
-    private void updatePageReferences(String targetPath, JsonNode references, ResourceResolver resolver) {
+    private void updatePageReferences(Resource targetResource, JsonNode references) {
         for (JsonNode reference : references) {
             String propertyPath = reference.path(PROPERTY_PATH).asText(null);
             String propertyName = reference.path(PROPERTY_NAME).asText(null);
             String referencePath = reference.path(REFERENCE_PATH).asText(null);
             if (ObjectUtils.anyNotNull(propertyPath, propertyName, referencePath)) {
-                updateReference(targetPath.concat(propertyPath), propertyName, referencePath, resolver);
+                updateReference(targetResource.getChild(StringUtils.removeStart(propertyPath, "/")), propertyName, referencePath);
             }
         }
     }
 
-    private void updateReference(String propertyPath, String propertyName, String referencePath, ResourceResolver resolver) {
-        Optional.ofNullable(resolver.getResource(propertyPath))
+    private void updateReference(Resource propertyPathResource, String propertyName, String referencePath) {
+        Optional.ofNullable(propertyPathResource)
                 .map(resource -> resource.adaptTo(ModifiableValueMap.class))
                 .ifPresent(properties -> properties.put(propertyName, referencePath));
 

@@ -5,19 +5,24 @@ import io.blackbird.aemconnector.core.exceptions.BlackbirdServiceException;
 import io.blackbird.aemconnector.core.services.ContentExporter;
 import io.blackbird.aemconnector.core.services.ContentType;
 import io.blackbird.aemconnector.core.services.TranslationRulesService;
-import io.blackbird.aemconnector.core.utils.Node2JsonUtil;
+import io.blackbird.aemconnector.core.services.impl.exporters.internal.AbstractPageExporter;
+import io.blackbird.aemconnector.core.services.v2.ReferenceCollectorService;
 import org.apache.sling.api.resource.Resource;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import javax.jcr.Node;
 import java.io.Serializable;
 
 @Component(service = ContentExporter.class)
-public class ExperienceFragmentExporter implements ContentExporter {
+public class ExperienceFragmentExporter extends AbstractPageExporter implements ContentExporter {
 
-    @Reference
-    private TranslationRulesService translationRulesService;
+
+    @Activate
+    public ExperienceFragmentExporter(@Reference ReferenceCollectorService referenceCollectorService,
+                                      @Reference TranslationRulesService translationRulesService) {
+        super(referenceCollectorService, translationRulesService);
+    }
 
     @Override
     public boolean canExport(ContentType contentType) {
@@ -27,7 +32,7 @@ public class ExperienceFragmentExporter implements ContentExporter {
     @Override
     public Serializable export(Resource resource) throws BlackbirdServiceException {
         try {
-            return Node2JsonUtil.serializeRecursively(resource.adaptTo(Node.class), translationRulesService);
+            return exportContent(resource);
         } catch (BlackbirdInternalErrorException e) {
             throw new BlackbirdServiceException(e.getMessage(), e);
         }

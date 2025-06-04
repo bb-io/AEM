@@ -22,4 +22,22 @@ public class PathUtils {
         int lastSlash = path.lastIndexOf('/');
         return lastSlash > 0 ? path.substring(0, lastSlash) : null;
     }
+
+    public static String stripParent(String fullPath, String parentPath) {
+        if (fullPath == null || parentPath == null) {
+            return fullPath;
+        }
+
+        String normalizedParent = parentPath.endsWith(PATH_SEPARATOR)
+                ? parentPath.substring(0, parentPath.length() - 1)
+                : parentPath;
+
+        String prefix = normalizedParent + PATH_SEPARATOR;
+
+        if (fullPath.startsWith(prefix)) {
+            return fullPath.substring(prefix.length());
+        }
+
+        return fullPath;
+    }
 }

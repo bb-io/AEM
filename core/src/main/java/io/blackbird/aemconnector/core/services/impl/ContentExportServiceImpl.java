@@ -51,7 +51,7 @@ public class ContentExportServiceImpl implements ContentExportService {
                 .orElseThrow(() -> new BlackbirdServiceException(String.format(
                         "No exporter for content type: %s at %s", contentType, path)));
 
-        try (ResourceResolver resolver = serviceUserResolverProvider.getContentStructureReaderResolver()) {
+        try (ResourceResolver resolver = serviceUserResolverProvider.getContentExporterResolver()) {
 
             Resource resource = ObjectUtils.ensureNotNull(resolver.getResource(path),
                     () -> new BlackbirdServiceException(String.format(

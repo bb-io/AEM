@@ -1,6 +1,6 @@
-package io.blackbird.aemconnector.core.services;
+package io.blackbird.aemconnector.core.services.v1;
 
-import io.blackbird.aemconnector.core.dto.ContentReference;
+import io.blackbird.aemconnector.core.dto.v1.ContentReference;
 
 import java.util.List;
 
