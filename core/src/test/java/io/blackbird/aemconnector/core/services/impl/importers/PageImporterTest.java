@@ -3,7 +3,7 @@ package io.blackbird.aemconnector.core.services.impl.importers;
 import com.day.cq.wcm.api.Page;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import io.blackbird.aemconnector.core.exceptions.BlackbirdPageCopyMergeException;
+import io.blackbird.aemconnector.core.exceptions.BlackbirdResourceCopyMergeException;
 import io.blackbird.aemconnector.core.exceptions.BlackbirdServiceException;
 import io.blackbird.aemconnector.core.services.BlackbirdPageCopyMergeService;
 import io.blackbird.aemconnector.core.services.ContentType;
@@ -83,27 +83,12 @@ class PageImporterTest {
         ObjectNode references = objectMapper.createObjectNode();
 
         when(pageCopyMergeService.copyAndMerge(sourcePath, targetPath, targetContent, references))
-                .thenThrow(new BlackbirdPageCopyMergeException("Merge failed"));
+                .thenThrow(new BlackbirdResourceCopyMergeException("Merge failed"));
 
         BlackbirdServiceException exception = assertThrows(BlackbirdServiceException.class,
                 () -> pageImporter.importResource(sourcePath, targetPath, targetContent, references)
         );
 
         assertEquals("Can not import page, sourcePath: /content/source, targetPath: /content/target", exception.getMessage());
-    }
-
-    @Test
-    void shouldThrowsBlackbirdServiceExceptionWhenAuthenticationFailed() throws Exception {
-        String sourcePath = "/content/source";
-        String targetPath = "/content/target";
-        ObjectNode targetContent = objectMapper.createObjectNode();
-        ObjectNode references = objectMapper.createObjectNode();
-
-        when(pageCopyMergeService.copyAndMerge(sourcePath, targetPath, targetContent, references))
-                .thenThrow(new LoginException("Login failed"));
-
-        assertThrows(BlackbirdServiceException.class,
-                () -> pageImporter.importResource(sourcePath, targetPath, targetContent, references)
-        );
     }
 }

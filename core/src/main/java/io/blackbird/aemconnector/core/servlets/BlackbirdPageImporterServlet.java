@@ -5,14 +5,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.blackbird.aemconnector.core.exceptions.BlackbirdHttpErrorException;
-import io.blackbird.aemconnector.core.exceptions.BlackbirdPageCopyMergeException;
+import io.blackbird.aemconnector.core.exceptions.BlackbirdResourceCopyMergeException;
 import io.blackbird.aemconnector.core.services.BlackbirdPageCopyMergeService;
 import io.blackbird.aemconnector.core.servlets.internal.BlackbirdAbstractBaseServlet;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
-import org.apache.sling.api.resource.LoginException;
 import org.apache.sling.api.servlets.HttpConstants;
 import org.apache.sling.servlets.annotations.SlingServletResourceTypes;
 import org.osgi.service.component.annotations.Component;
@@ -56,10 +55,8 @@ public class BlackbirdPageImporterServlet extends BlackbirdAbstractBaseServlet {
             node.put("message", "Page imported successfully");
             node.put("path", page.getPath());
             return node;
-        } catch (BlackbirdPageCopyMergeException e) {
+        } catch (BlackbirdResourceCopyMergeException e) {
             throw BlackbirdHttpErrorException.internalServerError(e.getMessage());
-        } catch (LoginException e) {
-            throw BlackbirdHttpErrorException.unauthorized(e.getMessage());
         }
     }
 
