@@ -1,4 +1,4 @@
-package io.blackbird.aemconnector.core.services.impl;
+package io.blackbird.aemconnector.core.services.v1.impl;
 
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.Template;

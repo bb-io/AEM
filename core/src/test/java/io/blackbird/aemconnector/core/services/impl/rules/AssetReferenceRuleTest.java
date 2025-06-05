@@ -135,6 +135,7 @@ class AssetReferenceRuleTest {
             repositoryUtils.when(() -> RepositoryUtils.getName(property)).thenReturn(assetReferenceAttribute);
             repositoryUtils.when(() -> RepositoryUtils.getPropertyAsString(parentNode, SLING_RESOURCE_TYPE_PROPERTY))
                     .thenReturn("different/resource/type");
+            repositoryUtils.when(() -> RepositoryUtils.getPrimaryNodeTypeAsString(parentNode)).thenReturn("nt:unstructured");
 
             AssetReferenceRule rule = AssetReferenceRule.builder()
                     .assetReferenceAttribute(assetReferenceAttribute)
