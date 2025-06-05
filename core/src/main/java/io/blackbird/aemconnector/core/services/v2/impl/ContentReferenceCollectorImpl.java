@@ -1,4 +1,4 @@
-package io.blackbird.aemconnector.core.services.impl;
+package io.blackbird.aemconnector.core.services.v2.impl;
 
 import io.blackbird.aemconnector.core.dto.v2.ContentReference;
 import io.blackbird.aemconnector.core.exceptions.BlackbirdInternalErrorException;
@@ -60,8 +60,9 @@ public class ContentReferenceCollectorImpl implements ReferenceCollectorService 
         while (propertyIterator.hasNext()) {
             Property property = propertyIterator.nextProperty();
 
-            if (TranslationRulesService.IsAssetReference.NOT_REFERENCE
-                    .equals(translationRulesService.isAssetReference(property))) {
+            TranslationRulesService.IsAssetReference assetReference = translationRulesService.isAssetReference(property);
+
+            if (assetReference == TranslationRulesService.IsAssetReference.NOT_REFERENCE) {
                 continue;
             }
 

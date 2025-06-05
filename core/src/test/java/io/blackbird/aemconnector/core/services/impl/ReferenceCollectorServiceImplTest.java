@@ -5,6 +5,7 @@ import com.day.cq.wcm.api.Template;
 import io.blackbird.aemconnector.core.dto.v1.ContentReference;
 import io.blackbird.aemconnector.core.services.BlackbirdServiceUserResolverProvider;
 import io.blackbird.aemconnector.core.services.TranslationRulesService;
+import io.blackbird.aemconnector.core.services.v1.impl.ReferenceCollectorServiceImpl;
 import junitx.util.PrivateAccessor;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
