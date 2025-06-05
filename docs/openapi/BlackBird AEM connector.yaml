@@ -207,6 +207,51 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BlackbirdErrorResponse'
+  /content/services/bb-aem-connector/content-exporter.json:
+    get:
+      tags:
+        - Content Exporter
+      security:
+        - bearerAuth: [ ]
+      summary: Export AEM Content
+      description: |
+        This API endpoint exports the content of different AEM content types in JSON format. It serializes the content recursively, including only those properties
+        and nodes included in AEM Translation Configuration. The servlet supports cqPage, Experience Fragment, Content Fragment.
+        Examples: 
+              `/content/services/bb-aem-connector/content-exporter.json?contentPath=/content/wknd/language-masters/en/adventures/ski-touring-mont-blanc`
+      parameters:
+        - in: query
+          name: contentPath
+          required: true
+          description: The absolute JCR path of the content to export. Must be an absolute path starting with '/'.
+          schema:
+            type: string
+            example: /content/wknd/language-masters/en/adventures/ski-touring-mont-blanc
+
+      responses:
+        '200':
+          description: Successful content export.
+          content:
+            application/json:
+              schema:
+                type: object
+                description: JSON representation of the page content.
+                additionalProperties: true
+        '400':
+          description: >
+            Bad Request - Either the "contentPath" query parameter is missing, the path does not start with '/',
+            or the resource does not represent a valid CQ page.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlackbirdErrorResponse'
+        '404':
+          description: >
+            Not Found - The resource for the given "contentPath" was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlackbirdErrorResponse'
   /content/services/bb-aem-connector/page-importer.json:
     post:
       tags:

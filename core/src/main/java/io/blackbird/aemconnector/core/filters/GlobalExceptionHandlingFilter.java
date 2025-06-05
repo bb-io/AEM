@@ -7,6 +7,7 @@ import org.apache.http.HttpStatus;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
 import org.apache.sling.engine.EngineConstants;
+import org.apache.sling.servlets.annotations.SlingServletFilter;
 import org.apache.sling.servlets.post.JSONResponse;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.propertytypes.ServiceDescription;
@@ -28,6 +29,7 @@ import java.io.Serializable;
 @ServiceDescription("Centralized Error Handling")
 @ServiceRanking(1000)
 @ServiceVendor("BlackBird")
+@SlingServletFilter(pattern = "^/content/services/bb-aem-connector(/.*)?$")
 public class GlobalExceptionHandlingFilter implements Filter {
 
     @Override
