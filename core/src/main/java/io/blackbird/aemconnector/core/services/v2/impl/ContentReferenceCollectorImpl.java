@@ -62,7 +62,7 @@ public class ContentReferenceCollectorImpl implements ReferenceCollectorService 
 
             TranslationRulesService.IsAssetReference assetReference = translationRulesService.isAssetReference(property);
 
-            if (assetReference == TranslationRulesService.IsAssetReference.NOT_REFERENCE) {
+            if (assetReference == TranslationRulesService.IsAssetReference.NOT_REFERENCE || assetReference == null) {
                 continue;
             }
 
