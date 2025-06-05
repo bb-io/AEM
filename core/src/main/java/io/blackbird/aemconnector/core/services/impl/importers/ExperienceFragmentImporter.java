@@ -2,12 +2,11 @@ package io.blackbird.aemconnector.core.services.impl.importers;
 
 import com.day.cq.wcm.api.Page;
 import com.fasterxml.jackson.databind.JsonNode;
-import io.blackbird.aemconnector.core.exceptions.BlackbirdPageCopyMergeException;
+import io.blackbird.aemconnector.core.exceptions.BlackbirdResourceCopyMergeException;
 import io.blackbird.aemconnector.core.exceptions.BlackbirdServiceException;
 import io.blackbird.aemconnector.core.services.BlackbirdPageCopyMergeService;
 import io.blackbird.aemconnector.core.services.ContentImporter;
 import io.blackbird.aemconnector.core.services.ContentType;
-import org.apache.sling.api.resource.LoginException;
 import org.apache.sling.api.resource.Resource;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -28,7 +27,7 @@ public class ExperienceFragmentImporter implements ContentImporter {
         try {
             Page page = pageCopyMergeService.copyAndMerge(sourcePath, targetPath, targetContent, references);
             return page.adaptTo(Resource.class);
-        } catch (BlackbirdPageCopyMergeException | LoginException ex) {
+        } catch (BlackbirdResourceCopyMergeException ex) {
             throw new BlackbirdServiceException(String.format("Can not import experience fragment, sourcePath: %s, targetPath: %s", sourcePath, targetPath), ex);
         }
     }

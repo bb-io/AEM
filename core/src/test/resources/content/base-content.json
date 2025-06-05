@@ -398,5 +398,31 @@
         }
       }
     }
+  },
+  "content-fragments": {
+    "jcr:primaryType": "sling:Folder",
+    "bb-aem-connector": {
+      "jcr:primaryType": "sling:OrderedFolder",
+      "us": {
+        "jcr:primaryType": "sling:OrderedFolder",
+        "en": {
+          "jcr:primaryType": "sling:OrderedFolder",
+          "cf-test": {
+            "jcr:primaryType": "dam:Asset",
+            "jcr:content": {
+              "contentFragment": true,
+              "jcr:primaryType": "dam:AssetContent",
+              "data": {
+                "jcr:primaryType": "nt:unstructured",
+                "master": {
+                  "jcr:primaryType": "nt:unstructured",
+                  "title": "Test title"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
   }
 }

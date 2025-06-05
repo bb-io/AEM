@@ -5,7 +5,7 @@ import com.day.cq.wcm.api.PageManager;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.blackbird.aemconnector.core.exceptions.BlackbirdPageCopyMergeException;
+import io.blackbird.aemconnector.core.exceptions.BlackbirdResourceCopyMergeException;
 import io.blackbird.aemconnector.core.services.BlackbirdPageCopyMergeService;
 import io.blackbird.aemconnector.core.services.BlackbirdServiceUserResolverProvider;
 import io.blackbird.aemconnector.core.stubs.PageManagerStub;
@@ -53,7 +53,7 @@ class BlackbirdPageCopyMergeServiceImplTest {
     }
 
     @Test
-    void shouldCopyAndMergeContentWhenTargetPageNotExist() throws LoginException, BlackbirdPageCopyMergeException, JsonProcessingException {
+    void shouldCopyAndMergeContentWhenTargetPageNotExist() throws BlackbirdResourceCopyMergeException, JsonProcessingException {
         String sourcePath = "/content/bb-aem-connector/us/en/testPage";
         String targetPath = "/content/bb-aem-connector/pl/pl/testPage";
         String jsonStr = "{\n" +
@@ -78,7 +78,7 @@ class BlackbirdPageCopyMergeServiceImplTest {
     }
 
     @Test
-    void shouldCopyAndMergeContentAndUpdateReferencesWhenTargetPageNotExist() throws LoginException, BlackbirdPageCopyMergeException, JsonProcessingException {
+    void shouldCopyAndMergeContentAndUpdateReferencesWhenTargetPageNotExist() throws BlackbirdResourceCopyMergeException, JsonProcessingException {
         String sourcePath = "/content/bb-aem-connector/us/en/testPage";
         String targetPath = "/content/bb-aem-connector/pl/pl/testPage";
         String jsonStr = "{\n" +
