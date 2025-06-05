@@ -6,6 +6,7 @@ import io.blackbird.aemconnector.core.dto.BlackbirdErrorResponse;
 import io.blackbird.aemconnector.core.exceptions.BlackbirdHttpErrorException;
 import io.blackbird.aemconnector.core.utils.ObjectUtils;
 import io.blackbird.aemconnector.core.vo.BlackbirdRequestFilter;
+import org.apache.http.HttpHeaders;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
 import org.apache.sling.api.servlets.SlingAllMethodsServlet;
@@ -91,7 +92,11 @@ public abstract class BlackbirdAbstractBaseServlet extends SlingAllMethodsServle
     private void configureResponseHeaders(SlingHttpServletResponse response) {
         response.setContentType(JSONResponse.RESPONSE_CONTENT_TYPE);
         response.setCharacterEncoding("UTF-8");
-        response.setHeader("Cache-control", "no-cache, no-store");
+        response.setHeader(HttpHeaders.CACHE_CONTROL, "no-cache, no-store");
+    }
+
+    public static ObjectMapper getObjectMapper() {
+        return OBJECT_MAPPER;
     }
 
     abstract public Serializable buildResponsePayload(SlingHttpServletRequest request, SlingHttpServletResponse response) throws BlackbirdHttpErrorException;

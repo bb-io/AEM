@@ -38,7 +38,7 @@ public final class Node2JsonUtil {
             return MAPPER.createObjectNode();
         }
 
-        ObjectNode node = MAPPER.createObjectNode();
+        ObjectNode jsonNode = MAPPER.createObjectNode();
 
         try {
             TranslationRulesService.IsNodeTranslatable isNodeTranslatable = translationRulesService.isTranslatable(jcrNode);
@@ -54,7 +54,7 @@ public final class Node2JsonUtil {
                         continue;
                     }
 
-                    node.set(key, getPropertyAsJsonNode(property));
+                    jsonNode.set(key, getPropertyAsJsonNode(property));
                 }
             }
 
@@ -65,7 +65,7 @@ public final class Node2JsonUtil {
                     while (nodeIterator.hasNext()) {
                         Node childNode = nodeIterator.nextNode();
                         if (isNotPageNode(childNode)) {
-                            node.set(childNode.getName(), serializeRecursively(childNode, translationRulesService));
+                            jsonNode.set(childNode.getName(), serializeRecursively(childNode, translationRulesService));
                         }
                     }
                 }
@@ -74,7 +74,7 @@ public final class Node2JsonUtil {
             throw new BlackbirdInternalErrorException("Error accessing JCR node: " + e.getMessage());
         }
 
-        return node;
+        return jsonNode;
     }
 
     private static JsonNode getPropertyAsJsonNode(Property property) throws RepositoryException {

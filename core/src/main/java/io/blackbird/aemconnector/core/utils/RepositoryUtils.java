@@ -84,6 +84,16 @@ public class RepositoryUtils {
         }
     }
 
+    public static String getPrimaryNodeTypeAsString(Node node) throws BlackbirdInternalErrorException {
+        try {
+            return node.getPrimaryNodeType().toString();
+        } catch (RepositoryException e) {
+            String message = String.format("Can't get primary type of %s, error: %s", node, e);
+            log.trace(message);
+            throw new BlackbirdInternalErrorException(message);
+        }
+    }
+
     public static boolean hasProperty(Node node, String propertyName) throws BlackbirdInternalErrorException {
         try {
             return node.hasProperty(propertyName);
