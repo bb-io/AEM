@@ -4,25 +4,17 @@ import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.PageManager;
 import com.day.cq.wcm.api.WCMException;
 import com.fasterxml.jackson.databind.JsonNode;
-import io.blackbird.aemconnector.core.exceptions.BlackbirdPageCopyMergeException;
+import io.blackbird.aemconnector.core.exceptions.BlackbirdResourceCopyMergeException;
 import io.blackbird.aemconnector.core.services.BlackbirdPageCopyMergeService;
 import io.blackbird.aemconnector.core.services.BlackbirdServiceUserResolverProvider;
+import io.blackbird.aemconnector.core.utils.CopyMergeUtils;
 import io.blackbird.aemconnector.core.utils.PathUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.sling.api.resource.ModifiableValueMap;
 import org.apache.sling.api.resource.PersistenceException;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
-
-import java.util.ArrayDeque;
-import java.util.Deque;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Optional;
 
 import static java.util.Objects.requireNonNull;
 
@@ -30,15 +22,11 @@ import static java.util.Objects.requireNonNull;
 @Component(service = BlackbirdPageCopyMergeService.class)
 public class BlackbirdPageCopyMergeServiceImpl implements BlackbirdPageCopyMergeService {
 
-    private static final String PROPERTY_PATH = "propertyPath";
-    private static final String PROPERTY_NAME = "propertyName";
-    private static final String REFERENCE_PATH = "referencePath";
-
     @Reference
     private BlackbirdServiceUserResolverProvider serviceUserResolverProvider;
 
     @Override
-    public Page copyAndMerge(String sourcePath, String targetPath, JsonNode targetContent, JsonNode references) throws BlackbirdPageCopyMergeException {
+    public Page copyAndMerge(String sourcePath, String targetPath, JsonNode targetContent, JsonNode references) throws BlackbirdResourceCopyMergeException {
 
         try (ResourceResolver resolver = serviceUserResolverProvider.getTranslationWriterResolver()) {
             PageManager pageManager = requireNonNull(resolver.adaptTo(PageManager.class), "Cannot adapt to PageManager");
@@ -49,44 +37,26 @@ public class BlackbirdPageCopyMergeServiceImpl implements BlackbirdPageCopyMerge
             Page targetPage = pageManager.getPage(targetPath);
 
             if (targetPage == null) {
-                createCopyForTargetPage(targetPath, sourcePage, pageManager);
+                createCopyForTargetPage(targetPath, sourcePage, pageManager, resolver);
             } else {
                 replaceExistingPageWithNewCopy(sourcePage, targetPage, resolver);
             }
 
             Resource targetResource = resolver.getResource(targetPath);
             if (targetResource != null) {
-                mergeJsonIntoPage(targetResource, targetContent);
+                CopyMergeUtils.mergeJsonIntoResource(targetResource, targetContent);
             }
 
             if (references != null && references.isArray() && targetResource != null) {
-                updatePageReferences(targetResource, references);
+                CopyMergeUtils.updateResourceReferences(targetResource, references);
             }
             resolver.commit();
             return pageManager.getPage(targetPath);
 
         } catch (Exception e) {
             log.error("Failure in copyAndMerge: {}", e.getMessage(), e);
-            throw new BlackbirdPageCopyMergeException(e.getMessage(), e);
+            throw new BlackbirdResourceCopyMergeException(e.getMessage(), e);
         }
-    }
-
-    private void updatePageReferences(Resource targetResource, JsonNode references) {
-        for (JsonNode reference : references) {
-            String propertyPath = reference.path(PROPERTY_PATH).asText(null);
-            String propertyName = reference.path(PROPERTY_NAME).asText(null);
-            String referencePath = reference.path(REFERENCE_PATH).asText(null);
-            if (ObjectUtils.anyNotNull(propertyPath, propertyName, referencePath)) {
-                updateReference(targetResource.getChild(StringUtils.removeStart(propertyPath, "/")), propertyName, referencePath);
-            }
-        }
-    }
-
-    private void updateReference(Resource propertyPathResource, String propertyName, String referencePath) {
-        Optional.ofNullable(propertyPathResource)
-                .map(resource -> resource.adaptTo(ModifiableValueMap.class))
-                .ifPresent(properties -> properties.put(propertyName, referencePath));
-
     }
 
     private void replaceExistingPageWithNewCopy(Page sourcePage, Page targetPage, ResourceResolver resolver) throws PersistenceException {
@@ -95,8 +65,8 @@ public class BlackbirdPageCopyMergeServiceImpl implements BlackbirdPageCopyMerge
         resolver.commit();
     }
 
-    private void createCopyForTargetPage(String targetPath, Page sourcePage, PageManager pageManager) throws WCMException, BlackbirdPageCopyMergeException {
-        createPagesHierarchicallyIfNotExist(PathUtils.getParent(targetPath), pageManager);
+    private void createCopyForTargetPage(String targetPath, Page sourcePage, PageManager pageManager, ResourceResolver resolver) throws BlackbirdResourceCopyMergeException, PersistenceException, WCMException {
+        CopyMergeUtils.createResourcesHierarchicallyIfNotExist(PathUtils.getParent(targetPath), PathUtils.getParent(sourcePage.getPath()), resolver);
         PageManager.CopyOptions options = new PageManager.CopyOptions();
 
         options.page = sourcePage;
@@ -106,53 +76,5 @@ public class BlackbirdPageCopyMergeServiceImpl implements BlackbirdPageCopyMerge
         options.autoSave = true;
 
         pageManager.copy(options);
-    }
-
-    private void mergeJsonIntoPage(Resource resource, JsonNode jsonNode) {
-        if (!jsonNode.isObject()) {
-            return;
-        }
-        Iterator<Map.Entry<String, JsonNode>> fields = jsonNode.fields();
-        while (fields.hasNext()) {
-            Map.Entry<String, JsonNode> field = fields.next();
-            String key = field.getKey();
-            JsonNode value = field.getValue();
-
-            if (value.isObject()) {
-                Resource child = resource.getChild(key);
-                mergeJsonIntoPage(child, value);
-            } else {
-                ModifiableValueMap modifiableValueMap = resource.adaptTo(ModifiableValueMap.class);
-                if (modifiableValueMap != null) {
-                    if (value.isArray()) {
-                        String[] items = new String[value.size()];
-                        for (int i = 0; i < value.size(); i++) {
-                            items[i] = value.get(i).asText();
-                        }
-                        modifiableValueMap.put(key, items);
-                    } else {
-                        modifiableValueMap.put(key, value.asText());
-                    }
-                }
-            }
-        }
-    }
-
-    private void createPagesHierarchicallyIfNotExist(String pagePath, PageManager pageManager) throws WCMException, BlackbirdPageCopyMergeException {
-        String path = pagePath;
-        Page page = pageManager.getPage(path);
-        Deque<String> nonExistentPages = new ArrayDeque<>();
-
-        while (page == null && PathUtils.getName(path) != null) {
-            nonExistentPages.push(PathUtils.getName(path));
-            path = PathUtils.getParent(path);
-            page = pageManager.getPage(path);
-        }
-        if (page == null) {
-            throw new BlackbirdPageCopyMergeException(String.format("Root resource doesn't exist for path: %s", pagePath));
-        }
-        for (String pageName : nonExistentPages) {
-            page = pageManager.create(page.getPath(), pageName, StringUtils.EMPTY, pageName, true);
-        }
     }
 }

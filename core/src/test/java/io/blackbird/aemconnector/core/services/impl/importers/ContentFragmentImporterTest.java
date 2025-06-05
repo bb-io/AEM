@@ -1,11 +1,10 @@
 package io.blackbird.aemconnector.core.services.impl.importers;
 
-import com.day.cq.wcm.api.Page;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.blackbird.aemconnector.core.exceptions.BlackbirdResourceCopyMergeException;
 import io.blackbird.aemconnector.core.exceptions.BlackbirdServiceException;
-import io.blackbird.aemconnector.core.services.BlackbirdPageCopyMergeService;
+import io.blackbird.aemconnector.core.services.BlackbirdCfCopyMergeService;
 import io.blackbird.aemconnector.core.services.ContentType;
 import io.blackbird.aemconnector.core.testcontext.AppAemContext;
 import io.wcm.testing.mock.aem.junit5.AemContext;
@@ -25,70 +24,66 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 @ExtendWith({AemContextExtension.class, MockitoExtension.class})
-public class ExperienceFragmentImporterTest {
+public class ContentFragmentImporterTest {
 
     private final AemContext context = AppAemContext.newAemContext();
 
     @Mock
-    private BlackbirdPageCopyMergeService pageCopyMergeService;
-
-    @Mock
-    private Page mockPage;
+    private BlackbirdCfCopyMergeService cfCopyMergeService;
 
     @Mock
     private Resource mockResource;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    private ExperienceFragmentImporter xfImporter;
+    private ContentFragmentImporter cfImporter;
 
     @BeforeEach
     void setUp() {
-        context.registerService(BlackbirdPageCopyMergeService.class, pageCopyMergeService);
-        xfImporter = context.registerInjectActivateService(new ExperienceFragmentImporter());
+        context.registerService(BlackbirdCfCopyMergeService.class, cfCopyMergeService);
+        cfImporter = context.registerInjectActivateService(new ContentFragmentImporter());
     }
 
     @Test
-    void shouldReturnTrueWhenContentTypeIsExperienceFragment() {
-        assertTrue(xfImporter.canImport(ContentType.EXPERIENCE_FRAGMENT));
+    void shouldReturnTrueWhenContentTypeIsContentFragment() {
+        assertTrue(cfImporter.canImport(ContentType.CONTENT_FRAGMENT));
     }
 
     @Test
-    void shouldReturnFalseWhenContentTypeIsNotExperienceFragment() {
-        assertFalse(xfImporter.canImport(ContentType.UNKNOWN));
+    void shouldReturnFalseWhenContentTypeIsNotContentFragment() {
+        assertFalse(cfImporter.canImport(ContentType.UNKNOWN));
     }
 
     @Test
-    void shouldReturnResourceWhenExperienceFragmentImportSuccess() throws Exception {
-        String sourcePath = "/content/xf/source/variant";
-        String targetPath = "/content/xf/target/variant";
+    void shouldReturnResourceWhenContentFragmentImportSuccess() throws Exception {
+        String sourcePath = "/content/cf/source/variant";
+        String targetPath = "/content/cf/target/variant";
         ObjectNode targetContent = objectMapper.createObjectNode().put("data", "test");
         ObjectNode references = objectMapper.createObjectNode();
 
-        when(pageCopyMergeService.copyAndMerge(sourcePath, targetPath, targetContent, references)).thenReturn(mockPage);
-        when(mockPage.adaptTo(Resource.class)).thenReturn(mockResource);
+        when(cfCopyMergeService.copyAndMerge(sourcePath, targetPath, targetContent, references)).thenReturn(mockResource);
 
-        Resource result = xfImporter.importResource(sourcePath, targetPath, targetContent, references);
+        Resource result = cfImporter.importResource(sourcePath, targetPath, targetContent, references);
 
         assertNotNull(result);
         assertEquals(mockResource, result);
     }
 
     @Test
-    void shouldThrowsBlackbirdServiceExceptionWhenExperienceFragmentImportFailed() throws Exception {
-        String sourcePath = "/content/xf/source/variant";
-        String targetPath = "/content/xf/target/variant";
+    void shouldThrowsBlackbirdServiceExceptionWhenContentFragmentImportFailed() throws Exception {
+        String sourcePath = "/content/cf/source/variant";
+        String targetPath = "/content/cf/target/variant";
         ObjectNode targetContent = objectMapper.createObjectNode();
         ObjectNode references = objectMapper.createObjectNode();
 
-        when(pageCopyMergeService.copyAndMerge(sourcePath, targetPath, targetContent, references))
+        when(cfCopyMergeService.copyAndMerge(sourcePath, targetPath, targetContent, references))
                 .thenThrow(new BlackbirdResourceCopyMergeException("Merge failed"));
 
         BlackbirdServiceException exception = assertThrows(BlackbirdServiceException.class,
-                () -> xfImporter.importResource(sourcePath, targetPath, targetContent, references)
+                () -> cfImporter.importResource(sourcePath, targetPath, targetContent, references)
         );
 
-        assertEquals("Can not import experience fragment, sourcePath: /content/xf/source/variant, " +
-                "targetPath: /content/xf/target/variant", exception.getMessage());
+        assertEquals("Can not import content fragment, sourcePath: /content/cf/source/variant, " +
+                "targetPath: /content/cf/target/variant", exception.getMessage());
     }
 }
