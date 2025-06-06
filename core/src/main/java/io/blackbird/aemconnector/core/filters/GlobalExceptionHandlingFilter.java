@@ -6,7 +6,6 @@ import org.apache.http.HttpHeaders;
 import org.apache.http.HttpStatus;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
-import org.apache.sling.engine.EngineConstants;
 import org.apache.sling.servlets.annotations.SlingServletFilter;
 import org.apache.sling.servlets.post.JSONResponse;
 import org.osgi.service.component.annotations.Component;
@@ -22,10 +21,7 @@ import javax.servlet.ServletResponse;
 import java.io.IOException;
 import java.io.Serializable;
 
-@Component(service = Filter.class,
-        property = {
-                EngineConstants.SLING_FILTER_SCOPE + "=" + EngineConstants.FILTER_SCOPE_REQUEST,
-        })
+@Component(service = Filter.class)
 @ServiceDescription("Centralized Error Handling")
 @ServiceRanking(1000)
 @ServiceVendor("BlackBird")
