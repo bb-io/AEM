@@ -25,6 +25,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import javax.jcr.Node;
 import javax.jcr.Property;
 
+import java.util.Collections;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
@@ -71,7 +73,7 @@ class ContentExportServiceImplTest {
         final String path = "/content/bb-aem-connector/us/en/pageExport";
 
 
-        ObjectNode result = (ObjectNode) target.exportContent(path, ContentType.PAGE);
+        ObjectNode result = (ObjectNode) target.exportContent(path, ContentType.PAGE, Collections.emptyMap());
         JsonNode contentNode = result.get("jcr:content");
         assertNotNull(contentNode);
 
@@ -87,7 +89,7 @@ class ContentExportServiceImplTest {
         final String path = "/content/experience-fragments/bb-aem-connector/us/en/site/footer/master";
         final String expected = "Hello Experience Fragment Exporter";
 
-        ObjectNode result = (ObjectNode) target.exportContent(path, ContentType.EXPERIENCE_FRAGMENT);
+        ObjectNode result = (ObjectNode) target.exportContent(path, ContentType.EXPERIENCE_FRAGMENT, Collections.emptyMap());
 
         JsonNode description = result.at("/jcr:content/root/description");
 

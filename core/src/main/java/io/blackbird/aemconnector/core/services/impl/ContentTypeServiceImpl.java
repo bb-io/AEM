@@ -43,7 +43,7 @@ public class ContentTypeServiceImpl implements ContentTypeService {
 
     @Override
     public ContentType resolveContentType(String path) throws BlackbirdServiceException {
-        try (ResourceResolver resolver = serviceUserResolverProvider.getContentStructureReaderResolver()) {
+        try (ResourceResolver resolver = serviceUserResolverProvider.getContentExporterResolver()) {
             Resource resource = resolver.getResource(path);
 
             ObjectUtils.ensureNotNull(resource,
