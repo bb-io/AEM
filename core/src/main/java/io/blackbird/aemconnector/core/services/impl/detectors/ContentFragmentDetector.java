@@ -10,6 +10,9 @@ import org.osgi.service.component.annotations.Component;
 
 @Component(service = ContentTypeDetector.class)
 public class ContentFragmentDetector implements ContentTypeDetector {
+
+    public static final String CONTENT_FRAGMENT = "contentFragment";
+
     @Override
     public boolean detects(Resource resource) {
 
@@ -23,7 +26,7 @@ public class ContentFragmentDetector implements ContentTypeDetector {
         }
 
         ValueMap valueMap = jcrContent.getValueMap();
-        Boolean isContentFragment = valueMap.get("contentFragment", Boolean.class);
+        Boolean isContentFragment = valueMap.get(CONTENT_FRAGMENT, Boolean.class);
         return Boolean.TRUE.equals(isContentFragment);
     }
 

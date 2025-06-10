@@ -16,6 +16,7 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
 import java.io.Serializable;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -44,7 +45,7 @@ public class ContentExportServiceImpl implements ContentExportService {
     }
 
     @Override
-    public Serializable exportContent(String path, ContentType contentType) throws BlackbirdServiceException {
+    public Serializable exportContent(String path, ContentType contentType, Map<String, Object> options) throws BlackbirdServiceException {
         ContentExporter exporter = exporters.stream()
                 .filter(e -> e.canExport(contentType))
                 .findFirst()
@@ -57,7 +58,7 @@ public class ContentExportServiceImpl implements ContentExportService {
                     () -> new BlackbirdServiceException(String.format(
                             "No resource found at path: %s", path)));
 
-            Serializable result = exporter.export(resource);
+            Serializable result = exporter.export(resource, options);
 
             log.info("Export successful for path: {}, content type: {}", path, contentType);
 
