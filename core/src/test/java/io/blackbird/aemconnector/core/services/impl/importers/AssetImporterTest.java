@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 @ExtendWith({AemContextExtension.class, MockitoExtension.class})
-public class ContentFragmentImporterTest {
+public class AssetImporterTest {
 
     private final AemContext context = AppAemContext.newAemContext();
 
@@ -36,43 +36,43 @@ public class ContentFragmentImporterTest {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    private ContentFragmentImporter cfImporter;
+    private AssetImporter assetImporter;
 
     @BeforeEach
     void setUp() {
         context.registerService(BlackbirdAssetCopyMergeService.class, cfCopyMergeService);
-        cfImporter = context.registerInjectActivateService(new ContentFragmentImporter());
+        assetImporter = context.registerInjectActivateService(new AssetImporter());
     }
 
     @Test
-    void shouldReturnTrueWhenContentTypeIsContentFragment() {
-        assertTrue(cfImporter.canImport(ContentType.CONTENT_FRAGMENT));
+    void shouldReturnTrueWhenContentTypeIsAsset() {
+        assertTrue(assetImporter.canImport(ContentType.ASSET));
     }
 
     @Test
-    void shouldReturnFalseWhenContentTypeIsNotContentFragment() {
-        assertFalse(cfImporter.canImport(ContentType.UNKNOWN));
+    void shouldReturnFalseWhenContentTypeIsNotAsset() {
+        assertFalse(assetImporter.canImport(ContentType.UNKNOWN));
     }
 
     @Test
-    void shouldReturnResourceWhenContentFragmentImportSuccess() throws Exception {
-        String sourcePath = "/content/cf/source/variant";
-        String targetPath = "/content/cf/target/variant";
+    void shouldReturnResourceWhenAssetImportSuccess() throws Exception {
+        String sourcePath = "/content/dam/source/asset";
+        String targetPath = "/content/dar/target/asset";
         ObjectNode targetContent = objectMapper.createObjectNode().put("data", "test");
         ObjectNode references = objectMapper.createObjectNode();
 
         when(cfCopyMergeService.copyAndMerge(sourcePath, targetPath, targetContent, references)).thenReturn(mockResource);
 
-        Resource result = cfImporter.importResource(sourcePath, targetPath, targetContent, references);
+        Resource result = assetImporter.importResource(sourcePath, targetPath, targetContent, references);
 
         assertNotNull(result);
         assertEquals(mockResource, result);
     }
 
     @Test
-    void shouldThrowsBlackbirdServiceExceptionWhenContentFragmentImportFailed() throws Exception {
-        String sourcePath = "/content/cf/source/variant";
-        String targetPath = "/content/cf/target/variant";
+    void shouldThrowsBlackbirdServiceExceptionWhenAssetImportFailed() throws Exception {
+        String sourcePath = "/content/dam/source/asset";
+        String targetPath = "/content/dar/target/asset";
         ObjectNode targetContent = objectMapper.createObjectNode();
         ObjectNode references = objectMapper.createObjectNode();
 
@@ -80,10 +80,10 @@ public class ContentFragmentImporterTest {
                 .thenThrow(new BlackbirdResourceCopyMergeException("Merge failed"));
 
         BlackbirdServiceException exception = assertThrows(BlackbirdServiceException.class,
-                () -> cfImporter.importResource(sourcePath, targetPath, targetContent, references)
+                () -> assetImporter.importResource(sourcePath, targetPath, targetContent, references)
         );
 
-        assertEquals("Can not import content fragment, sourcePath: /content/cf/source/variant, " +
-                "targetPath: /content/cf/target/variant", exception.getMessage());
+        assertEquals("Can not import asset, sourcePath: /content/dam/source/asset, " +
+                "targetPath: /content/dar/target/asset", exception.getMessage());
     }
 }

@@ -11,14 +11,14 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 @Component(service = ContentImporter.class)
-public class ContentFragmentImporter implements ContentImporter {
+public class AssetImporter implements ContentImporter {
 
     @Reference
     private transient BlackbirdAssetCopyMergeService assetCopyMergeService;
 
     @Override
     public boolean canImport(ContentType contentType) {
-        return ContentType.CONTENT_FRAGMENT == contentType;
+        return ContentType.ASSET == contentType;
     }
 
     @Override
@@ -26,7 +26,7 @@ public class ContentFragmentImporter implements ContentImporter {
         try {
             return assetCopyMergeService.copyAndMerge(sourcePath, targetPath, targetContent, references);
         } catch (BlackbirdResourceCopyMergeException ex) {
-            throw new BlackbirdServiceException(String.format("Can not import content fragment, sourcePath: %s, targetPath: %s", sourcePath, targetPath), ex);
+            throw new BlackbirdServiceException(String.format("Can not import asset, sourcePath: %s, targetPath: %s", sourcePath, targetPath), ex);
         }
     }
 }

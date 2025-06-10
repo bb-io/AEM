@@ -4,5 +4,6 @@ public enum ContentType {
     PAGE,
     EXPERIENCE_FRAGMENT,
     CONTENT_FRAGMENT,
+    ASSET,
     UNKNOWN
 }
