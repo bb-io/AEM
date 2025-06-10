@@ -13,6 +13,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import java.io.Serializable;
+import java.util.Map;
 
 @Component(service = ContentExporter.class)
 public class PageExporter extends AbstractPageExporter implements ContentExporter {
@@ -29,7 +30,7 @@ public class PageExporter extends AbstractPageExporter implements ContentExporte
     }
 
     @Override
-    public Serializable export(Resource resource) throws BlackbirdServiceException {
+    public Serializable export(Resource resource, Map<String, Object> options) throws BlackbirdServiceException {
         try {
             return exportContent(resource);
         } catch (BlackbirdInternalErrorException e) {

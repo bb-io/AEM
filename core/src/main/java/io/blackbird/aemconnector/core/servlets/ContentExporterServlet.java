@@ -17,6 +17,9 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.servlet.Servlet;
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component(service = Servlet.class)
@@ -36,10 +39,11 @@ public class ContentExporterServlet extends BlackbirdAbstractBaseServlet {
     @Override
     public Serializable buildResponsePayload(SlingHttpServletRequest request, SlingHttpServletResponse response) throws BlackbirdHttpErrorException {
         String contentPath = ServletParameterHelper.getRequiredContentPath(request);
+        Map<String, Object> options = extractOptions(request);
 
         try {
             ContentType contentType = contentTypeService.resolveContentType(contentPath);
-            Serializable result = contentExportService.exportContent(contentPath, contentType);
+            Serializable result = contentExportService.exportContent(contentPath, contentType, options);
 
             log.info("Exported content for path: {}, content type: {}", contentPath, contentType);
 
@@ -48,4 +52,16 @@ public class ContentExporterServlet extends BlackbirdAbstractBaseServlet {
             throw BlackbirdHttpErrorException.internalServerError(e.getMessage());
         }
     }
+
+    private static Map<String, Object> extractOptions(SlingHttpServletRequest request) {
+        return request.getParameterMap().entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, entry -> {
+                    String[] values = entry.getValue();
+                    return values.length == 1
+                            ? values[0]
+                            : Arrays.asList(values);
+                }));
+    }
+
+
 }

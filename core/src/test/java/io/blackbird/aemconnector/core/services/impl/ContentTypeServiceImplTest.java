@@ -40,7 +40,7 @@ class ContentTypeServiceImplTest {
                 (Function<Page, ExperienceFragmentVariation>) page -> variation);
 
         context.registerService(BlackbirdServiceUserResolverProvider.class, serviceUserResolverProvider);
-        when(serviceUserResolverProvider.getContentStructureReaderResolver()).thenReturn(context.resourceResolver());
+        when(serviceUserResolverProvider.getContentExporterResolver()).thenReturn(context.resourceResolver());
 
         contentTypeService = context.registerInjectActivateService(new ContentTypeServiceImpl());
 
