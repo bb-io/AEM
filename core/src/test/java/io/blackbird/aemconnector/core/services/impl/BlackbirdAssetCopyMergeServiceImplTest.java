@@ -22,7 +22,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class BlackbirdCfCopyMergeServiceImplTest {
+class BlackbirdAssetCopyMergeServiceImplTest {
 
     @Mock
     private BlackbirdServiceUserResolverProvider serviceUserResolverProvider;
@@ -49,7 +49,7 @@ class BlackbirdCfCopyMergeServiceImplTest {
     private AssetManager assetManager;
 
     @InjectMocks
-    private BlackbirdCfCopyMergeServiceImpl service;
+    private BlackbirdAssetCopyMergeServiceImpl service;
 
     private String sourcePath;
     private String targetPath;
