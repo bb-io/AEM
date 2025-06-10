@@ -15,7 +15,7 @@ paths:
       tags:
         - Content
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       summary: Get structured JCR content from a given resource path
       description: |
         This endpoint returns structured JCR nodes and their properties as JSON.
@@ -85,7 +85,7 @@ paths:
       tags:
         - Page Events Viewer
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       summary: Info about pages that were created or modified during a definite period of time.
       description: |
         Info about pages that were created or modified during a definite period of time.
@@ -152,15 +152,15 @@ paths:
         '500':
           description: Internal Server Error - an error occurred while processing the request
           content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/BlackbirdErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlackbirdErrorResponse'
   /content/services/bb-aem-connector/page-exporter.json:
     get:
       tags:
         - Page Exporter
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       summary: Export AEM Page Content
       description: |
         This API endpoint exports the content of an AEM page in JSON format. It serializes the page content recursively, filtering out blacklisted properties
@@ -257,7 +257,7 @@ paths:
       tags:
         - Page Importer
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       summary: Import a Page with Merged Content
       description: >
         Copies an existing page from a given source path, merges the page with the provided JSON content, 
@@ -374,6 +374,28 @@ paths:
                               - "Marzec"
                               - "Kwiecień"
                               - "Maj"
+                references:
+                  type: array
+                  description: An optional array of reference objects.
+                  items:
+                    type: object
+                    required:
+                      - propertyPath
+                      - propertyName
+                      - referencePath
+                    properties:
+                      propertyPath:
+                        type: string
+                        description: The relative path to the node containing the property to update.
+                        example: "jcr:content/container/root"
+                      propertyName:
+                        type: string
+                        description: The name of the property that will receive the new reference.
+                        example: "fileReference"
+                      referencePath:
+                        type: string
+                        description: Path to the node being referenced.
+                        example: "/content/bb-aem-connector/pl/pl/products/reference-page"
       responses:
         '200':
           description: Content imported successfully.
