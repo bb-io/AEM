@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.blackbird.aemconnector.core.exceptions.BlackbirdResourceCopyMergeException;
 import io.blackbird.aemconnector.core.exceptions.BlackbirdServiceException;
-import io.blackbird.aemconnector.core.services.BlackbirdCfCopyMergeService;
+import io.blackbird.aemconnector.core.services.BlackbirdAssetCopyMergeService;
 import io.blackbird.aemconnector.core.services.ContentType;
 import io.blackbird.aemconnector.core.testcontext.AppAemContext;
 import io.wcm.testing.mock.aem.junit5.AemContext;
@@ -29,7 +29,7 @@ public class AssetImporterTest {
     private final AemContext context = AppAemContext.newAemContext();
 
     @Mock
-    private BlackbirdCfCopyMergeService cfCopyMergeService;
+    private BlackbirdAssetCopyMergeService cfCopyMergeService;
 
     @Mock
     private Resource mockResource;
@@ -40,7 +40,7 @@ public class AssetImporterTest {
 
     @BeforeEach
     void setUp() {
-        context.registerService(BlackbirdCfCopyMergeService.class, cfCopyMergeService);
+        context.registerService(BlackbirdAssetCopyMergeService.class, cfCopyMergeService);
         assetImporter = context.registerInjectActivateService(new AssetImporter());
     }
 

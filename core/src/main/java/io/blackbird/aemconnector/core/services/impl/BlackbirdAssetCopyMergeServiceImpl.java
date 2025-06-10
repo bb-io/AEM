@@ -5,7 +5,7 @@ import com.day.cq.wcm.api.WCMException;
 import com.day.cq.wcm.api.constants.NameConstants;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.blackbird.aemconnector.core.exceptions.BlackbirdResourceCopyMergeException;
-import io.blackbird.aemconnector.core.services.BlackbirdCfCopyMergeService;
+import io.blackbird.aemconnector.core.services.BlackbirdAssetCopyMergeService;
 import io.blackbird.aemconnector.core.services.BlackbirdServiceUserResolverProvider;
 import io.blackbird.aemconnector.core.utils.CopyMergeUtils;
 import io.blackbird.aemconnector.core.utils.PathUtils;
@@ -19,8 +19,8 @@ import org.osgi.service.component.annotations.Reference;
 import static java.util.Objects.requireNonNull;
 
 @Slf4j
-@Component(service = BlackbirdCfCopyMergeService.class)
-public class BlackbirdCfCopyMergeServiceImpl implements BlackbirdCfCopyMergeService {
+@Component(service = BlackbirdAssetCopyMergeService.class)
+public class BlackbirdAssetCopyMergeServiceImpl implements BlackbirdAssetCopyMergeService {
 
     @Reference
     private BlackbirdServiceUserResolverProvider serviceUserResolverProvider;
