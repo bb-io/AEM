@@ -1,6 +1,7 @@
 package io.blackbird.aemconnector.core.services.impl;
 
 import com.adobe.granite.asset.api.AssetManager;
+import com.day.cq.commons.jcr.JcrUtil;
 import com.day.cq.wcm.api.WCMException;
 import com.day.cq.wcm.api.constants.NameConstants;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -15,6 +16,9 @@ import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+
+import javax.jcr.Node;
+import javax.jcr.RepositoryException;
 
 import static java.util.Objects.requireNonNull;
 
@@ -58,14 +62,15 @@ public class BlackbirdAssetCopyMergeServiceImpl implements BlackbirdAssetCopyMer
         resolver.commit();
     }
 
-    private void replaceExistingResourceWithNewCopy(Resource sourceResource, Resource targetResource, ResourceResolver resolver) throws PersistenceException {
+    private void replaceExistingResourceWithNewCopy(Resource sourceResource, Resource targetResource, ResourceResolver resolver) throws PersistenceException, RepositoryException {
         String targetResourcePath = targetResource.getPath();
         Resource targetJcrContent = requireNonNull(targetResource.getChild(NameConstants.NN_CONTENT),
                 String.format("Target jcr:content resource does not exist, %s", targetResourcePath));
         Resource sourceJcrContent = requireNonNull(sourceResource.getChild(NameConstants.NN_CONTENT),
                 String.format("Source jcr:content resource does not exist, %s", sourceResource.getPath()));
         resolver.delete(targetJcrContent);
-        resolver.copy(sourceJcrContent.getPath(), targetResourcePath);
-        resolver.commit();
+        Node sourceJcrContentNode = requireNonNull(sourceJcrContent.adaptTo(Node.class), String.format("Can not adapt resource %s to node.", sourceJcrContent.getPath()));
+        Node targetNode = requireNonNull(targetResource.adaptTo(Node.class), String.format("Can not adapt resource %s to node.", targetResource.getPath()));
+        JcrUtil.copy(sourceJcrContentNode, targetNode, NameConstants.NN_CONTENT);
     }
 }
