@@ -14,6 +14,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import javax.jcr.Node;
+import javax.jcr.NodeIterator;
+import javax.jcr.PropertyIterator;
+import javax.jcr.nodetype.NodeType;
+
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -47,6 +52,21 @@ class BlackbirdAssetCopyMergeServiceImplTest {
 
     @Mock
     private AssetManager assetManager;
+
+    @Mock
+    private Node sourceJcrContentNode;
+
+    @Mock
+    private Node targetNode;
+
+    @Mock
+    private NodeType nodeType;
+
+    @Mock
+    private PropertyIterator propertyIterator;
+
+    @Mock
+    private NodeIterator nodeIterator;
 
     @InjectMocks
     private BlackbirdAssetCopyMergeServiceImpl service;
@@ -88,14 +108,22 @@ class BlackbirdAssetCopyMergeServiceImplTest {
         when(targetResource.getPath()).thenReturn(targetPath);
         when(targetResource.getChild("jcr:content")).thenReturn(targetJcrContent);
         when(sourceResource.getChild("jcr:content")).thenReturn(sourceJcrContent);
+        when(sourceJcrContent.adaptTo(Node.class)).thenReturn(sourceJcrContentNode);
+        when(targetResource.adaptTo(Node.class)).thenReturn(targetNode);
+        when(sourceJcrContentNode.getPrimaryNodeType()).thenReturn(nodeType);
+        when(nodeType.getName()).thenReturn("dam:AssetContent");
+        when(sourceJcrContentNode.getMixinNodeTypes()).thenReturn(new NodeType [0]);
+        when(sourceJcrContentNode.getProperties()).thenReturn(propertyIterator);
+        when(propertyIterator.hasNext()).thenReturn(false).thenReturn(false);
+        when(sourceJcrContentNode.getNodes()).thenReturn(nodeIterator);
+        when(nodeIterator.hasNext()).thenReturn(false);
 
         Resource result = service.copyAndMerge(sourcePath, targetPath, targetContent, null);
 
         verify(resolver).getResource(sourcePath);
         verify(resolver, times(2)).getResource(targetPath);
         verify(resolver).delete(targetJcrContent);
-        verify(resolver).copy(sourceResource.getPath(), "/content/bb-aem-connector/cf/pl/pl/target");
-        verify(resolver, times(2)).commit();
+        verify(resolver).commit();
         assertNotNull(result);
     }
 
