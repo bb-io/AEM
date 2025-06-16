@@ -40,9 +40,21 @@ jobs:
           distribution: 'temurin'
           java-version: '11'
           cache: maven
-          server-id: bb-io-AEM-github
-          server-username: ${{ github.actor }}
-          server-password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create Maven settings.xml
+        run: |
+          mkdir -p ~/.m2
+          echo "<settings xmlns=\"http://maven.apache.org/SETTINGS/1.0.0\"
+                  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"
+                  xsi:schemaLocation=\"http://maven.apache.org/SETTINGS/1.0.0 https://maven.apache.org/xsd/settings-1.0.0.xsd\">
+            <servers>
+              <server>
+                <id>bb-io-AEM-github</id>
+                <username>\${env.GITHUB_ACTOR}</username>
+                <password>\${env.GITHUB_TOKEN}</password>
+              </server>
+            </servers>
+          </settings>" > ~/.m2/settings.xml
 
       - name: Configure Git
         run: |
@@ -55,10 +67,16 @@ jobs:
           CURRENT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout | sed 's/-SNAPSHOT//')
           echo "CURRENT_VERSION=$CURRENT_VERSION" >> $GITHUB_ENV
           echo "Current version: $CURRENT_VERSION"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_ACTOR: ${{ github.actor }}
 
       - name: Remove SNAPSHOT from version
         run: |
           mvn versions:set -DremoveSnapshot -DgenerateBackupPoms=false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_ACTOR: ${{ github.actor }}
 
       - name: Commit release version
         run: |
@@ -76,16 +94,21 @@ jobs:
       - name: Deploy to GitHub Packages
         run: |
           if [ "$BRANCH_NAME" = "main" ]; then
-            mvn clean deploy -pl :bb-aem-connector,:bb-aem-connector.all -am -DskipTests -Dgithub.token=${{ secrets.GITHUB_TOKEN }}
+            mvn clean deploy -pl :bb-aem-connector,:bb-aem-connector.all -am -DskipTests
           else
             mvn clean deploy -pl :bb-aem-connector,:bb-aem-connector.all -am -DskipTests \
-              -DaltDeploymentRepository=github::default::https://maven.pkg.github.com/bb-io/AEM/aem-on-prem \
-              -Dgithub.token=${{ secrets.GITHUB_TOKEN }}
+              -DaltDeploymentRepository=bb-io-AEM-github::default::https://maven.pkg.github.com/bb-io/AEM/aem-on-prem
           fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_ACTOR: ${{ github.actor }}
 
       - name: Set next development version
         run: |
           mvn versions:set -DnewVersion=${{ github.event.inputs.next_version }}-SNAPSHOT -DgenerateBackupPoms=false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_ACTOR: ${{ github.actor }}
 
       - name: Commit next development version
         run: |
