@@ -66,6 +66,7 @@ Add the following block:
 </repositories>
 ```
 ### Step 4: Add the Dependency in your root pom.xml
+#### 4.1 Update pom.xml with
 ```xml
 <dependency>
   <groupId>io.blackbird</groupId>
@@ -74,6 +75,8 @@ Add the following block:
   <version>{current_version}</version>
 </dependency>
 ```
+#### 4.2 Replace placeholder {current_version} with the latest version.
+
 ### Step 5: Add the Dependency in your /all/pom.xml
 ```xml
 <dependency>
@@ -91,6 +94,8 @@ Add the following block:
   <target>/apps/bb-vendor-packages/application/install</target>
 </embedded>
 ```
+> NOTE: Add path `/apps/bb-vendor-packages/application/install` to `filter.xml` for `all` module or change target path for the embed.
+
 ### Step 7: Commit all the changes to the branch and push the changes
 
 ### Step 8: The build for AEM as a Cloud Service can now be done
