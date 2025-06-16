@@ -69,7 +69,7 @@ Add the following block:
 ```xml
 <dependency>
   <groupId>io.blackbird</groupId>
-  <artifactId>bb-aem-connector.distribution</artifactId>
+  <artifactId>bb-aem-connector.all</artifactId>
   <type>zip</type>
   <version>{current_version}</version>
 </dependency>
@@ -78,7 +78,7 @@ Add the following block:
 ```xml
 <dependency>
     <groupId>io.blackbird</groupId>
-    <artifactId>bb-aem-connector.distribution</artifactId>
+    <artifactId>bb-aem-connector.all</artifactId>
     <type>zip</type>
 </dependency>
 ```
@@ -86,7 +86,7 @@ Add the following block:
 ```xml
 <embedded>
   <groupId>io.blackbird</groupId>
-  <artifactId>bb-aem-connector.distribution</artifactId>
+  <artifactId>bb-aem-connector.all</artifactId>
   <type>zip</type>
   <target>/apps/bb-vendor-packages/application/install</target>
 </embedded>

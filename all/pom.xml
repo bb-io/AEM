@@ -56,12 +56,6 @@
                     <embeddeds>
                         <embedded>
                             <groupId>io.blackbird</groupId>
-                            <artifactId>bb-aem-connector.ui.apps</artifactId>
-                            <type>zip</type>
-                            <target>/apps/bb-aem-connector-packages/application/install</target>
-                        </embedded>
-                        <embedded>
-                            <groupId>io.blackbird</groupId>
                             <artifactId>bb-aem-connector.core</artifactId>
                             <target>/apps/bb-aem-connector-packages/application/install</target>
                         </embedded>
@@ -178,12 +172,6 @@
     <!-- D E P E N D E N C I E S                                                -->
     <!-- ====================================================================== -->
     <dependencies>
-        <dependency>
-            <groupId>io.blackbird</groupId>
-            <artifactId>bb-aem-connector.ui.apps</artifactId>
-            <version>${project.version}</version>
-            <type>zip</type>
-        </dependency>
         <dependency>
             <groupId>io.blackbird</groupId>
             <artifactId>bb-aem-connector.ui.content</artifactId>

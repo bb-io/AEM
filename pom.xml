@@ -34,7 +34,6 @@
 
     <modules>
         <module>all</module>
-        <module>distribution</module>
         <module>core</module>
         <module>ui.apps</module>
         <module>ui.apps.structure</module>
