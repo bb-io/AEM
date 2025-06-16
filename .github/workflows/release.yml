@@ -10,6 +10,9 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -38,8 +41,8 @@ jobs:
           java-version: '11'
           cache: maven
           server-id: bb-io-AEM-github
-          server-username: GITHUB_ACTOR
-          server-password: GITHUB_TOKEN
+          server-username: ${{ github.actor }}
+          server-password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Configure Git
         run: |
@@ -73,9 +76,9 @@ jobs:
       - name: Deploy to GitHub Packages
         run: |
           if [ "$BRANCH_NAME" = "main" ]; then
-            mvn clean deploy -pl :bb-aem-connector,:bb-aem-connector.all -am -DskipTests
+            mvn clean deploy -pl bb-aem-connector,bb-aem-connector.all -am -DskipTests
           else
-            mvn clean deploy -pl :bb-aem-connector,:bb-aem-connector.all -am -DskipTests \
+            mvn clean deploy -pl bb-aem-connector,bb-aem-connector.all -am -DskipTests \
               -DaltDeploymentRepository=bb-io-AEM-github::default::https://maven.pkg.github.com/bb-io/AEM/aem-on-prem
           fi
         env:
