@@ -5,6 +5,96 @@ The YAML specification [included in the documentation](https://github.com/bb-io/
 
 You can paste this YAML directly into tools like [Swagger Editor](https://editor-next.swagger.io/) or integrate it into an internal API portal for interactive exploration
 
+## Prerequisites
+Even though this repository is **public**, GitHub **requires authentication** to download packages from **GitHub Packages**, including for **Maven dependencies**. This is a security feature to prevent anonymous abuse of GitHub's infrastructure.
+
+Follow these steps to generate a token and configure Maven to use it:
+
+### Step 1: Create a GitHub Personal Access Token (PAT)
+
+#### 1.1 Open the Token Generator
+
+[Generate a new token (classic) with the `read:packages` scope](https://github.com/settings/tokens/new?scopes=read:packages)
+
+#### 1.2 Configure the Token
+
+- **Note**: `Maven Access Token`
+- **Expiration**: Choose `30 days`, `90 days`, or `No expiration`
+- **Scope**:
+    - `read:packages` (only this is needed)
+
+> This token will **only allow read access to published packages**, and cannot modify repositories or access private code.
+
+#### 1.3 Click "Generate Token"
+
+Copy the token **immediately** — you won’t be able to see it again.
+
+### Step 2: Configure Maven to Use the Token
+
+#### 2.1 Add to settings.xml
+Create a file in your repository called `settings.xml` (or modify the current one) in your AEM as a Cloud Service git repository. The path for this file should be `.cloudmanager/maven/settings.xml`:
+Add the following block:
+
+```xml
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0">
+  <servers>
+    <server>
+      <id>bb-io-AEM-github</id>
+      <username>GITHUB_USERNAME</username>
+      <password>PASTE_YOUR_PAT_HERE</password>
+    </server>
+  </servers>
+</settings>
+```
+#### 2.2 Replace:
+ - `GITHUB_USERNAME` with your GitHub username
+ - `PASTE_YOUR_PAT_HERE` with the token you just generated
+
+### Step 3: Add the Repository in your root pom.xml
+```xml
+<repositories>
+    <repository>
+        <id>bb-io-AEM-github</id>
+        <url>https://maven.pkg.github.com/bb-io/AEM</url>
+        <releases>
+            <enabled>true</enabled>
+        </releases>
+        <snapshots>
+            <enabled>true</enabled>
+        </snapshots>
+    </repository>
+</repositories>
+```
+### Step 4: Add the Dependency in your root pom.xml
+```xml
+<dependency>
+  <groupId>io.blackbird</groupId>
+  <artifactId>bb-aem-connector.distribution</artifactId>
+  <type>zip</type>
+  <version>{current_version}</version>
+</dependency>
+```
+### Step 5: Add the Dependency in your /all/pom.xml
+```xml
+<dependency>
+    <groupId>io.blackbird</groupId>
+    <artifactId>bb-aem-connector.distribution</artifactId>
+    <type>zip</type>
+</dependency>
+```
+### Step 6: Add the package as an embedded dependency to your /all/pom.xml
+```xml
+<embedded>
+  <groupId>io.blackbird</groupId>
+  <artifactId>bb-aem-connector.distribution</artifactId>
+  <type>zip</type>
+  <target>/apps/bb-vendor-packages/application/install</target>
+</embedded>
+```
+### Step 7: Commit all the changes to the branch and push the changes
+
+### Step 8: The build for AEM as a Cloud Service can now be done
+
 ## Configure Authorization (JWT)
 Follow the [official documentation](https://experienceleague.adobe.com/en/docs/experience-manager-learn/getting-started-with-aem-headless/authentication/service-credentials) to create a Technical Account for the needed AEM Author program or use the next steps.
 
@@ -18,129 +108,3 @@ Follow the [official documentation](https://experienceleague.adobe.com/en/docs/e
 
 ### Validate integration
 To validate the integration, code samples for different programming languages can be used ([GitHub link](https://github.com/AdobeDocs/adobe-dev-console/blob/main/samples/adobe-jwt-dotnet/Program.cs)).
-
-
-# Sample AEM project template
-
-This is a project template for AEM-based applications. It is intended as a best-practice set of examples as well as a potential starting point to develop your own functionality.
-
-## Modules
-
-The main parts of the template are:
-
-* [core:](core/README.md) Java bundle containing all core functionality like OSGi services, listeners or schedulers, as well as component-related Java code such as servlets or request filters.
-* [it.tests:](it.tests/README.md) Java based integration tests
-* [ui.apps:](ui.apps/README.md) contains the /apps (and /etc) parts of the project, ie JS&CSS clientlibs, components, and templates
-* [ui.content:](ui.content/README.md) contains sample content using the components from the ui.apps
-* ui.config: contains runmode specific OSGi configs for the project
-* [ui.frontend:](ui.frontend.general/README.md) an optional dedicated front-end build mechanism (Angular, React or general Webpack project)
-* [ui.tests:](ui.tests/README.md) Cypress based UI tests (for other frameworks check [aem-test-samples](https://github.com/adobe/aem-test-samples) repository
-* all: a single content package that embeds all of the compiled modules (bundles and content packages) including any vendor dependencies
-* analyse: this module runs analysis on the project which provides additional validation for deploying into AEMaaCS
-
-## How to build
-
-To build all the modules run in the project root directory the following command with Maven 3:
-
-    mvn clean install
-
-To build all the modules and deploy the `all` package to a local instance of AEM, run in the project root directory the following command:
-
-    mvn clean install -PautoInstallSinglePackage
-
-Or to deploy it to a publish instance, run
-
-    mvn clean install -PautoInstallSinglePackagePublish
-
-Or alternatively
-
-    mvn clean install -PautoInstallSinglePackage -Daem.port=4503
-
-Or to deploy only the bundle to the author, run
-
-    mvn clean install -PautoInstallBundle
-
-Or to deploy only a single content package, run in the sub-module directory (i.e `ui.apps`)
-
-    mvn clean install -PautoInstallPackage
-
-## Documentation
-
-The build process also generates documentation in the form of README.md files in each module directory for easy reference. Depending on the options you select at build time, the content may be customized to your project.
-
-## Testing
-
-There are three levels of testing contained in the project:
-
-### Unit tests
-
-This show-cases classic unit testing of the code contained in the bundle. To
-test, execute:
-
-    mvn clean test
-
-### Integration tests
-
-This allows running integration tests that exercise the capabilities of AEM via
-HTTP calls to its API. To run the integration tests, run:
-
-    mvn clean verify -Plocal
-
-Test classes must be saved in the `src/main/java` directory (or any of its
-subdirectories), and must be contained in files matching the pattern `*IT.java`.
-
-The configuration provides sensible defaults for a typical local installation of
-AEM. If you want to point the integration tests to different AEM author and
-publish instances, you can use the following system properties via Maven's `-D`
-flag.
-
-| Property              | Description                                         | Default value           |
-|-----------------------|-----------------------------------------------------|-------------------------|
-| `it.author.url`       | URL of the author instance                          | `http://localhost:4502` |
-| `it.author.user`      | Admin user for the author instance                  | `admin`                 |
-| `it.author.password`  | Password of the admin user for the author instance  | `admin`                 |
-| `it.publish.url`      | URL of the publish instance                         | `http://localhost:4503` |
-| `it.publish.user`     | Admin user for the publish instance                 | `admin`                 |
-| `it.publish.password` | Password of the admin user for the publish instance | `admin`                 |
-
-The integration tests in this archetype use the [AEM Testing
-Clients](https://github.com/adobe/aem-testing-clients) and showcase some
-recommended [best
-practices](https://github.com/adobe/aem-testing-clients/wiki/Best-practices) to
-be put in use when writing integration tests for AEM.
-
-## Static Analysis
-
-The `analyse` module performs static analysis on the project for deploying into AEMaaCS. It is automatically
-run when executing
-
-    mvn clean install
-
-from the project root directory. Additional information about this analysis and how to further configure it
-can be found here https://github.com/adobe/aemanalyser-maven-plugin
-
-### UI tests
-
-They will test the UI layer of your AEM application using Cypress framework.
-
-Check README file in `ui.tests` module for more details.
-
-Examples of UI tests in different frameworks can be found here: https://github.com/adobe/aem-test-samples
-
-## ClientLibs
-
-The frontend module is made available using an [AEM ClientLib](https://helpx.adobe.com/experience-manager/6-5/sites/developing/using/clientlibs.html). When executing the NPM build script, the app is built and the [`aem-clientlib-generator`](https://github.com/wcm-io-frontend/aem-clientlib-generator) package takes the resulting build output and transforms it into such a ClientLib.
-
-A ClientLib will consist of the following files and directories:
-
-- `css/`: CSS files which can be requested in the HTML
-- `css.txt` (tells AEM the order and names of files in `css/` so they can be merged)
-- `js/`: JavaScript files which can be requested in the HTML
-- `js.txt` (tells AEM the order and names of files in `js/` so they can be merged
-- `resources/`: Source maps, non-entrypoint code chunks (resulting from code splitting), static assets (e.g. icons), etc.
-
-## Maven settings
-
-The project comes with the auto-public repository configured. To setup the repository in your Maven settings, refer to:
-
-    http://helpx.adobe.com/experience-manager/kb/SetUpTheAdobeMavenRepository.html
