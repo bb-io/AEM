@@ -4,7 +4,6 @@ import com.day.cq.commons.jcr.JcrUtil;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.PageManager;
 import com.day.cq.wcm.api.WCMException;
-import com.day.cq.wcm.api.constants.NameConstants;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.blackbird.aemconnector.core.exceptions.BlackbirdResourceCopyMergeException;
 import io.blackbird.aemconnector.core.services.BlackbirdPageCopyMergeService;
@@ -21,6 +20,7 @@ import org.osgi.service.component.annotations.Reference;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
+import static com.day.cq.commons.jcr.JcrConstants.JCR_CONTENT;
 import static java.util.Objects.requireNonNull;
 
 @Slf4j
@@ -72,7 +72,7 @@ public class BlackbirdPageCopyMergeServiceImpl implements BlackbirdPageCopyMerge
         resolver.delete(targetJcrContent);
         Node sourceJcrContentNode = requireNonNull(sourceJcrContent.adaptTo(Node.class), String.format("Can not adapt resource %s to node.", sourceJcrContent.getPath()));
         Node targetNode = requireNonNull(targetPage.adaptTo(Node.class), String.format("Can not adapt resource %s to node.", targetPage.getPath()));
-        JcrUtil.copy(sourceJcrContentNode, targetNode, NameConstants.NN_CONTENT);
+        JcrUtil.copy(sourceJcrContentNode, targetNode, JCR_CONTENT);
     }
 
     private void createCopyForTargetPage(String targetPath, Page sourcePage, PageManager pageManager, ResourceResolver resolver) throws BlackbirdResourceCopyMergeException, PersistenceException, WCMException {
