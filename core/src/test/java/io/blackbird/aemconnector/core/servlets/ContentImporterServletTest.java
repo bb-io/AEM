@@ -20,7 +20,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
@@ -78,7 +77,7 @@ public class ContentImporterServletTest {
                 .set("targetContent", targetContent);
         payload.set("references", references);
 
-        byte[] inputStream = new ByteArrayInputStream(payload.toString().getBytes(StandardCharsets.UTF_8)).readAllBytes();
+        byte[] inputStream = payload.toString().getBytes(StandardCharsets.UTF_8);
         request.setContent(inputStream);
 
         ContentType contentType = mock(ContentType.class);
@@ -100,7 +99,7 @@ public class ContentImporterServletTest {
     void shouldThrowsBlackbirdHttpErrorExceptionWhenRequiredParameterIsMissing() {
         ObjectNode payload = objectMapper.createObjectNode().put("sourcePath", "/content/bb-aem-connector/us/en/testPage");
 
-        byte[] inputStream = new ByteArrayInputStream(payload.toString().getBytes(StandardCharsets.UTF_8)).readAllBytes();
+        byte[] inputStream = payload.toString().getBytes(StandardCharsets.UTF_8);
         request.setContent(inputStream);
 
         BlackbirdHttpErrorException exception = assertThrows(BlackbirdHttpErrorException.class,

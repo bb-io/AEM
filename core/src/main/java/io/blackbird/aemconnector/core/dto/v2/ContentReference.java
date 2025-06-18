@@ -1,6 +1,6 @@
 package io.blackbird.aemconnector.core.dto.v2;
 
-import com.day.cq.wcm.api.constants.NameConstants;
+import com.day.cq.wcm.api.NameConstants;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -22,7 +22,6 @@ public class ContentReference implements Serializable {
         this.propertyName = propertyName;
         this.propertyPath = propertyPath;
         this.referencePath = referencePath;
-
     }
 
     public ContentReference(String referencePath) {

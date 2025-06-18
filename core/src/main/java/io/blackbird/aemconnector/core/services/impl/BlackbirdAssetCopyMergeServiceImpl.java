@@ -2,8 +2,8 @@ package io.blackbird.aemconnector.core.services.impl;
 
 import com.adobe.granite.asset.api.AssetManager;
 import com.day.cq.commons.jcr.JcrUtil;
+import com.day.cq.wcm.api.NameConstants;
 import com.day.cq.wcm.api.WCMException;
-import com.day.cq.wcm.api.constants.NameConstants;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.blackbird.aemconnector.core.exceptions.BlackbirdResourceCopyMergeException;
 import io.blackbird.aemconnector.core.services.BlackbirdAssetCopyMergeService;

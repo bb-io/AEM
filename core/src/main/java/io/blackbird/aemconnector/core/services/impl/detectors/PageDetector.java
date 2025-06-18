@@ -1,6 +1,6 @@
 package io.blackbird.aemconnector.core.services.impl.detectors;
 
-import com.day.cq.wcm.api.constants.NameConstants;
+import com.day.cq.wcm.api.NameConstants;
 import io.blackbird.aemconnector.core.services.ContentType;
 import io.blackbird.aemconnector.core.services.ContentTypeDetector;
 import org.apache.sling.api.resource.Resource;

@@ -1,9 +1,9 @@
 package io.blackbird.aemconnector.core.utils;
 
+import com.day.cq.wcm.api.NameConstants;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.PageManager;
 import com.day.cq.wcm.api.WCMException;
-import com.day.cq.wcm.api.constants.NameConstants;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.blackbird.aemconnector.core.exceptions.BlackbirdResourceCopyMergeException;
 import org.apache.commons.lang3.ObjectUtils;
