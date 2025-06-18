@@ -1,8 +1,10 @@
 package io.blackbird.aemconnector.core.services.impl;
 
+import com.day.cq.commons.jcr.JcrUtil;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.PageManager;
 import com.day.cq.wcm.api.WCMException;
+import com.day.cq.wcm.api.constants.NameConstants;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.blackbird.aemconnector.core.exceptions.BlackbirdResourceCopyMergeException;
 import io.blackbird.aemconnector.core.services.BlackbirdPageCopyMergeService;
@@ -15,6 +17,9 @@ import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+
+import javax.jcr.Node;
+import javax.jcr.RepositoryException;
 
 import static java.util.Objects.requireNonNull;
 
@@ -59,10 +64,15 @@ public class BlackbirdPageCopyMergeServiceImpl implements BlackbirdPageCopyMerge
         }
     }
 
-    private void replaceExistingPageWithNewCopy(Page sourcePage, Page targetPage, ResourceResolver resolver) throws PersistenceException {
-        resolver.delete(targetPage.getContentResource());
-        resolver.copy(sourcePage.getContentResource().getPath(), targetPage.getPath());
-        resolver.commit();
+    private void replaceExistingPageWithNewCopy(Page sourcePage, Page targetPage, ResourceResolver resolver) throws PersistenceException, RepositoryException {
+        Resource targetJcrContent = requireNonNull(targetPage.getContentResource(),
+                String.format("Target jcr:content resource does not exist, %s", targetPage.getPath()));
+        Resource sourceJcrContent = requireNonNull(sourcePage.getContentResource(),
+                String.format("Source jcr:content resource does not exist, %s", sourcePage.getPath()));
+        resolver.delete(targetJcrContent);
+        Node sourceJcrContentNode = requireNonNull(sourceJcrContent.adaptTo(Node.class), String.format("Can not adapt resource %s to node.", sourceJcrContent.getPath()));
+        Node targetNode = requireNonNull(targetPage.adaptTo(Node.class), String.format("Can not adapt resource %s to node.", targetPage.getPath()));
+        JcrUtil.copy(sourceJcrContentNode, targetNode, NameConstants.NN_CONTENT);
     }
 
     private void createCopyForTargetPage(String targetPath, Page sourcePage, PageManager pageManager, ResourceResolver resolver) throws BlackbirdResourceCopyMergeException, PersistenceException, WCMException {
