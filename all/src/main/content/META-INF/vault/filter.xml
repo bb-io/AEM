@@ -16,5 +16,4 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
 <workspaceFilter version="1.0">
     <filter root="/apps/bb-aem-connector-packages"/>
-    <filter root="/apps/bb-aem-connector-vendor-packages"/>
 </workspaceFilter>

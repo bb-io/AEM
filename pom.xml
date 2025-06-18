@@ -21,7 +21,7 @@
     <groupId>io.blackbird</groupId>
     <artifactId>bb-aem-connector</artifactId>
     <packaging>pom</packaging>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
     <name>Blackbird AEM Connector</name>
     <description>Blackbird AEM Connector</description>
 
@@ -35,6 +35,13 @@
         <module>it.tests</module>
         <module>ui.tests</module>
     </modules>
+
+    <distributionManagement>
+        <repository>
+            <id>bb-io-AEM-github</id>
+            <url>https://maven.pkg.github.com/bb-io/AEM/aem-on-prem</url>
+        </repository>
+    </distributionManagement>
 
     <properties>
         <aem.host>localhost</aem.host>
@@ -55,6 +62,8 @@
         <uber.jar.version>6.5.20</uber.jar.version>
         <aemanalyser.version>1.6.6</aemanalyser.version>
         <componentGroupName>Blackbird AEM Connector</componentGroupName>
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
     </properties>
 
     <build>
