@@ -73,7 +73,7 @@ jobs:
 
       - name: Remove SNAPSHOT from version
         run: |
-          mvn versions:set -DremoveSnapshot -DgenerateBackupPoms=false
+          mvn versions:set -DremoveSnapshot -DgenerateBackupPoms=false -f pom.xml
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_ACTOR: ${{ github.actor }}
@@ -105,7 +105,7 @@ jobs:
 
       - name: Set next development version
         run: |
-          mvn versions:set -DnewVersion=${{ github.event.inputs.next_version }}-SNAPSHOT -DgenerateBackupPoms=false
+          mvn versions:set -DnewVersion=${{ github.event.inputs.next_version }}-SNAPSHOT -DgenerateBackupPoms=false -f pom.xml
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_ACTOR: ${{ github.actor }}
