@@ -15,7 +15,7 @@ paths:
       tags:
         - Content
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       summary: Get structured JCR content from a given resource path
       description: |
         This endpoint returns structured JCR nodes and their properties as JSON.
@@ -85,7 +85,7 @@ paths:
       tags:
         - Page Events Viewer
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       summary: Info about pages that were created or modified during a definite period of time.
       description: |
         Info about pages that were created or modified during a definite period of time.
@@ -152,15 +152,15 @@ paths:
         '500':
           description: Internal Server Error - an error occurred while processing the request
           content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/BlackbirdErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlackbirdErrorResponse'
   /content/services/bb-aem-connector/page-exporter.json:
     get:
       tags:
         - Page Exporter
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       summary: Export AEM Page Content
       description: |
         This API endpoint exports the content of an AEM page in JSON format. It serializes the page content recursively, filtering out blacklisted properties
@@ -207,12 +207,57 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BlackbirdErrorResponse'
+  /content/services/bb-aem-connector/content-exporter.json:
+    get:
+      tags:
+        - Content Exporter
+      security:
+        - bearerAuth: [ ]
+      summary: Export AEM Content
+      description: |
+        This API endpoint exports the content of different AEM content types in JSON format. It serializes the content recursively, including only those properties
+        and nodes included in AEM Translation Configuration. The servlet supports cqPage, Experience Fragment, Content Fragment.
+        Examples: 
+              `/content/services/bb-aem-connector/content-exporter.json?contentPath=/content/wknd/language-masters/en/adventures/ski-touring-mont-blanc`
+      parameters:
+        - in: query
+          name: contentPath
+          required: true
+          description: The absolute JCR path of the content to export. Must be an absolute path starting with '/'.
+          schema:
+            type: string
+            example: /content/wknd/language-masters/en/adventures/ski-touring-mont-blanc
+
+      responses:
+        '200':
+          description: Successful content export.
+          content:
+            application/json:
+              schema:
+                type: object
+                description: JSON representation of the page content.
+                additionalProperties: true
+        '400':
+          description: >
+            Bad Request - Either the "contentPath" query parameter is missing, the path does not start with '/',
+            or the resource does not represent a valid CQ page.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlackbirdErrorResponse'
+        '404':
+          description: >
+            Not Found - The resource for the given "contentPath" was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlackbirdErrorResponse'
   /content/services/bb-aem-connector/page-importer.json:
     post:
       tags:
         - Page Importer
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       summary: Import a Page with Merged Content
       description: >
         Copies an existing page from a given source path, merges the page with the provided JSON content, 
@@ -284,6 +329,174 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BlackbirdErrorResponse'
+  /content/services/bb-aem-connector/content-importer.json:
+    post:
+      tags:
+        - Content Importer
+      security:
+        - bearerAuth: [ ]
+      summary: Import and merge updated content
+      description: >
+        Copies an existing content (pages, experience-fragments) from a given source path, merges the content with the provided JSON, 
+        creates or updates a content at the target path.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - sourcePath
+                - targetPath
+                - targetContent
+              properties:
+                sourcePath:
+                  type: string
+                  description: Absolute path of the source content to be copied.
+                  example: "/content/bb-aem-connector/us/en/products/category-page"
+                targetPath:
+                  type: string
+                  description: Absolute path for the destination or target content.
+                  example: "/content/bb-aem-connector/pl/pl/products/category-page"
+                targetContent:
+                  type: object
+                  description: >
+                    An object containing the target content to be merged into the copied content.
+                    This must be a valid JSON object and repeat the structure of the source content.
+                  example:
+                    jcr:content:
+                      jcr:title: "Strona kategorii"
+                      text: "Witamy w hotelu California"
+                      root:
+                        container:
+                          container:
+                            months:
+                              - "Marzec"
+                              - "Kwiecień"
+                              - "Maj"
+                references:
+                  type: array
+                  description: An optional array of reference objects.
+                  items:
+                    type: object
+                    required:
+                      - propertyPath
+                      - propertyName
+                      - referencePath
+                    properties:
+                      propertyPath:
+                        type: string
+                        description: The relative path to the node containing the property to update.
+                        example: "jcr:content/container/root"
+                      propertyName:
+                        type: string
+                        description: The name of the property that will receive the new reference.
+                        example: "fileReference"
+                      referencePath:
+                        type: string
+                        description: Path to the node being referenced.
+                        example: "/content/bb-aem-connector/pl/pl/products/reference-page"
+      responses:
+        '200':
+          description: Content imported successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Content imported successfully"
+                  path:
+                    type: string
+                    example: "/content/bb-aem-connector/pl/pl/products/category-page"
+        '400':
+          description: Bad Request – Missing required fields or invalid payload.
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Represents an error response.
+                properties:
+                  status:
+                    type: integer
+                    description: HTTP status code.
+                    example: 400
+                  error:
+                    type: string
+                    description: Short error description.
+                    example: "Bad Request"
+                  message:
+                    type: string
+                    description: Detailed error message.
+                    example: "Missing required fields: sourcePath, targetPath, or targetContent"
+                  path:
+                    type: string
+                    description: The request path that resulted in the error.
+                    example: "/content/services/bb-aem-connector/content-importer.json"
+                  timestamp:
+                    type: string
+                    format: date-time
+                    description: Timestamp of the error in yyyy-MM-dd HH:mm:ss format (UTC).
+                    example: "2025-05-28 15:28:00"
+        '401':
+          description: Unauthorized – Login exception encountered.
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Represents an error response.
+                properties:
+                  status:
+                    type: integer
+                    description: HTTP status code.
+                    example: 401
+                  error:
+                    type: string
+                    description: Short error description.
+                    example: "Unauthorized"
+                  message:
+                    type: string
+                    description: Detailed error message.
+                    example: "Cannot derive user name for bundle bb-aem-connector.core and sub service blackbird-translation-writer-service"
+                  path:
+                    type: string
+                    description: The request path that resulted in the error.
+                    example: "/content/services/bb-aem-connector/content-importer.json"
+                  timestamp:
+                    type: string
+                    format: date-time
+                    description: Timestamp of the error in yyyy-MM-dd HH:mm:ss format (UTC).
+                    example: "2025-05-28 15:35:00"
+        '500':
+          description: Internal Server Error – An error occurred during the import process.
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Represents an error response.
+                properties:
+                  status:
+                    type: integer
+                    description: HTTP status code.
+                    example: 500
+                  error:
+                    type: string
+                    description: Short error description.
+                    example: "Internal Server Error"
+                  message:
+                    type: string
+                    description: Detailed error message.
+                    example: "Can not import page, sourcePath: /content/bb-aem-connector/us/en/products/category-page, targetPath: /content/bb-aem-connector/pl/pl/products/category-page"
+                  path:
+                    type: string
+                    description: The request path that resulted in the error.
+                    example: "/content/services/bb-aem-connector/content-importer.json"
+                  timestamp:
+                    type: string
+                    format: date-time
+                    description: Timestamp of the error in yyyy-MM-dd HH:mm:ss format (UTC).
+                    example: "2025-05-28 15:14:00"
 components:
   securitySchemes:
     bearerAuth:

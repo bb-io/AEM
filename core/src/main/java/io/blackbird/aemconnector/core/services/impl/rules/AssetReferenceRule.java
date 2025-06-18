@@ -6,6 +6,7 @@ import io.blackbird.aemconnector.core.utils.RepositoryUtils;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.jcr.Node;
 import javax.jcr.Property;
@@ -27,12 +28,24 @@ public class AssetReferenceRule {
         if (null == parent) {
             throw new BlackbirdInternalErrorException("Can't get parent node of property " + RepositoryUtils.getPath(property));
         }
-        String parentResourceType = RepositoryUtils.getPropertyAsString(parent, SLING_RESOURCE_TYPE_PROPERTY);
+
         if (assetReferenceAttribute.equals(RepositoryUtils.getName(property))
-                && resourceType.equals(parentResourceType)) {
+                && isResourceTypeEqualsParentResourceType(resourceType, parent)) {
             return checkInChildNodes ? TranslationRulesService.IsAssetReference.REFERENCE_WITH_CHILDREN : TranslationRulesService.IsAssetReference.REFERENCE;
         }
         return null;
     }
 
+    private boolean isResourceTypeEqualsParentResourceType(String resourceType, Node parent) throws BlackbirdInternalErrorException {
+        if (resourceType == null || parent == null) {
+            return false;
+        }
+
+        String parentResourceType = RepositoryUtils.hasProperty(parent, SLING_RESOURCE_TYPE_PROPERTY)
+                ? RepositoryUtils.getPropertyAsString(parent, SLING_RESOURCE_TYPE_PROPERTY)
+                : StringUtils.EMPTY;
+        String primaryType = RepositoryUtils.getPrimaryNodeTypeAsString(parent);
+
+        return resourceType.equals(parentResourceType) || primaryType.equals(resourceType);
+    }
 }

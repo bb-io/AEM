@@ -34,6 +34,7 @@ class AssetReferenceRuleTest {
 
         try (MockedStatic<RepositoryUtils> repositoryUtils = Mockito.mockStatic(RepositoryUtils.class)) {
             repositoryUtils.when(() -> RepositoryUtils.getParent(property)).thenReturn(parentNode);
+            repositoryUtils.when(() -> RepositoryUtils.hasProperty(parentNode, SLING_RESOURCE_TYPE_PROPERTY)).thenReturn(true);
             repositoryUtils.when(() -> RepositoryUtils.getName(property)).thenReturn(assetReferenceAttribute);
             repositoryUtils.when(() -> RepositoryUtils.getPropertyAsString(parentNode, SLING_RESOURCE_TYPE_PROPERTY))
                     .thenReturn(resourceType);
@@ -66,6 +67,7 @@ class AssetReferenceRuleTest {
 
         try (MockedStatic<RepositoryUtils> repositoryUtils = Mockito.mockStatic(RepositoryUtils.class)) {
             repositoryUtils.when(() -> RepositoryUtils.getParent(property)).thenReturn(parentNode);
+            repositoryUtils.when(() -> RepositoryUtils.hasProperty(parentNode, SLING_RESOURCE_TYPE_PROPERTY)).thenReturn(true);
             repositoryUtils.when(() -> RepositoryUtils.getName(property)).thenReturn(assetReferenceAttribute);
             repositoryUtils.when(() -> RepositoryUtils.getPropertyAsString(parentNode, SLING_RESOURCE_TYPE_PROPERTY))
                     .thenReturn(resourceType);
@@ -133,6 +135,7 @@ class AssetReferenceRuleTest {
             repositoryUtils.when(() -> RepositoryUtils.getName(property)).thenReturn(assetReferenceAttribute);
             repositoryUtils.when(() -> RepositoryUtils.getPropertyAsString(parentNode, SLING_RESOURCE_TYPE_PROPERTY))
                     .thenReturn("different/resource/type");
+            repositoryUtils.when(() -> RepositoryUtils.getPrimaryNodeTypeAsString(parentNode)).thenReturn("nt:unstructured");
 
             AssetReferenceRule rule = AssetReferenceRule.builder()
                     .assetReferenceAttribute(assetReferenceAttribute)

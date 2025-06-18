@@ -89,4 +89,15 @@ class BlackbirdServiceUserResolverProviderImplTest {
         Assertions.assertEquals("blackbird-translation-rules-reader-service", captor.getValue().get(ResourceResolverFactory.SUBSERVICE));
     }
 
+    @Test
+    void shouldReturnReferenceReaderResolver() throws LoginException {
+        // GIVEN
+
+        // WHEN
+        target.getReferenceReaderResolver();
+
+        // THEN
+        Mockito.verify(resourceResolverFactory).getServiceResourceResolver(captor.capture());
+        Assertions.assertEquals("blackbird-reference-reader-service", captor.getValue().get(ResourceResolverFactory.SUBSERVICE));
+    }
 }
