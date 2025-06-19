@@ -8,7 +8,9 @@ You can paste this YAML directly into tools like [Swagger Editor](https://editor
 ## Prerequisites
 Even though this repository is **public**, GitHub **requires authentication** to download packages from **GitHub Packages**, including for **Maven dependencies**. This is a security feature to prevent anonymous abuse of GitHub's infrastructure.
 
-Follow these steps to generate a token and configure Maven to use it:
+For the on-premise version, follow the steps from [the instruction](https://github.com/bb-io/AEM/blob/main-aem-on-prem/README.md) to embed BB AEM Connector to a project or download [the latest version](https://github.com/bb-io/AEM/packages/2548678) and install it through Package Manager manually.
+
+For AEMaaCS version, follow the next steps to generate a token and configure Maven to use it:
 
 ### Step 1: Create a GitHub Personal Access Token (PAT)
 
