@@ -59,7 +59,7 @@ Add the following block:
 <repositories>
     <repository>
         <id>bb-io-AEM-github</id>
-        <url>https://maven.pkg.github.com/bb-io/AEM/aem-on-prem</url>
+        <url>https://maven.pkg.github.com/bb-io/AEM</url>
         <releases>
             <enabled>true</enabled>
         </releases>
@@ -73,7 +73,7 @@ Add the following block:
 #### 4.1 Update pom.xml with
 ```xml
 <dependency>
-  <groupId>io.blackbird</groupId>
+  <groupId>aem-on-prem.io.blackbird</groupId>
   <artifactId>bb-aem-connector.all</artifactId>
   <type>zip</type>
   <version>{current_version}</version>
@@ -84,7 +84,7 @@ Add the following block:
 ### Step 5: Add the Dependency in your /all/pom.xml
 ```xml
 <dependency>
-    <groupId>io.blackbird</groupId>
+  <groupId>aem-on-prem.io.blackbird</groupId>
     <artifactId>bb-aem-connector.all</artifactId>
     <type>zip</type>
 </dependency>
@@ -92,7 +92,7 @@ Add the following block:
 ### Step 6: Add the package as an embedded dependency to your /all/pom.xml
 ```xml
 <embedded>
-  <groupId>io.blackbird</groupId>
+  <groupId>aem-on-prem.io.blackbird</groupId>
   <artifactId>bb-aem-connector.all</artifactId>
   <type>zip</type>
   <target>/apps/bb-vendor-packages/application/install</target>
