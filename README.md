@@ -8,7 +8,7 @@ You can paste this YAML directly into tools like [Swagger Editor](https://editor
 ## Prerequisites
 > These steps are optional and should only be performed if the Blackbird AEM Connector needs to be installed as part of the deployment process.
 
-[Go to Configure Authorization (JWT)](#configure-authorization-jwt) if you don't need these steps.
+[Go to Configure Basic Authorization](#configure-basic-authorization) if you don't need these steps.
 
 Even though this repository is **public**, GitHub **requires authentication** to download packages from **GitHub Packages**, including for **Maven dependencies**. This is a security feature to prevent anonymous abuse of GitHub's infrastructure.
 
@@ -104,16 +104,25 @@ Add the following block:
 
 ### Step 8: The build for AEM on-prem can now be done
 
-## Configure Authorization (JWT)
-Follow the [official documentation](https://experienceleague.adobe.com/en/docs/experience-manager-learn/getting-started-with-aem-headless/authentication/service-credentials) to create a Technical Account for the needed AEM Author program or use the next steps.
-
-### Steps to create Technical Account
-1. Open [Cloud Manager](https://experience.adobe.com/cloud-manager/landing.html).
-2. Select needed program. ![image auth step 2](docs/images/auth_step_2.png)
-3. Open Developer Console for needed Author environment. ![image auth step 3](docs/images/auth_step_3.png)
-4. Switch to `Integrations` tab and `Create new technical account`. ![image auth step 4](docs/images/auth_step_4.png)
-5. Unfold created private key and `View` the data. ![image auth step 5](docs/images/auth_step_5.png)
-6. Use the `Download` button to obtain the raw data and store it in a file or another location from which it will be used for integration. ![image auth step 6](docs/images/auth_step_6.png)
+## Configure Basic Authorization
+If you don’t embed the connector dependency into your project, please first download and install the latest version of the connector using [the link](https://github.com/bb-io/AEM/packages/2548678) before proceeding with the steps below.
+### Steps to create separate a user with required permissions
+1. Use `Adobe Experience Manager` to navigate to `Tools` -> `Security` -> `Users`. ![image auth step 1](docs/images/auth_step_1.png)
+2. Click `Create`.  ![image auth step 2](docs/images/auth_step_2.png)
+3. Fill in `ID`, `Password`, `Retype password` fields and click `Save & Close`. ![image auth step 3](docs/images/auth_step_3.png)
+4. Use `Adobe Experience Manager` to navigate to `Tools` -> `Security` -> `Permissions`. ![image auth step 4](docs/images/auth_step_4.png)
+5. Enter the user ID from step 3 in the search field.
+   1. Select `Users` from then dropdown.
+   2. Click on the username in the search results.
+   3. Click `Add ACE`. ![image auth step 5](docs/images/auth_step_5.png)
+6. Fill in the `Path` with `/content/services`, `Privileges` with `jcr:read` and click `Add`. ![image auth step 6](docs/images/auth_step_6.png)
 
 ### Validate integration
-To validate the integration, code samples for different programming languages can be used ([GitHub link](https://github.com/AdobeDocs/adobe-dev-console/blob/main/samples/adobe-jwt-dotnet/Program.cs)).
+To validate the integration, you can run the following `curl` command:
+```shell
+curl -u {username_from_step_3}:{user_password_from_step_3} -H "Accept: application/json" https://{aem_host}:{aem_port}/content/services/bb-aem-connector/content.json?contentPath=/content
+```
+In response, you should get something like this:
+```json
+{"values":[{"name":"wknd","path":"/content/wknd","properties":[{"name":"jcr:primaryType","value":"cq:Page","multiValue":false}]}]}
+```
