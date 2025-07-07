@@ -114,4 +114,4 @@ Follow the [official documentation](https://experienceleague.adobe.com/en/docs/e
 6. Use the `Download` button to obtain the raw data and store it in a file or another location from which it will be used for integration. ![image auth step 6](docs/images/auth_step_6.png)
 
 ### Validate integration
-To validate the integration, code samples for different programming languages can be used ([GitHub link](https://github.com/AdobeDocs/adobe-dev-console/blob/main/samples/adobe-jwt-dotnet/Program.cs)).
+To validate the integration, code samples for different programming languages can be used ([GitHub link](https://github.com/AdobeDocs/adobeio-auth/blob/stage/JWT/samples/adobe-jwt-dotnet/Program.cs)).
