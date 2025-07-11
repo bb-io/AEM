@@ -24,6 +24,7 @@ public class BlackbirdPageEventViewerDto implements Serializable {
     String startDate;
     String endDate;
     transient Set<String> events;
+    Set<String> tags;
     long offset;
     long limit;
     @JsonProperty("total")

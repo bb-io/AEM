@@ -12,6 +12,7 @@ public class PageEventSearchParams {
     String startDate;
     String endDate;
     Set<String> events;
+    Set<String> tags;
     long offset;
     long limit;
 }
