@@ -86,11 +86,11 @@ paths:
         - Page Events Viewer
       security:
         - bearerAuth: [ ]
-      summary: Info about pages that were created or modified during a definite period of time.
+      summary: Info about pages that were created or modified during a definite period of time. And about pages that have some tags.
       description: |
-        Info about pages that were created or modified during a definite period of time.
+        Info about pages that were created or modified during a definite period of time. And about pages that have some tags.
         Examples:
-                `/content/services/bb-aem-connector/pages/events?rootPath=/content/bb-aem-connector&startDate=2025-03-24&endDate=2025-03-26&offset=3limit=5&events=modified&events=created`
+                `/content/services/bb-aem-connector/pages/events?rootPath=/content/bb-aem-connector&startDate=2025-03-24&endDate=2025-03-26&offset=3limit=5&events=modified&events=created&tags=do-not-translate`
       parameters:
         - in: query
           name: rootPath
@@ -135,6 +135,15 @@ paths:
             items:
               type: string
             example: [ "created", "modified" ]
+        - in: query
+          name: tags
+          required: false
+          description: A list of tags to filter. Multiple values can be provided.
+          schema:
+            type: array
+            items:
+              type: string
+            example: [ "do-not-translate", "workflow:dam" ]
 
       responses:
         '200':
@@ -577,6 +586,12 @@ components:
           items:
             type: string
           example: [ "created" ]
+        tags:
+          type: array
+          description: A list of tags that were used for filtering.
+          items:
+            type: string
+          example: [ "workflow:dam", "do-not-translate" ]
         totalMatches:
           type: integer
           description: Total number of matching pages.

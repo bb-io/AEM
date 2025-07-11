@@ -53,7 +53,7 @@ public class BlackbirdPageEventServiceImpl implements BlackbirdPageEventService 
         queryMap.put("p.limit", String.valueOf(params.getLimit()));
         queryMap.put("p.guessTotal", "100");
         queryMap.put("group.p.or", "true");
-
+        addTagPredicates(queryMap, params.getTags());
         Set<String> events = params.getEvents();
 
         boolean createdOnly = events.size() == 1 && events.contains(CREATED);
@@ -137,6 +137,19 @@ public class BlackbirdPageEventServiceImpl implements BlackbirdPageEventService 
         params.getQueryMap().put(params.getPrefix() + "_daterange.property", params.getProperty());
         params.getQueryMap().put(params.getPrefix() + "_daterange.lowerBound", params.getLowerBoundDate());
         params.getQueryMap().put(params.getPrefix() + "_daterange.upperBound", params.getUpperBoundDate());
+    }
+
+    private void addTagPredicates(Map<String, String> queryMap, Set<String> tags) {
+        if (tags == null || tags.isEmpty()) {
+            return;
+        }
+        int predicateIndex = 1;
+        for (String tag : tags) {
+            queryMap.put(predicateIndex + "_property", "jcr:content/cq:tags");
+            queryMap.put(predicateIndex + "_property.value", tag);
+            predicateIndex++;
+        }
+        queryMap.put("allTags", "true");
     }
 
     @Value

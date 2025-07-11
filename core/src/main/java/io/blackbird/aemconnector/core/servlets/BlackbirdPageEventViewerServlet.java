@@ -18,7 +18,6 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.servlet.Servlet;
-import javax.servlet.http.HttpServletResponse;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collections;
@@ -39,6 +38,7 @@ public class BlackbirdPageEventViewerServlet extends BlackbirdAbstractBaseServle
     public static final String OFFSET = "offset";
     public static final String LIMIT = "limit";
     public static final String EVENTS = "events";
+    public static final String TAGS = "tags";
 
     @Reference
     private BlackbirdPageEventService blackbirdPageEventService;
@@ -51,7 +51,8 @@ public class BlackbirdPageEventViewerServlet extends BlackbirdAbstractBaseServle
         String endDate = request.getParameter(END_DATE);
         long offset = parseLongOrDefault(request.getParameter(OFFSET), 0);
         long limit = parseLongOrDefault(request.getParameter(LIMIT), -1);
-        Set<String> events = getEventsParams(request.getParameterValues(EVENTS));
+        Set<String> events = getSetParams(request.getParameterValues(EVENTS));
+        Set<String> tags = getSetParams(request.getParameterValues(TAGS));
 
         BlackbirdPageEventSearchResult searchResult;
         try {
@@ -60,6 +61,7 @@ public class BlackbirdPageEventViewerServlet extends BlackbirdAbstractBaseServle
                     .startDate(startDate)
                     .endDate(endDate)
                     .events(events)
+                    .tags(tags)
                     .offset(offset)
                     .limit(limit)
                     .build());
@@ -76,6 +78,7 @@ public class BlackbirdPageEventViewerServlet extends BlackbirdAbstractBaseServle
                 .offset(offset)
                 .limit(limit)
                 .events(events)
+                .tags(tags)
                 .totalMatches(searchResult.getTotalMatches())
                 .hasMore(searchResult.isHasMore())
                 .results(searchResult.getResults())
@@ -92,7 +95,7 @@ public class BlackbirdPageEventViewerServlet extends BlackbirdAbstractBaseServle
         }
     }
 
-    private static Set<String> getEventsParams(String[] params) {
+    private static Set<String> getSetParams(String[] params) {
         return Optional.ofNullable(params)
                 .map(Arrays::asList)
                 .orElse(Collections.emptyList()).stream()
