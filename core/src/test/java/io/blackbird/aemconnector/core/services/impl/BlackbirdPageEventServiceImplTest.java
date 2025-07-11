@@ -157,6 +157,38 @@ class BlackbirdPageEventServiceImplTest {
     }
 
     @Test
+    void testSearchPageEventsWithTags() throws BlackbirdInternalErrorException, LoginException, RepositoryException {
+
+        setUpMocksForSuccessfulCases();
+
+        PageEventSearchParams params = PageEventSearchParams.builder()
+                .rootPath("/content")
+                .startDate("2025-03-01")
+                .endDate("2025-03-05")
+                .limit(8)
+                .offset(0)
+                .events(Sets.newHashSet(BlackbirdPageEventServiceImpl.CREATED))
+                .tags(Sets.newHashSet("test-tag"))
+                .build();
+        BlackbirdPageEventSearchResult result = target.searchPageEvents(params);
+
+        assertNotNull(result);
+        assertEquals(1, result.getResults());
+        assertFalse(result.isHasMore());
+        assertEquals(1L, result.getTotalMatches());
+        assertEquals(1, result.getPages().size());
+
+        ArgumentCaptor<PredicateGroup> predicateGroupCaptor = ArgumentCaptor.forClass(PredicateGroup.class);
+        verify(queryBuilder).createQuery(predicateGroupCaptor.capture(), eq(session));
+        PredicateGroup capturedPredicateGroup = predicateGroupCaptor.getValue();
+        Predicate tagsPredicate = capturedPredicateGroup.getByName("1_property");
+
+        assertNotNull(tagsPredicate);
+        assertEquals("test-tag", tagsPredicate.get("value"));
+        assertEquals("jcr:content/cq:tags", tagsPredicate.get("property"));
+    }
+
+    @Test
     void testSearchPageEventsLoginException() throws Exception {
         PageEventSearchParams params = PageEventSearchParams.builder()
                 .rootPath("/content")
