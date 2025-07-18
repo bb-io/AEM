@@ -86,18 +86,24 @@ paths:
         - Page Events Viewer
       security:
         - bearerAuth: [ ]
-      summary: Info about pages that were created or modified during a definite period of time. And about pages that have some tags.
+      summary: Info about content (Pages, Experience Fragments, Assets, Content Fragments, Dita files, Raw files) that were created or modified during a definite period of time. And about content that has some tags.
       description: |
-        Info about pages that were created or modified during a definite period of time. And about pages that have some tags.
+        Info about content (Pages, Experience Fragments, Assets, Content Fragments, Dita files, Raw files) that were created or modified during a definite period of time. And about content that has some tags.
         Examples:
-                `/content/services/bb-aem-connector/pages/events?rootPath=/content/bb-aem-connector&startDate=2025-03-24&endDate=2025-03-26&offset=3limit=5&events=modified&events=created&tags=do-not-translate`
+                `/content/services/bb-aem-connector/pages/events?rootPath=/content/bb-aem-connector&type=dam:Asset&startDate=2025-03-24&endDate=2025-03-26&offset=3limit=5&events=modified&events=created&tags=do-not-translate`
       parameters:
         - in: query
           name: rootPath
-          description: The path under which pages are searched.
+          description: The path under which content are searched.
           schema:
             type: string
             example: /content/my-site
+        - in: query
+          name: type
+          description: The type of content for search. Possible options cq:Page (for Pages and Experience Fragments), dam:Asset (for Assets, Content Fragments and Dita files), nt:file (for Raw files). Defaults to cq:Page.
+          schema:
+            type: string
+            example: cq:Page
         - in: query
           name: startDate
           required: true
@@ -564,6 +570,10 @@ components:
           type: string
           description: The JCR root path used for the search.
           example: /content/my-site
+        type:
+          type: string
+          description: Content type for search.
+          example: cq:Page
         startDate:
           type: string
           description: The start date for filtering events.
@@ -604,9 +614,9 @@ components:
           type: integer
           description: The number of results returned.
           example: 10
-        pages:
+        content:
           type: array
-          description: A list of pages.
+          description: A list of content.
           items:
             $ref: '#/components/schemas/BlackbirdEventViewerPage'
 

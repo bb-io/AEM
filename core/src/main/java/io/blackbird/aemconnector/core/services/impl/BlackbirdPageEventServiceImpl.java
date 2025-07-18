@@ -7,7 +7,7 @@ import com.day.cq.search.result.Hit;
 import com.day.cq.search.result.SearchResult;
 import io.blackbird.aemconnector.core.dto.BlackbirdPageEventSearchResult;
 import io.blackbird.aemconnector.core.exceptions.BlackbirdInternalErrorException;
-import io.blackbird.aemconnector.core.models.BlackbirdEventViewerPage;
+import io.blackbird.aemconnector.core.models.BlackbirdEventViewerContent;
 import io.blackbird.aemconnector.core.objects.PageEventSearchParams;
 import io.blackbird.aemconnector.core.services.BlackbirdPageEventService;
 import io.blackbird.aemconnector.core.services.BlackbirdServiceUserResolverProvider;
@@ -47,7 +47,7 @@ public class BlackbirdPageEventServiceImpl implements BlackbirdPageEventService 
     @Override
     public BlackbirdPageEventSearchResult searchPageEvents(PageEventSearchParams params) throws LoginException, BlackbirdInternalErrorException {
         Map<String, String> queryMap = new HashMap<>();
-        queryMap.put("type", "cq:Page");
+        queryMap.put("type", params.getType());
         queryMap.put("path", params.getRootPath());
         queryMap.put("p.offset", String.valueOf(params.getOffset()));
         queryMap.put("p.limit", String.valueOf(params.getLimit()));
@@ -100,7 +100,7 @@ public class BlackbirdPageEventServiceImpl implements BlackbirdPageEventService 
 
         long totalMatches;
         boolean hasMore;
-        List<BlackbirdEventViewerPage> pages = new ArrayList<>();
+        List<BlackbirdEventViewerContent> content = new ArrayList<>();
         int results;
 
         try (ResourceResolver resourceResolver = serviceUserResolverProvider.getPageContentReaderResolver()) {
@@ -115,8 +115,8 @@ public class BlackbirdPageEventServiceImpl implements BlackbirdPageEventService 
 
             for (Hit hit : hits) {
                 Resource resource = hit.getResource();
-                BlackbirdEventViewerPage blackbirdEventViewerPage = resource.adaptTo(BlackbirdEventViewerPage.class);
-                pages.add(blackbirdEventViewerPage);
+                BlackbirdEventViewerContent blackbirdEventViewerContent = resource.adaptTo(BlackbirdEventViewerContent.class);
+                content.add(blackbirdEventViewerContent);
             }
         } catch (LoginException e) {
             log.error("Cannot access content reader, {}", e.getMessage());
@@ -130,7 +130,7 @@ public class BlackbirdPageEventServiceImpl implements BlackbirdPageEventService 
                 .results(results)
                 .hasMore(hasMore)
                 .totalMatches(totalMatches)
-                .pages(pages).build();
+                .content(content).build();
     }
 
     private void setDaterangePredicate(DaterangePredicateParams params) {

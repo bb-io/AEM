@@ -135,7 +135,7 @@
           "jcr:primaryType": "cq:Page",
           "jcr:content": {
             "jcr:primaryType": "cq:PageContent",
-            "jcr:title": "Reset Password",
+            "jcr:title": "Reset Your Password",
             "cq:template": "/conf/bb-aem-connector/settings/wcm/templates/page-content",
             "hideInNav": true,
             "pageTitle": "Reset Password",
@@ -148,6 +148,7 @@
         },
         "search": {
           "jcr:primaryType": "cq:Page",
+          "jcr:created": "Mon Mar 24 2025 14:10:30 GMT+0200",
           "jcr:content": {
             "jcr:primaryType": "cq:PageContent",
             "jcr:title": "Search Results",
@@ -244,6 +245,7 @@
                 "jcr:title": "Header",
                 "cq:template": "/libs/cq/experience-fragments/components/experiencefragment/template",
                 "jcr:created": "Mon Mar 24 2025 19:18:29 GMT+0200",
+                "cq:lastModified": "Mon Mar 24 2025 19:25:41 GMT+0200",
                 "cq:tags": [],
                 "sling:resourceType": "cq/experience-fragments/components/experiencefragment"
               },
@@ -409,8 +411,10 @@
           "jcr:primaryType": "sling:OrderedFolder",
           "cf-test": {
             "jcr:primaryType": "dam:Asset",
+            "jcr:created": "Mon Mar 24 2025 15:30:30 GMT+0200",
             "jcr:content": {
               "contentFragment": true,
+              "jcr:title": "Test",
               "jcr:primaryType": "dam:AssetContent",
               "data": {
                 "jcr:primaryType": "nt:unstructured",
