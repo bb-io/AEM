@@ -39,6 +39,9 @@ public class BlackbirdPageEventViewerServlet extends BlackbirdAbstractBaseServle
     public static final String LIMIT = "limit";
     public static final String EVENTS = "events";
     public static final String TAGS = "tags";
+    public static final String TYPE = "type";
+
+    private static final Set<String> ALLOWED_TYPES = Set.of("cq:Page", "dam:Asset", "nt:file");
 
     @Reference
     private BlackbirdPageEventService blackbirdPageEventService;
@@ -47,6 +50,7 @@ public class BlackbirdPageEventViewerServlet extends BlackbirdAbstractBaseServle
     public Serializable buildResponsePayload(SlingHttpServletRequest request, SlingHttpServletResponse response) throws BlackbirdHttpErrorException {
 
         String rootPath = ObjectUtils.defaultIfNull(request.getParameter(ROOT_PATH), "/");
+        String type = resolveType(request.getParameter(TYPE));
         String startDate = request.getParameter(START_DATE);
         String endDate = request.getParameter(END_DATE);
         long offset = parseLongOrDefault(request.getParameter(OFFSET), 0);
@@ -58,6 +62,7 @@ public class BlackbirdPageEventViewerServlet extends BlackbirdAbstractBaseServle
         try {
             searchResult = blackbirdPageEventService.searchPageEvents(PageEventSearchParams.builder()
                     .rootPath(rootPath)
+                    .type(type)
                     .startDate(startDate)
                     .endDate(endDate)
                     .events(events)
@@ -73,6 +78,7 @@ public class BlackbirdPageEventViewerServlet extends BlackbirdAbstractBaseServle
 
         return BlackbirdPageEventViewerDto.builder()
                 .rootPath(rootPath)
+                .type(type)
                 .startDate(startDate)
                 .endDate(endDate)
                 .offset(offset)
@@ -82,8 +88,12 @@ public class BlackbirdPageEventViewerServlet extends BlackbirdAbstractBaseServle
                 .totalMatches(searchResult.getTotalMatches())
                 .hasMore(searchResult.isHasMore())
                 .results(searchResult.getResults())
-                .pages(searchResult.getPages())
+                .content(searchResult.getContent())
                 .build();
+    }
+
+    private static String resolveType(String type) {
+        return (type != null && ALLOWED_TYPES.contains(type)) ? type : "cq:Page";
     }
 
     private long parseLongOrDefault(String number, long defaultValue) {

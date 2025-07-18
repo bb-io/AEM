@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import io.blackbird.aemconnector.core.models.BlackbirdEventViewerContent;
 import io.blackbird.aemconnector.core.models.BlackbirdEventViewerPage;
 import lombok.Builder;
 import lombok.Value;
@@ -21,6 +22,7 @@ import java.util.Set;
 @Jacksonized
 public class BlackbirdPageEventViewerDto implements Serializable {
     String rootPath;
+    String type;
     String startDate;
     String endDate;
     transient Set<String> events;
@@ -34,5 +36,5 @@ public class BlackbirdPageEventViewerDto implements Serializable {
     int results;
 
     @JsonInclude(JsonInclude.Include.ALWAYS)
-    transient List<BlackbirdEventViewerPage> pages;
+    transient List<BlackbirdEventViewerContent> content;
 }
