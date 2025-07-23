@@ -188,6 +188,37 @@ class BlackbirdPageEventServiceImplTest {
     }
 
     @Test
+    void testSearchPageEventsWithKeyWords() throws BlackbirdInternalErrorException, LoginException, RepositoryException {
+
+        setUpMocksForSuccessfulCases();
+
+        PageEventSearchParams params = PageEventSearchParams.builder()
+                .rootPath("/content")
+                .keyword("test")
+                .startDate("2025-03-01")
+                .endDate("2025-03-05")
+                .limit(8)
+                .offset(0)
+                .events(Sets.newHashSet(BlackbirdPageEventServiceImpl.CREATED))
+                .build();
+        BlackbirdPageEventSearchResult result = target.searchPageEvents(params);
+
+        assertNotNull(result);
+        assertEquals(1, result.getResults());
+        assertFalse(result.isHasMore());
+        assertEquals(1L, result.getTotalMatches());
+        assertEquals(1, result.getContent().size());
+
+        ArgumentCaptor<PredicateGroup> predicateGroupCaptor = ArgumentCaptor.forClass(PredicateGroup.class);
+        verify(queryBuilder).createQuery(predicateGroupCaptor.capture(), eq(session));
+        PredicateGroup capturedPredicateGroup = predicateGroupCaptor.getValue();
+        Predicate keyWordPredicate = capturedPredicateGroup.getByName("fulltext");
+
+        assertNotNull(keyWordPredicate);
+        assertEquals("test", keyWordPredicate.get("fulltext"));
+    }
+
+    @Test
     void testSearchPageEventsLoginException() throws Exception {
         PageEventSearchParams params = PageEventSearchParams.builder()
                 .rootPath("/content")

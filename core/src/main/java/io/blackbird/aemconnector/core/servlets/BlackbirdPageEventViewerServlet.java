@@ -40,6 +40,7 @@ public class BlackbirdPageEventViewerServlet extends BlackbirdAbstractBaseServle
     public static final String EVENTS = "events";
     public static final String TAGS = "tags";
     public static final String TYPE = "type";
+    public static final String KEY_WORD = "keyword";
 
     private static final Set<String> ALLOWED_TYPES = Set.of("cq:Page", "dam:Asset", "nt:file");
 
@@ -57,6 +58,7 @@ public class BlackbirdPageEventViewerServlet extends BlackbirdAbstractBaseServle
         long limit = parseLongOrDefault(request.getParameter(LIMIT), -1);
         Set<String> events = getSetParams(request.getParameterValues(EVENTS));
         Set<String> tags = getSetParams(request.getParameterValues(TAGS));
+        String keyword = request.getParameter(KEY_WORD);
 
         BlackbirdPageEventSearchResult searchResult;
         try {
@@ -67,6 +69,7 @@ public class BlackbirdPageEventViewerServlet extends BlackbirdAbstractBaseServle
                     .endDate(endDate)
                     .events(events)
                     .tags(tags)
+                    .keyword(keyword)
                     .offset(offset)
                     .limit(limit)
                     .build());
@@ -85,6 +88,7 @@ public class BlackbirdPageEventViewerServlet extends BlackbirdAbstractBaseServle
                 .limit(limit)
                 .events(events)
                 .tags(tags)
+                .keywords(keyword)
                 .totalMatches(searchResult.getTotalMatches())
                 .hasMore(searchResult.isHasMore())
                 .results(searchResult.getResults())
