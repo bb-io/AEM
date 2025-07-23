@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import static com.day.cq.commons.jcr.JcrConstants.JCR_CONTENT;
@@ -53,6 +54,7 @@ public class BlackbirdPageEventServiceImpl implements BlackbirdPageEventService 
         queryMap.put("p.limit", String.valueOf(params.getLimit()));
         queryMap.put("p.guessTotal", "100");
         queryMap.put("group.p.or", "true");
+        Optional.ofNullable(params.getKeyword()).ifPresent(keyword -> queryMap.put("fulltext", keyword));
         addTagPredicates(queryMap, params.getTags());
         Set<String> events = params.getEvents();
 
