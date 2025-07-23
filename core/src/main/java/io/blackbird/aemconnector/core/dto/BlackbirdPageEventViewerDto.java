@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import io.blackbird.aemconnector.core.models.BlackbirdEventViewerContent;
-import io.blackbird.aemconnector.core.models.BlackbirdEventViewerPage;
 import lombok.Builder;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
@@ -27,7 +26,7 @@ public class BlackbirdPageEventViewerDto implements Serializable {
     String endDate;
     transient Set<String> events;
     Set<String> tags;
-    String keywords;
+    String keyword;
     long offset;
     long limit;
     @JsonProperty("total")

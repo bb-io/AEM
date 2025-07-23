@@ -88,7 +88,7 @@ public class BlackbirdPageEventViewerServlet extends BlackbirdAbstractBaseServle
                 .limit(limit)
                 .events(events)
                 .tags(tags)
-                .keywords(keyword)
+                .keyword(keyword)
                 .totalMatches(searchResult.getTotalMatches())
                 .hasMore(searchResult.isHasMore())
                 .results(searchResult.getResults())
