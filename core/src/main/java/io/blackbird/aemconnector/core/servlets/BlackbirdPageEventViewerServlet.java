@@ -21,6 +21,7 @@ import javax.servlet.Servlet;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -42,7 +43,8 @@ public class BlackbirdPageEventViewerServlet extends BlackbirdAbstractBaseServle
     public static final String TYPE = "type";
     public static final String KEY_WORD = "keyword";
 
-    private static final Set<String> ALLOWED_TYPES = Set.of("cq:Page", "dam:Asset", "nt:file");
+    private static final Set<String> ALLOWED_TYPES = Collections.unmodifiableSet(new HashSet<>(Arrays.asList("cq:Page", "dam:Asset", "nt:file"))
+    );
 
     @Reference
     private BlackbirdPageEventService blackbirdPageEventService;
