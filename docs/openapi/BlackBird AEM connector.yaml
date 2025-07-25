@@ -83,21 +83,27 @@ paths:
   /content/services/bb-aem-connector/pages/events.json:
     get:
       tags:
-        - Page Events Viewer
+        - Content Events Viewer
       security:
         - bearerAuth: [ ]
-      summary: Info about pages that were created or modified during a definite period of time.
+      summary: Info about content (Pages, Experience Fragments, Assets, Content Fragments, Dita files, Raw files) that were created or modified during a definite period of time. And about content that has some tags or keyword.
       description: |
-        Info about pages that were created or modified during a definite period of time.
+        Info about content (Pages, Experience Fragments, Assets, Content Fragments, Dita files, Raw files) that were created or modified during a definite period of time. And about content that has some tags or keyword.
         Examples:
-                `/content/services/bb-aem-connector/pages/events?rootPath=/content/bb-aem-connector&startDate=2025-03-24&endDate=2025-03-26&offset=3limit=5&events=modified&events=created`
+                `/content/services/bb-aem-connector/pages/events?rootPath=/content/bb-aem-connector&type=dam:Asset&startDate=2025-03-24&endDate=2025-03-26&offset=3limit=5&events=modified&events=created&tags=do-not-translate&keyword=test`
       parameters:
         - in: query
           name: rootPath
-          description: The path under which pages are searched.
+          description: The path under which content are searched.
           schema:
             type: string
             example: /content/my-site
+        - in: query
+          name: type
+          description: The type of content for search. Possible options cq:Page (for Pages and Experience Fragments), dam:Asset (for Assets, Content Fragments and Dita files), nt:file (for Raw files). Defaults to cq:Page.
+          schema:
+            type: string
+            example: cq:Page
         - in: query
           name: startDate
           required: true
@@ -135,6 +141,21 @@ paths:
             items:
               type: string
             example: [ "created", "modified" ]
+        - in: query
+          name: tags
+          required: false
+          description: A list of tags to filter. Multiple values can be provided.
+          schema:
+            type: array
+            items:
+              type: string
+            example: [ "do-not-translate", "workflow:dam" ]
+        - in: query
+          name: keyword
+          description: The keyword for search.
+          schema:
+            type: string
+            example: test
 
       responses:
         '200':
@@ -555,6 +576,10 @@ components:
           type: string
           description: The JCR root path used for the search.
           example: /content/my-site
+        type:
+          type: string
+          description: Content type for search.
+          example: cq:Page
         startDate:
           type: string
           description: The start date for filtering events.
@@ -577,6 +602,16 @@ components:
           items:
             type: string
           example: [ "created" ]
+        tags:
+          type: array
+          description: A list of tags that were used for filtering.
+          items:
+            type: string
+          example: [ "workflow:dam", "do-not-translate" ]
+        keyword:
+          type: string
+          description: Keyword for search.
+          example: test
         totalMatches:
           type: integer
           description: Total number of matching pages.
@@ -589,9 +624,9 @@ components:
           type: integer
           description: The number of results returned.
           example: 10
-        pages:
+        content:
           type: array
-          description: A list of pages.
+          description: A list of content.
           items:
             $ref: '#/components/schemas/BlackbirdEventViewerPage'
 

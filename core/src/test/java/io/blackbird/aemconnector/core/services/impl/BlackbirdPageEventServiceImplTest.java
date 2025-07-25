@@ -9,7 +9,7 @@ import com.day.cq.search.result.SearchResult;
 import com.google.common.collect.Sets;
 import io.blackbird.aemconnector.core.dto.BlackbirdPageEventSearchResult;
 import io.blackbird.aemconnector.core.exceptions.BlackbirdInternalErrorException;
-import io.blackbird.aemconnector.core.models.BlackbirdEventViewerPage;
+import io.blackbird.aemconnector.core.models.BlackbirdEventViewerContent;
 import io.blackbird.aemconnector.core.objects.PageEventSearchParams;
 import io.blackbird.aemconnector.core.services.BlackbirdServiceUserResolverProvider;
 import org.apache.sling.api.resource.LoginException;
@@ -26,7 +26,6 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -57,7 +56,7 @@ class BlackbirdPageEventServiceImplTest {
     @Mock
     private Resource resource;
     @Mock
-    private BlackbirdEventViewerPage blackbirdEventViewerPage;
+    private BlackbirdEventViewerContent blackbirdEventViewerContent;
 
 
     @InjectMocks
@@ -82,7 +81,7 @@ class BlackbirdPageEventServiceImplTest {
         assertEquals(1, result.getResults());
         assertFalse(result.isHasMore());
         assertEquals(1L, result.getTotalMatches());
-        assertEquals(1, result.getPages().size());
+        assertEquals(1, result.getContent().size());
 
         ArgumentCaptor<PredicateGroup> predicateGroupCaptor = ArgumentCaptor.forClass(PredicateGroup.class);
         verify(queryBuilder).createQuery(predicateGroupCaptor.capture(), eq(session));
@@ -112,7 +111,7 @@ class BlackbirdPageEventServiceImplTest {
         assertEquals(1, result.getResults());
         assertFalse(result.isHasMore());
         assertEquals(1L, result.getTotalMatches());
-        assertEquals(1, result.getPages().size());
+        assertEquals(1, result.getContent().size());
 
         ArgumentCaptor<PredicateGroup> predicateGroupCaptor = ArgumentCaptor.forClass(PredicateGroup.class);
         verify(queryBuilder).createQuery(predicateGroupCaptor.capture(), eq(session));
@@ -141,7 +140,7 @@ class BlackbirdPageEventServiceImplTest {
         assertEquals(1, result.getResults());
         assertFalse(result.isHasMore());
         assertEquals(1L, result.getTotalMatches());
-        assertEquals(1, result.getPages().size());
+        assertEquals(1, result.getContent().size());
 
         ArgumentCaptor<PredicateGroup> predicateGroupCaptor = ArgumentCaptor.forClass(PredicateGroup.class);
         verify(queryBuilder).createQuery(predicateGroupCaptor.capture(), eq(session));
@@ -154,6 +153,69 @@ class BlackbirdPageEventServiceImplTest {
         Predicate daterangePredicate2 = capturedPredicateGroup.getByPath("group.2_daterange.property");
         assertNotNull(daterangePredicate2);
         assertEquals("jcr:content/cq:lastModified", daterangePredicate2.get("property"));
+    }
+
+    @Test
+    void testSearchPageEventsWithTags() throws BlackbirdInternalErrorException, LoginException, RepositoryException {
+
+        setUpMocksForSuccessfulCases();
+
+        PageEventSearchParams params = PageEventSearchParams.builder()
+                .rootPath("/content")
+                .startDate("2025-03-01")
+                .endDate("2025-03-05")
+                .limit(8)
+                .offset(0)
+                .events(Sets.newHashSet(BlackbirdPageEventServiceImpl.CREATED))
+                .tags(Sets.newHashSet("test-tag"))
+                .build();
+        BlackbirdPageEventSearchResult result = target.searchPageEvents(params);
+
+        assertNotNull(result);
+        assertEquals(1, result.getResults());
+        assertFalse(result.isHasMore());
+        assertEquals(1L, result.getTotalMatches());
+        assertEquals(1, result.getContent().size());
+
+        ArgumentCaptor<PredicateGroup> predicateGroupCaptor = ArgumentCaptor.forClass(PredicateGroup.class);
+        verify(queryBuilder).createQuery(predicateGroupCaptor.capture(), eq(session));
+        PredicateGroup capturedPredicateGroup = predicateGroupCaptor.getValue();
+        Predicate tagsPredicate = capturedPredicateGroup.getByName("1_property");
+
+        assertNotNull(tagsPredicate);
+        assertEquals("test-tag", tagsPredicate.get("value"));
+        assertEquals("jcr:content/cq:tags", tagsPredicate.get("property"));
+    }
+
+    @Test
+    void testSearchPageEventsWithKeyWords() throws BlackbirdInternalErrorException, LoginException, RepositoryException {
+
+        setUpMocksForSuccessfulCases();
+
+        PageEventSearchParams params = PageEventSearchParams.builder()
+                .rootPath("/content")
+                .keyword("test")
+                .startDate("2025-03-01")
+                .endDate("2025-03-05")
+                .limit(8)
+                .offset(0)
+                .events(Sets.newHashSet(BlackbirdPageEventServiceImpl.CREATED))
+                .build();
+        BlackbirdPageEventSearchResult result = target.searchPageEvents(params);
+
+        assertNotNull(result);
+        assertEquals(1, result.getResults());
+        assertFalse(result.isHasMore());
+        assertEquals(1L, result.getTotalMatches());
+        assertEquals(1, result.getContent().size());
+
+        ArgumentCaptor<PredicateGroup> predicateGroupCaptor = ArgumentCaptor.forClass(PredicateGroup.class);
+        verify(queryBuilder).createQuery(predicateGroupCaptor.capture(), eq(session));
+        PredicateGroup capturedPredicateGroup = predicateGroupCaptor.getValue();
+        Predicate keyWordPredicate = capturedPredicateGroup.getByName("fulltext");
+
+        assertNotNull(keyWordPredicate);
+        assertEquals("test", keyWordPredicate.get("fulltext"));
     }
 
     @Test
@@ -215,6 +277,6 @@ class BlackbirdPageEventServiceImplTest {
         List<Hit> hits = Collections.singletonList(hit);
         when(searchResult.getHits()).thenReturn(hits);
         when(hit.getResource()).thenReturn(resource);
-        when(resource.adaptTo(BlackbirdEventViewerPage.class)).thenReturn(blackbirdEventViewerPage);
+        when(resource.adaptTo(BlackbirdEventViewerContent.class)).thenReturn(blackbirdEventViewerContent);
     }
 }

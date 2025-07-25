@@ -7,7 +7,7 @@ import com.day.cq.search.result.Hit;
 import com.day.cq.search.result.SearchResult;
 import io.blackbird.aemconnector.core.dto.BlackbirdPageEventSearchResult;
 import io.blackbird.aemconnector.core.exceptions.BlackbirdInternalErrorException;
-import io.blackbird.aemconnector.core.models.BlackbirdEventViewerPage;
+import io.blackbird.aemconnector.core.models.BlackbirdEventViewerContent;
 import io.blackbird.aemconnector.core.objects.PageEventSearchParams;
 import io.blackbird.aemconnector.core.services.BlackbirdPageEventService;
 import io.blackbird.aemconnector.core.services.BlackbirdServiceUserResolverProvider;
@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import static com.day.cq.commons.jcr.JcrConstants.JCR_CONTENT;
@@ -47,13 +48,14 @@ public class BlackbirdPageEventServiceImpl implements BlackbirdPageEventService 
     @Override
     public BlackbirdPageEventSearchResult searchPageEvents(PageEventSearchParams params) throws LoginException, BlackbirdInternalErrorException {
         Map<String, String> queryMap = new HashMap<>();
-        queryMap.put("type", "cq:Page");
+        queryMap.put("type", params.getType());
         queryMap.put("path", params.getRootPath());
         queryMap.put("p.offset", String.valueOf(params.getOffset()));
         queryMap.put("p.limit", String.valueOf(params.getLimit()));
         queryMap.put("p.guessTotal", "100");
         queryMap.put("group.p.or", "true");
-
+        Optional.ofNullable(params.getKeyword()).ifPresent(keyword -> queryMap.put("fulltext", keyword));
+        addTagPredicates(queryMap, params.getTags());
         Set<String> events = params.getEvents();
 
         boolean createdOnly = events.size() == 1 && events.contains(CREATED);
@@ -100,7 +102,7 @@ public class BlackbirdPageEventServiceImpl implements BlackbirdPageEventService 
 
         long totalMatches;
         boolean hasMore;
-        List<BlackbirdEventViewerPage> pages = new ArrayList<>();
+        List<BlackbirdEventViewerContent> content = new ArrayList<>();
         int results;
 
         try (ResourceResolver resourceResolver = serviceUserResolverProvider.getPageContentReaderResolver()) {
@@ -115,8 +117,8 @@ public class BlackbirdPageEventServiceImpl implements BlackbirdPageEventService 
 
             for (Hit hit : hits) {
                 Resource resource = hit.getResource();
-                BlackbirdEventViewerPage blackbirdEventViewerPage = resource.adaptTo(BlackbirdEventViewerPage.class);
-                pages.add(blackbirdEventViewerPage);
+                BlackbirdEventViewerContent blackbirdEventViewerContent = resource.adaptTo(BlackbirdEventViewerContent.class);
+                content.add(blackbirdEventViewerContent);
             }
         } catch (LoginException e) {
             log.error("Cannot access content reader, {}", e.getMessage());
@@ -130,13 +132,26 @@ public class BlackbirdPageEventServiceImpl implements BlackbirdPageEventService 
                 .results(results)
                 .hasMore(hasMore)
                 .totalMatches(totalMatches)
-                .pages(pages).build();
+                .content(content).build();
     }
 
     private void setDaterangePredicate(DaterangePredicateParams params) {
         params.getQueryMap().put(params.getPrefix() + "_daterange.property", params.getProperty());
         params.getQueryMap().put(params.getPrefix() + "_daterange.lowerBound", params.getLowerBoundDate());
         params.getQueryMap().put(params.getPrefix() + "_daterange.upperBound", params.getUpperBoundDate());
+    }
+
+    private void addTagPredicates(Map<String, String> queryMap, Set<String> tags) {
+        if (tags == null || tags.isEmpty()) {
+            return;
+        }
+        int predicateIndex = 1;
+        for (String tag : tags) {
+            queryMap.put(predicateIndex + "_property", "jcr:content/cq:tags");
+            queryMap.put(predicateIndex + "_property.value", tag);
+            predicateIndex++;
+        }
+        queryMap.put("allTags", "true");
     }
 
     @Value

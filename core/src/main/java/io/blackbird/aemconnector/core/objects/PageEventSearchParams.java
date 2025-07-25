@@ -9,9 +9,12 @@ import java.util.Set;
 @Value
 public class PageEventSearchParams {
     String rootPath;
+    String type;
     String startDate;
     String endDate;
     Set<String> events;
+    Set<String> tags;
+    String keyword;
     long offset;
     long limit;
 }
