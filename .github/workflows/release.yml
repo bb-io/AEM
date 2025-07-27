@@ -115,6 +115,7 @@ jobs:
       - name: Commit next development version
         run: |
           git add **/pom.xml
+          git add **/package-info.java
           git commit -m "Prepare for next development version ${{ github.event.inputs.next_version }}-SNAPSHOT"
 
       - name: Push changes
