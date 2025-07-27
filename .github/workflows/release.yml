@@ -106,6 +106,8 @@ jobs:
       - name: Set next development version
         run: |
           mvn versions:set -DnewVersion=${{ github.event.inputs.next_version }}-SNAPSHOT -DgenerateBackupPoms=false -f pom.xml
+          # Update version in annotations as well
+          find . -name "package-info.java" -type f -exec sed -i "s/@Version(\"[0-9.]*\")/@Version(\"${{ github.event.inputs.next_version }}\")/g" {} \;
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_ACTOR: ${{ github.actor }}
