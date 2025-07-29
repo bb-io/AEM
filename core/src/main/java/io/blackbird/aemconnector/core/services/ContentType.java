@@ -5,5 +5,6 @@ public enum ContentType {
     EXPERIENCE_FRAGMENT,
     CONTENT_FRAGMENT,
     ASSET,
+    DITA,
     UNKNOWN
 }

@@ -34,4 +34,9 @@ public class ContentFragmentDetector implements ContentTypeDetector {
     public ContentType getContentType() {
         return ContentType.CONTENT_FRAGMENT;
     }
+
+    @Override
+    public int getRank() {
+        return 1;
+    }
 }
