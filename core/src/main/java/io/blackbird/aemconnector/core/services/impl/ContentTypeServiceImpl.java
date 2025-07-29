@@ -15,6 +15,7 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
+import java.util.Comparator;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -51,6 +52,7 @@ public class ContentTypeServiceImpl implements ContentTypeService {
                             "No resource found at path: %s", path)));
 
             return detectors.stream()
+                    .sorted(Comparator.comparingInt(ContentTypeDetector::getRank))
                     .filter(detector -> detector.detects(resource))
                     .map(ContentTypeDetector::getContentType)
                     .peek(contentType ->
