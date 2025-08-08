@@ -428,5 +428,50 @@
         }
       }
     }
+  },
+  "dita": {
+    "jcr:primaryType": "nt:folder",
+    "en": {
+      "jcr:primaryType": "nt:folder",
+      "source.dita": {
+        "jcr:primaryType": "dam:Asset",
+        "jcr:content": {
+          "jcr:primaryType": "dam:AssetContent,",
+          "fmUuid": "GUID-f709bdaa-e09a-448e-9b6f-61857cf07121",
+          "renditions": {
+            "jcr:primaryType": "nt:folder",
+            "original": {
+              "jcr:primaryType": "nt:folder",
+              "jcr:content": {
+                "jcr:primaryType": "nt:resource",
+                "jcr:mimeType": "application/xml",
+                "jcr:data": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<topic id=\"test-topic\">\n <title>Sample DITA Topic</title>\n <shortdesc>This is a short description for testing ingestion.</shortdesc>\n <body>\n <p>This is a test paragraph inside the DITA topic.</p>\n </body>\n</topic>"
+              }
+            }
+          }
+        }
+      }
+    },
+    "pl": {
+      "jcr:primaryType": "nt:folder",
+      "target.dita": {
+        "jcr:primaryType": "dam:Asset",
+        "jcr:content": {
+          "jcr:primaryType": "dam:AssetContent,",
+          "fmUuid": "GUID-f709bdfv-e09c-448k-9b4n-22639av07774",
+          "renditions": {
+            "jcr:primaryType": "nt:folder",
+            "original": {
+              "jcr:primaryType": "nt:folder",
+              "jcr:content": {
+                "jcr:primaryType": "nt:resource",
+                "jcr:mimeType": "application/xml",
+                "jcr:data": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<topic id=\"test-topic\">\n <title>Sample DITA Topic</title>\n <shortdesc>This is a short description for testing ingestion.</shortdesc>\n <body>\n <p>This is a test paragraph inside the DITA topic.</p>\n </body>\n</topic>"
+              }
+            }
+          }
+        }
+      }
+    }
   }
 }
