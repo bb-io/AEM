@@ -1,5 +1,6 @@
 package io.blackbird.aemconnector.core.utils;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,6 +22,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import lombok.extern.slf4j.Slf4j;
+import org.xml.sax.SAXException;
 
 @Slf4j
 public final class Xml2JsonUtil {
@@ -31,7 +33,7 @@ public final class Xml2JsonUtil {
     private Xml2JsonUtil() {
     }
 
-    public static ObjectNode convert(InputStream inputStream) throws Exception {
+    public static ObjectNode convert(InputStream inputStream) throws ParserConfigurationException, SAXException, IOException {
         DocumentBuilder documentBuilder = configureDocumentBuilder();
         Document document = documentBuilder.parse(inputStream);
         Element rootElement = document.getDocumentElement();
