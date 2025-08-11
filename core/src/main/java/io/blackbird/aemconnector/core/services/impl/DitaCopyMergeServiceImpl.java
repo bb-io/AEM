@@ -57,6 +57,7 @@ public class DitaCopyMergeServiceImpl implements DitaCopyMergeService {
     private static final String UNDERSCORE = "_";
     private static final String LEFT_BRACKET = "<";
     private static final String RIGHT_BRACKET = ">";
+    private static final String TAG_INDEX_REGEX = "_(\\d+)$";
 
     @Reference
     private BlackbirdServiceUserResolverProvider serviceUserResolverProvider;
@@ -132,7 +133,7 @@ public class DitaCopyMergeServiceImpl implements DitaCopyMergeService {
         }
 
         targetContent.fields().forEachRemaining(entry -> {
-            targetXmlContent.append(buildXmlFromJson(entry.getKey(), entry.getValue()));
+            targetXmlContent.append(buildXmlFromJson(entry.getKey().replaceAll(TAG_INDEX_REGEX, StringUtils.EMPTY), entry.getValue()));
         });
         return targetXmlContent.toString();
     }
@@ -160,26 +161,29 @@ public class DitaCopyMergeServiceImpl implements DitaCopyMergeService {
             Iterator<Map.Entry<String, JsonNode>> fields = node.fields();
             while (fields.hasNext()) {
                 Map.Entry<String, JsonNode> entry = fields.next();
-                String key = entry.getKey();
-                if (!TEXT_KEY.equals(key) && !key.startsWith(UNDERSCORE)) {
+                String keyWithIndex = entry.getKey();
+                String key = keyWithIndex.replaceAll(TAG_INDEX_REGEX, StringUtils.EMPTY);
+                if (!TEXT_KEY.equals(keyWithIndex) && !keyWithIndex.startsWith(UNDERSCORE)) {
                     String placeholder = String.format("%%%s%%", key);
                     if (tagContent.contains(placeholder)) {
                         tagContent = tagContent.replace(placeholder, buildXmlFromJson(key, entry.getValue()));
-                        substitutedKeys.add(key);
+                        substitutedKeys.add(keyWithIndex);
                     }
                 }
             }
             xmlContent.append(tagContent);
             node.fields().forEachRemaining(entry -> {
-                String key = entry.getKey();
-                if (!TEXT_KEY.equals(key) && !key.startsWith(UNDERSCORE) && !substitutedKeys.contains(key)) {
+                String keyWithIndex = entry.getKey();
+                String key = keyWithIndex.replaceAll(TAG_INDEX_REGEX, StringUtils.EMPTY);
+                if (!TEXT_KEY.equals(keyWithIndex) && !keyWithIndex.startsWith(UNDERSCORE) && !substitutedKeys.contains(keyWithIndex)) {
                     xmlContent.append(buildXmlFromJson(key, entry.getValue()));
                 }
             });
         } else {
             node.fields().forEachRemaining(entry -> {
-                String key = entry.getKey();
-                if (!TEXT_KEY.equals(key) && !key.startsWith(UNDERSCORE)) {
+                String keyWithIndex = entry.getKey();
+                String key = keyWithIndex.replaceAll(TAG_INDEX_REGEX, StringUtils.EMPTY);
+                if (!TEXT_KEY.equals(keyWithIndex) && !keyWithIndex.startsWith(UNDERSCORE)) {
                     xmlContent.append(buildXmlFromJson(key, entry.getValue()));
                 }
             });
