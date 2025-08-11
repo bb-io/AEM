@@ -358,7 +358,7 @@ paths:
         - bearerAuth: [ ]
       summary: Import and merge updated content
       description: >
-        Copies an existing content (pages, experience-fragments) from a given source path, merges the content with the provided JSON, 
+        Copies an existing content (pages, experience fragments, content fragments, assets, dita files) from a given source path, merges the content with the provided JSON, 
         creates or updates a content at the target path.
       requestBody:
         required: true
