@@ -2,9 +2,7 @@ package io.blackbird.aemconnector.core.utils;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -18,7 +16,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +24,7 @@ import org.xml.sax.SAXException;
 @Slf4j
 public final class Xml2JsonUtil {
     private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final String INDEX_SEPARATOR = "_";
     private static final String NODE_TEXT_FIELD_NAME = "__text";
     private static final String TEXT_PLACEHOLDER_SEPARATOR = "%";
 
@@ -39,7 +37,7 @@ public final class Xml2JsonUtil {
         Element rootElement = document.getDocumentElement();
         ObjectNode rootJson = MAPPER.createObjectNode();
         ObjectNode elementJson = processElement(rootElement);
-        rootJson.set(rootElement.getNodeName(), elementJson);
+        rootJson.set(rootElement.getNodeName() + "_1", elementJson);
         return rootJson;
     }
 
@@ -52,17 +50,17 @@ public final class Xml2JsonUtil {
 
     private static ObjectNode processElement(Element element) {
         ObjectNode jsonObject = MAPPER.createObjectNode();
-        Map<String, List<Element>> childGroups = new HashMap<>();
         StringBuilder directTextContent = new StringBuilder();
         StringBuilder fullTextContent = new StringBuilder();
 
         processAttributes(element, jsonObject);
-        collectChildNodesAndText(element, childGroups, directTextContent, fullTextContent);
-        processChildElements(childGroups, jsonObject);
+
+        Map<String, Integer> elementCounters = new HashMap<>();
+        processChildNodesInOrder(element, jsonObject, directTextContent, fullTextContent, elementCounters);
         handleTextContent(
                 directTextContent,
                 fullTextContent,
-                childGroups.isEmpty(),
+                jsonObject.size() == getAttributeCount(element),
                 jsonObject);
 
         return jsonObject;
@@ -80,11 +78,16 @@ public final class Xml2JsonUtil {
         }
     }
 
-    private static void collectChildNodesAndText(
+    private static int getAttributeCount(Element element) {
+        return element.getAttributes().getLength();
+    }
+
+    private static void processChildNodesInOrder(
             Element element,
-            Map<String, List<Element>> childGroups,
+            ObjectNode jsonObject,
             StringBuilder directTextContent,
-            StringBuilder fullTextContent) {
+            StringBuilder fullTextContent,
+            Map<String, Integer> elementCounters) {
         NodeList childNodes = element.getChildNodes();
 
         for (int i = 0; i < childNodes.getLength(); i++) {
@@ -93,36 +96,18 @@ public final class Xml2JsonUtil {
             if (node.getNodeType() == Node.ELEMENT_NODE) {
                 Element childElement = (Element) node;
                 String tagName = childElement.getNodeName();
+                int currentCount = elementCounters.getOrDefault(tagName, 0) + 1;
+                elementCounters.put(tagName, currentCount);
 
-                childGroups.computeIfAbsent(tagName, k -> new ArrayList<>())
-                        .add(childElement);
-                fullTextContent.append(TEXT_PLACEHOLDER_SEPARATOR).append(tagName).append(TEXT_PLACEHOLDER_SEPARATOR);
+                String indexedTagName = tagName + INDEX_SEPARATOR + currentCount;
+                String indexedPlaceholder = TEXT_PLACEHOLDER_SEPARATOR + indexedTagName + TEXT_PLACEHOLDER_SEPARATOR;
+                jsonObject.set(indexedTagName, processElement(childElement));
+                fullTextContent.append(indexedPlaceholder);
             } else if (node.getNodeType() == Node.TEXT_NODE) {
                 String textValue = node.getNodeValue();
 
                 directTextContent.append(textValue);
                 fullTextContent.append(textValue);
-            }
-        }
-    }
-
-    private static void processChildElements(
-            Map<String, List<Element>> childGroups,
-            ObjectNode jsonObject) {
-        for (Map.Entry<String, List<Element>> entry : childGroups.entrySet()) {
-            String tagName = entry.getKey();
-            List<Element> elements = entry.getValue();
-
-            if (elements.size() == 1) {
-                jsonObject.set(tagName, processElement(elements.get(0)));
-            } else {
-                ArrayNode arrayNode = MAPPER.createArrayNode();
-
-                for (Element childElement : elements) {
-                    arrayNode.add(processElement(childElement));
-                }
-
-                jsonObject.set(tagName, arrayNode);
             }
         }
     }

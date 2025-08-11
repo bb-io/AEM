@@ -20,8 +20,8 @@ class Xml2JsonUtilTest {
         String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><root><simple>value</simple></root>";
         ObjectNode result = convertXmlToJson(xml);
 
-        ObjectNode rootNode = (ObjectNode) result.get("root");
-        ObjectNode simpleNode = (ObjectNode) rootNode.get("simple");
+        ObjectNode rootNode = (ObjectNode) result.get("root_1");
+        ObjectNode simpleNode = (ObjectNode) rootNode.get("simple_1");
         assertEquals("value", simpleNode.get("__text").asText());
     }
 
@@ -30,7 +30,7 @@ class Xml2JsonUtilTest {
         String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><root><element attr1=\"value1\" attr2=\"value2\">content</element></root>";
         ObjectNode result = convertXmlToJson(xml);
 
-        ObjectNode elementNode = (ObjectNode) result.get("root").get("element");
+        ObjectNode elementNode = (ObjectNode) result.get("root_1").get("element_1");
         assertEquals("value1", elementNode.get("_attr1").asText());
         assertEquals("value2", elementNode.get("_attr2").asText());
         assertEquals("content", elementNode.get("__text").asText());
@@ -42,22 +42,20 @@ class Xml2JsonUtilTest {
                 + "<root><parent><child1>value1</child1><child2>value2</child2></parent></root>";
         ObjectNode result = convertXmlToJson(xml);
 
-        ObjectNode parentNode = (ObjectNode) result.get("root").get("parent");
-        assertEquals("value1", parentNode.get("child1").get("__text").asText());
-        assertEquals("value2", parentNode.get("child2").get("__text").asText());
+        ObjectNode parentNode = (ObjectNode) result.get("root_1").get("parent_1");
+        assertEquals("value1", parentNode.get("child1_1").get("__text").asText());
+        assertEquals("value2", parentNode.get("child2_1").get("__text").asText());
     }
 
     @Test
-    void shouldConvertXmlWithArray() throws Exception {
+    void shouldConvertXmlWithAnIndexedSetOfTheSameTags() throws Exception {
         String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
                 + "<root><item>1</item><item>2</item><item>3</item></root>";
         ObjectNode result = convertXmlToJson(xml);
 
-        assertTrue(result.get("root").get("item").isArray());
-        assertEquals(3, result.get("root").get("item").size());
-        assertEquals("1", result.get("root").get("item").get(0).get("__text").asText());
-        assertEquals("2", result.get("root").get("item").get(1).get("__text").asText());
-        assertEquals("3", result.get("root").get("item").get(2).get("__text").asText());
+        assertEquals("1", result.get("root_1").get("item_1").get("__text").asText());
+        assertEquals("2", result.get("root_1").get("item_2").get("__text").asText());
+        assertEquals("3", result.get("root_1").get("item_3").get("__text").asText());
     }
 
     @Test
@@ -66,9 +64,9 @@ class Xml2JsonUtilTest {
                 + "<root>Text before<child>child content</child>Text after</root>";
         ObjectNode result = convertXmlToJson(xml);
 
-        ObjectNode rootNode = (ObjectNode) result.get("root");
-        assertEquals("Text before%child%Text after", rootNode.get("__text").asText());
-        assertEquals("child content", rootNode.get("child").get("__text").asText());
+        ObjectNode rootNode = (ObjectNode) result.get("root_1");
+        assertEquals("Text before%child_1%Text after", rootNode.get("__text").asText());
+        assertEquals("child content", rootNode.get("child_1").get("__text").asText());
     }
 
     @Test
@@ -76,8 +74,8 @@ class Xml2JsonUtilTest {
         String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><root><empty></empty></root>";
         ObjectNode result = convertXmlToJson(xml);
 
-        assertNotNull(result.get("root").get("empty"));
-        assertTrue(result.get("root").get("empty").isEmpty());
+        assertNotNull(result.get("root_1").get("empty_1"));
+        assertTrue(result.get("root_1").get("empty_1").isEmpty());
     }
 
     @Test
