@@ -2,7 +2,7 @@ package io.blackbird.aemconnector.core.utils;
 
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -50,7 +50,7 @@ public final class Xml2JsonUtil {
 
     private static ObjectNode processElement(Element element) {
         ObjectNode jsonObject = MAPPER.createObjectNode();
-        Map<String, List<Element>> childGroups = new HashMap<>();
+        Map<String, List<Element>> childGroups = new LinkedHashMap<>();
         StringBuilder directTextContent = new StringBuilder();
         StringBuilder fullTextContent = new StringBuilder();
 
