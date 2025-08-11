@@ -164,7 +164,7 @@ public class DitaCopyMergeServiceImpl implements DitaCopyMergeService {
                 String keyWithIndex = entry.getKey();
                 String key = keyWithIndex.replaceAll(TAG_INDEX_REGEX, StringUtils.EMPTY);
                 if (!TEXT_KEY.equals(keyWithIndex) && !keyWithIndex.startsWith(UNDERSCORE)) {
-                    String placeholder = String.format("%%%s%%", key);
+                    String placeholder = String.format("%%%s%%", keyWithIndex);
                     if (tagContent.contains(placeholder)) {
                         tagContent = tagContent.replace(placeholder, buildXmlFromJson(key, entry.getValue()));
                         substitutedKeys.add(keyWithIndex);
