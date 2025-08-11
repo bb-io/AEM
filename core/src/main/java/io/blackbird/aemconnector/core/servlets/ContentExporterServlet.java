@@ -49,7 +49,11 @@ public class ContentExporterServlet extends BlackbirdAbstractBaseServlet {
 
             return result;
         } catch (BlackbirdServiceException e) {
-            throw BlackbirdHttpErrorException.internalServerError(e.getMessage());
+            String message = e.getMessage();
+            if (String.format("No resource found at path: %s", contentPath).equals(message)) {
+                throw BlackbirdHttpErrorException.notFound(message);
+            }
+            throw BlackbirdHttpErrorException.internalServerError(message);
         }
     }
 
@@ -62,6 +66,4 @@ public class ContentExporterServlet extends BlackbirdAbstractBaseServlet {
                             : Arrays.asList(values);
                 }));
     }
-
-
 }
