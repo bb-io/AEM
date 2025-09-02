@@ -80,7 +80,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/BlackbirdErrorResponse'
 
-  /content/services/bb-aem-connector/pages/events.json:
+  /content/services/bb-aem-connector/content/events.json:
     get:
       tags:
         - Content Events Viewer
@@ -90,7 +90,7 @@ paths:
       description: |
         Info about content (Pages, Experience Fragments, Assets, Content Fragments, Dita files, Raw files) that were created or modified during a definite period of time. And about content that has some tags or keyword.
         Examples:
-                `/content/services/bb-aem-connector/pages/events?rootPath=/content/bb-aem-connector&type=dam:Asset&startDate=2025-03-24&endDate=2025-03-26&offset=3limit=5&events=modified&events=created&tags=do-not-translate&keyword=test`
+                `/content/services/bb-aem-connector/content/events?rootPath=/content/bb-aem-connector&type=dam:Asset&startDate=2025-03-24&endDate=2025-03-26&offset=3limit=5&events=modified&events=created&tags=do-not-translate&keyword=test`
       parameters:
         - in: query
           name: rootPath
@@ -236,8 +236,8 @@ paths:
         - bearerAuth: [ ]
       summary: Export AEM Content
       description: |
-        This API endpoint exports the content of different AEM content types in JSON format. It serializes the content recursively, including only those properties
-        and nodes included in AEM Translation Configuration. The servlet supports cqPage, Experience Fragment, Content Fragment.
+        This API endpoint exports the content of different AEM content types (pages, experience fragments, content fragments, assets, dita files) in JSON format. It serializes the content recursively, including only those properties
+        and nodes included in AEM Translation Configuration.
         Examples: 
               `/content/services/bb-aem-connector/content-exporter.json?contentPath=/content/wknd/language-masters/en/adventures/ski-touring-mont-blanc`
       parameters:
@@ -628,28 +628,34 @@ components:
           type: array
           description: A list of content.
           items:
-            $ref: '#/components/schemas/BlackbirdEventViewerPage'
+            $ref: '#/components/schemas/BlackbirdEventViewerContent'
 
-    BlackbirdEventViewerPage:
+    BlackbirdEventViewerContent:
       type: object
-      description: Represents a page for Page Event Viewer servlet
+      description: Represents a content for Content Event Viewer servlet
       properties:
         title:
           type: string
-          description: page title
+          description: content title
           example: Home Page
         path:
           type: string
-          description: page path
+          description: content path
           example: /content/my-site/home
         created:
           type: string
-          description: the date pages was created
+          description: the date content was created
           example: 2025-03-15
         modified:
           type: string
-          description: the date page was modified
+          description: the date content was modified
           example: 2025-03-20
+        tags:
+          type: array
+          description: A list of tags that were assigned to content.
+          items:
+            type: string
+          example: [ "workflow:dam", "do-not-translate", "custom-tag" ]
 
     BlackbirdErrorResponse:
       type: object
@@ -670,7 +676,7 @@ components:
         path:
           type: string
           description: The request path that resulted in the error.
-          example: "/content/services/bb-aem-connector/pages/events"
+          example: "/content/services/bb-aem-connector/content/events"
         timestamp:
           type: string
           format: date-time
