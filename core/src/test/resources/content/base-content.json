@@ -1,4 +1,15 @@
 {
+  "cq:tags": {
+    "jcr:primaryType": "sling:Folder",
+    "default": {
+      "jcr:primaryType": "cq:Tag",
+      "do-not-translate": {
+        "jcr:primaryType": "cq:Tag",
+        "sling:resourceType": "cq/tagging/components/tag",
+        "jcr:title": "Do Not Translate"
+      }
+    }
+  },
   "bb-aem-connector": {
     "jcr:primaryType": "cq:Page",
     "jcr:content": {
@@ -74,6 +85,7 @@
           "jcr:content": {
             "jcr:primaryType": "cq:PageContent",
             "jcr:title": "My Account",
+            "cq:tags": ["do-not-translate"],
             "cq:template": "/conf/bb-aem-connector/settings/wcm/templates/page-content",
             "hideInNav": "true",
             "pageTitle": "My Account",

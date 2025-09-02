@@ -28,11 +28,11 @@ import java.util.stream.Collectors;
 
 @Component(service = Servlet.class)
 @SlingServletResourceTypes(
-        resourceTypes = BlackbirdPageEventViewerServlet.RESOURCE_TYPE,
+        resourceTypes = ContentEventViewerServlet.RESOURCE_TYPE,
         methods = HttpConstants.METHOD_GET
 )
-public class BlackbirdPageEventViewerServlet extends BlackbirdAbstractBaseServlet {
-    public static final String RESOURCE_TYPE = "bb-aem-connector/services/pages-events";
+public class ContentEventViewerServlet extends BlackbirdAbstractBaseServlet {
+    public static final String RESOURCE_TYPE = "bb-aem-connector/services/content-events";
     public static final String ROOT_PATH = "rootPath";
     public static final String START_DATE = "startDate";
     public static final String END_DATE = "endDate";
