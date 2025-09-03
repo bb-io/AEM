@@ -102,4 +102,19 @@ class BlackbirdEventViewerContentTest {
         assertEquals(Instant.parse("2025-03-24T13:30:30Z"), model.getCreated());
         assertNull(model.getModified());
     }
+
+    @Test
+    void shouldReturnTagsWhenTagsArePresent() {
+        context.currentResource("/content/bb-aem-connector/us/en/my-account");
+
+        model = context.currentResource().adaptTo(BlackbirdEventViewerContent.class);
+
+        assertNotNull(model);
+        assertEquals("My Account", model.getTitle());
+        assertEquals("/content/bb-aem-connector/us/en/my-account", model.getPath());
+        assertEquals(1, model.getTags().size());
+        assertEquals("default:do-not-translate", model.getTags().iterator().next());
+        assertNull(model.getCreated());
+        assertNull(model.getModified());
+    }
 }
