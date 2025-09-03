@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-@Version("1.3.0")
+@Version("2.0.0")
 package io.blackbird.aemconnector.core.servlets;
 
 import org.osgi.annotation.versioning.Version;
