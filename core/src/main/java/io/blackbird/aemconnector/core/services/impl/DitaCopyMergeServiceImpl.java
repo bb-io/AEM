@@ -5,8 +5,10 @@ import com.day.cq.commons.jcr.JcrUtil;
 import com.day.cq.wcm.api.WCMException;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.blackbird.aemconnector.core.exceptions.BlackbirdResourceCopyMergeException;
+import io.blackbird.aemconnector.core.objects.VersionSyncResult;
 import io.blackbird.aemconnector.core.services.BlackbirdServiceUserResolverProvider;
 import io.blackbird.aemconnector.core.services.DitaCopyMergeService;
+import io.blackbird.aemconnector.core.services.VersioningService;
 import io.blackbird.aemconnector.core.utils.CopyMergeUtils;
 import io.blackbird.aemconnector.core.utils.PathUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +25,6 @@ import javax.jcr.Binary;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
-
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -61,36 +62,81 @@ public class DitaCopyMergeServiceImpl implements DitaCopyMergeService {
 
     @Reference
     private BlackbirdServiceUserResolverProvider serviceUserResolverProvider;
+    @Reference
+    private transient VersioningService versioningService;
 
     @Override
     public Resource copyAndMerge(String sourcePath, String targetPath, JsonNode targetContent, JsonNode references) throws BlackbirdResourceCopyMergeException {
         try (ResourceResolver resolver = serviceUserResolverProvider.getTranslationWriterResolver()) {
-            Resource sourceResource = requireNonNull(resolver.getResource(sourcePath),
-                    String.format("Source resource does not exist, %s", sourcePath));
-            String newUuid = DITA_GUID_PREFIX.concat(UUID.randomUUID().toString());
-            Resource targetResource = resolver.getResource(targetPath);
-            if (targetResource == null) {
-                createCopyForTargetResource(targetPath, sourceResource, resolver, newUuid);
-            } else {
-                Resource targetJcrContent = requireNonNull(targetResource.getChild(JCR_CONTENT),
-                        String.format("Target jcr:content resource does not exist, %s", targetPath));
-                String currentUuid = targetJcrContent.getValueMap().get(FM_UUID, String.class);
-                replaceExistingResourceWithNewCopy(sourceResource, targetResource, resolver, currentUuid);
-            }
-            String targetContentString = getTargetContent(resolver, sourcePath, targetContent);
-            Resource updatedResource = resolver.getResource(targetPath);
-            if (updatedResource != null) {
+
+            handleTargetResource(sourcePath, targetPath, resolver);
+
+            Resource updatedTargetResource = resolver.getResource(targetPath);
+
+            if (updatedTargetResource != null) {
+                String targetContentString = getTargetContent(resolver, sourcePath, targetContent);
                 updateJcrDataBinaryProperty(targetPath, resolver, targetContentString);
             }
-            if (references != null && references.isArray() && updatedResource != null) {
-                CopyMergeUtils.updateResourceReferences(updatedResource, references);
+
+            if (references != null && references.isArray() && updatedTargetResource != null) {
+                CopyMergeUtils.updateResourceReferences(updatedTargetResource, references);
             }
+
             resolver.commit();
-            return requireNonNull(updatedResource, String.format("Target resource does not exist, %s", targetPath));
+
+            Resource nonNullableTargetResource = requireNonNull(updatedTargetResource, String.format("Target resource does not exist, %s", targetPath));
+
+            synchronizeVersion(sourcePath, nonNullableTargetResource.getPath());
+
+            return nonNullableTargetResource;
         } catch (Exception ex) {
             log.error("Failure in copyAndMerge: {}", ex.getMessage(), ex);
             throw new BlackbirdResourceCopyMergeException(ex.getMessage(), ex);
         }
+    }
+
+    private void synchronizeVersion(String sourcePath, String targetPath) {
+        VersionSyncResult versionSyncResult = versioningService.synchronizeVersion(sourcePath, targetPath);
+        log.info("Result of version synchronization for source {}, target {}, {} ", sourcePath, targetPath, versionSyncResult);
+    }
+
+    private void handleTargetResource(String sourcePath, String targetPath, ResourceResolver resolver ) throws BlackbirdResourceCopyMergeException, PersistenceException, WCMException, RepositoryException {
+        Resource sourceResource = requireNonNull(
+                resolver.getResource(sourcePath),
+                String.format("Source resource does not exist, %s", sourcePath)
+        );
+
+        Resource targetResource = resolver.getResource(targetPath);
+
+        if (targetResource == null) {
+            createCopyForTargetResource(targetPath, sourceResource, resolver, generateNewUuid());
+            return;
+        }
+        int versionCountDifference = versioningService.getVersionCountDifference(
+                sourceResource.getPath(), targetResource.getPath()
+        );
+
+        if (versionCountDifference < 0) {
+            recreateTargetResource(sourceResource, targetResource, resolver);
+            return;
+        }
+
+        Resource targetJcrContent = requireNonNull(
+                targetResource.getChild(JCR_CONTENT),
+                String.format("Target jcr:content resource does not exist, %s", targetPath)
+        );
+        String currentUuid = targetJcrContent.getValueMap().get(FM_UUID, String.class);
+        replaceExistingResourceWithNewCopy(sourceResource, targetResource, resolver, currentUuid);
+    }
+
+    private void recreateTargetResource(Resource source, Resource target, ResourceResolver resolver) throws PersistenceException, BlackbirdResourceCopyMergeException, WCMException {
+        String targetPath = target.getPath();
+        resolver.delete(target);
+        createCopyForTargetResource(targetPath, source, resolver, generateNewUuid());
+    }
+
+    private String generateNewUuid() {
+        return DITA_GUID_PREFIX.concat(UUID.randomUUID().toString());
     }
 
     private void updateJcrDataBinaryProperty(String targetPath, ResourceResolver resolver, String targetContentString) {
