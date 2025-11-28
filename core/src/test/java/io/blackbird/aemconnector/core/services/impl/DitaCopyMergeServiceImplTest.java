@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.blackbird.aemconnector.core.exceptions.BlackbirdInternalErrorException;
 import io.blackbird.aemconnector.core.exceptions.BlackbirdResourceCopyMergeException;
 import io.blackbird.aemconnector.core.services.BlackbirdServiceUserResolverProvider;
+import io.blackbird.aemconnector.core.services.VersioningService;
 import io.wcm.testing.mock.aem.junit5.AemContext;
 import io.wcm.testing.mock.aem.junit5.AemContextExtension;
 import org.apache.sling.api.resource.LoginException;
@@ -38,6 +39,8 @@ class DitaCopyMergeServiceImplTest {
 
     @Mock
     private BlackbirdServiceUserResolverProvider serviceUserResolverProvider;
+    @Mock
+    private VersioningService versioningService;
 
     @Mock
     private AssetManager mockAssetManager;
@@ -54,6 +57,7 @@ class DitaCopyMergeServiceImplTest {
         Mockito.doNothing().when(spyResolver).close();
 
         context.registerService(BlackbirdServiceUserResolverProvider.class, serviceUserResolverProvider);
+        context.registerService(VersioningService.class, versioningService);
         when(serviceUserResolverProvider.getTranslationWriterResolver()).thenReturn(spyResolver);
 
         target = context.registerInjectActivateService(new DitaCopyMergeServiceImpl());
