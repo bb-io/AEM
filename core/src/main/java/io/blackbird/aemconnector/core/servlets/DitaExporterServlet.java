@@ -1,5 +1,6 @@
 package io.blackbird.aemconnector.core.servlets;
 
+import io.blackbird.aemconnector.core.constants.ServletConstants;
 import io.blackbird.aemconnector.core.exceptions.BlackbirdHttpErrorException;
 import io.blackbird.aemconnector.core.exceptions.BlackbirdServiceException;
 import io.blackbird.aemconnector.core.services.ContentExportService;
@@ -22,11 +23,14 @@ import java.util.Map;
 @Slf4j
 @Component(service = Servlet.class)
 @SlingServletResourceTypes(
-        resourceTypes = ContentExporterServlet.RESOURCE_TYPE,
-        methods = HttpConstants.METHOD_GET
+        resourceTypes = DitaExporterServlet.RESOURCE_TYPE,
+        methods = HttpConstants.METHOD_GET,
+        extensions = ServletConstants.XML
 )
-public class ContentExporterServlet extends BlackbirdAbstractBaseServlet {
-    public static final String RESOURCE_TYPE = "bb-aem-connector/services/content-exporter";
+public class DitaExporterServlet extends BlackbirdAbstractBaseServlet {
+    public static final String RESOURCE_TYPE = "bb-aem-connector/services/dita-file-exporter";
+
+    private static final String TYPE = "type";
 
     @Reference
     private transient ContentTypeService contentTypeService;
@@ -38,6 +42,7 @@ public class ContentExporterServlet extends BlackbirdAbstractBaseServlet {
     public Serializable buildResponsePayload(SlingHttpServletRequest request, SlingHttpServletResponse response) throws BlackbirdHttpErrorException {
         String contentPath = ServletParameterHelper.getRequiredContentPath(request);
         Map<String, Object> options = ServletParameterHelper.extractOptions(request);
+        options.put(TYPE, ServletConstants.XML);
 
         try {
             ContentType contentType = contentTypeService.resolveContentType(contentPath);
