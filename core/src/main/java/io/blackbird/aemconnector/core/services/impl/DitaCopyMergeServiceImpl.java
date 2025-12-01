@@ -68,31 +68,47 @@ public class DitaCopyMergeServiceImpl implements DitaCopyMergeService {
     @Override
     public Resource copyAndMerge(String sourcePath, String targetPath, JsonNode targetContent, JsonNode references) throws BlackbirdResourceCopyMergeException {
         try (ResourceResolver resolver = serviceUserResolverProvider.getTranslationWriterResolver()) {
-
-            handleTargetResource(sourcePath, targetPath, resolver);
-
-            Resource updatedTargetResource = resolver.getResource(targetPath);
-
-            if (updatedTargetResource != null) {
-                String targetContentString = getTargetContent(resolver, sourcePath, targetContent);
-                updateJcrDataBinaryProperty(targetPath, resolver, targetContentString);
-            }
-
-            if (references != null && references.isArray() && updatedTargetResource != null) {
-                CopyMergeUtils.updateResourceReferences(updatedTargetResource, references);
-            }
-
-            resolver.commit();
-
-            Resource nonNullableTargetResource = requireNonNull(updatedTargetResource, String.format("Target resource does not exist, %s", targetPath));
-
-            synchronizeVersion(sourcePath, nonNullableTargetResource.getPath());
-
-            return nonNullableTargetResource;
+            Resource sourceResource = handleSourceResource(resolver, sourcePath);
+            String targetContentString = getTargetContent(resolver, sourcePath, targetContent);
+            return handleCopyAndMerge(resolver, sourceResource, targetPath, targetContentString, references);
         } catch (Exception ex) {
             log.error("Failure in copyAndMerge: {}", ex.getMessage(), ex);
             throw new BlackbirdResourceCopyMergeException(ex.getMessage(), ex);
         }
+    }
+
+    @Override
+    public Resource copyAndMerge(String sourcePath, String targetPath, String targetContent) throws BlackbirdResourceCopyMergeException {
+        try (ResourceResolver resolver = serviceUserResolverProvider.getTranslationWriterResolver()) {
+            Resource sourceResource = handleSourceResource(resolver, sourcePath);
+            return handleCopyAndMerge(resolver, sourceResource, targetPath, targetContent, null);
+        } catch (Exception ex) {
+            log.error("Failure in copyAndMerge: {}", ex.getMessage(), ex);
+            throw new BlackbirdResourceCopyMergeException(ex.getMessage(), ex);
+        }
+    }
+
+    private Resource handleCopyAndMerge(ResourceResolver resolver, Resource sourceResource, String targetPath, String targetContent, JsonNode references)
+            throws BlackbirdResourceCopyMergeException, PersistenceException, RepositoryException, WCMException {
+        handleTargetResource(sourceResource, targetPath, resolver);
+
+        Resource updatedTargetResource = resolver.getResource(targetPath);
+
+        if (updatedTargetResource != null) {
+            updateJcrDataBinaryProperty(targetPath, resolver, targetContent);
+        }
+
+        if (references != null && references.isArray() && updatedTargetResource != null) {
+            CopyMergeUtils.updateResourceReferences(updatedTargetResource, references);
+        }
+
+        resolver.commit();
+
+        Resource nonNullableTargetResource = requireNonNull(updatedTargetResource, String.format("Target resource does not exist, %s", targetPath));
+
+        synchronizeVersion(sourceResource.getPath(), nonNullableTargetResource.getPath());
+
+        return nonNullableTargetResource;
     }
 
     private void synchronizeVersion(String sourcePath, String targetPath) {
@@ -100,11 +116,11 @@ public class DitaCopyMergeServiceImpl implements DitaCopyMergeService {
         log.info("Result of version synchronization for source {}, target {}, {} ", sourcePath, targetPath, versionSyncResult);
     }
 
-    private void handleTargetResource(String sourcePath, String targetPath, ResourceResolver resolver ) throws BlackbirdResourceCopyMergeException, PersistenceException, WCMException, RepositoryException {
-        Resource sourceResource = requireNonNull(
+    private void handleTargetResource(Resource sourceResource, String targetPath, ResourceResolver resolver) throws BlackbirdResourceCopyMergeException, PersistenceException, WCMException, RepositoryException {
+        /*Resource sourceResource = requireNonNull(
                 resolver.getResource(sourcePath),
                 String.format("Source resource does not exist, %s", sourcePath)
-        );
+        );*/
 
         Resource targetResource = resolver.getResource(targetPath);
 
@@ -127,6 +143,12 @@ public class DitaCopyMergeServiceImpl implements DitaCopyMergeService {
         );
         String currentUuid = targetJcrContent.getValueMap().get(FM_UUID, String.class);
         replaceExistingResourceWithNewCopy(sourceResource, targetResource, resolver, currentUuid);
+    }
+
+    private Resource handleSourceResource(ResourceResolver resolver, String sourcePath) {
+        return requireNonNull(resolver.getResource(sourcePath),
+                String.format("Source resource does not exist, %s", sourcePath)
+        );
     }
 
     private void recreateTargetResource(Resource source, Resource target, ResourceResolver resolver) throws PersistenceException, BlackbirdResourceCopyMergeException, WCMException {

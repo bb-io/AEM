@@ -26,6 +26,7 @@ import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -41,7 +42,6 @@ class DitaCopyMergeServiceImplTest {
     private BlackbirdServiceUserResolverProvider serviceUserResolverProvider;
     @Mock
     private VersioningService versioningService;
-
     @Mock
     private AssetManager mockAssetManager;
 
@@ -74,6 +74,7 @@ class DitaCopyMergeServiceImplTest {
         verify(spyResolver).getResource(sourcePath);
         verify(spyResolver, times(2)).getResource(targetPath);
         verify(spyResolver).commit();
+        verify(versioningService).synchronizeVersion(eq(sourcePath), eq(targetPath));
         assertNotNull(result);
     }
 
@@ -119,5 +120,50 @@ class DitaCopyMergeServiceImplTest {
 
         assertEquals("Source resource does not exist, /content/dita/en/source-does-not-exist.dita", exception.getMessage());
     }
-}
 
+    @Test
+    void shouldReplaceExistingDitaXmlDataWithNewCopyWhenTargetDitaExist() throws Exception {
+        String sourcePath = "/content/dita/en/source.dita";
+        String targetPath = "/content/dita/pl/target.dita";
+        String targetContent = "<xml>test</xml>";
+
+        Resource result = target.copyAndMerge(sourcePath, targetPath, targetContent);
+
+        verify(spyResolver).getResource(sourcePath);
+        verify(spyResolver, times(2)).getResource(targetPath);
+        verify(spyResolver).commit();
+        verify(versioningService).synchronizeVersion(eq(sourcePath), eq(targetPath));
+        assertNotNull(result);
+    }
+
+    @Test
+    void shouldCreateDitaXmlDataWhenTargetDitaDoesNotExist() throws Exception {
+        String sourcePath = "/content/dita/en/source.dita";
+        String targetPath = "/content/dita/ca/target.dita";
+        String targetContent = "<xml>test</xml>";
+
+        Resource jcrContentResource = mock(Resource.class);
+        Resource updatedResource = mock(Resource.class);
+        when(spyResolver.adaptTo(AssetManager.class)).thenReturn(mockAssetManager);
+
+        AtomicInteger targetCallCount = new AtomicInteger();
+        doAnswer(invocation -> {
+            String path = invocation.getArgument(0);
+            if (targetPath.equals(path) && targetCallCount.incrementAndGet() == 2) {
+                return updatedResource;
+            }
+            if ("/content/dita/ca/target.dita/jcr:content".equals(path) || "/content/dita/ca/target.dita/jcr:content/renditions/original/jcr:content".equals(path)) {
+                return jcrContentResource;
+            }
+            return invocation.callRealMethod();
+        }).when(spyResolver).getResource(anyString());
+        when(jcrContentResource.adaptTo(ModifiableValueMap.class)).thenReturn(mock(ModifiableValueMap.class));
+
+        Resource result = target.copyAndMerge(sourcePath, targetPath, targetContent);
+
+        verify(spyResolver).getResource(sourcePath);
+        verify(spyResolver, times(2)).getResource(targetPath);
+        verify(spyResolver, times(2)).commit();
+        assertNotNull(result);
+    }
+}

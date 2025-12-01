@@ -8,4 +8,6 @@ public interface DitaCopyMergeService {
 
     Resource copyAndMerge(String sourcePath, String targetPath, JsonNode targetContent, JsonNode references) throws BlackbirdResourceCopyMergeException;
 
+    Resource copyAndMerge(String sourcePath, String targetPath, String targetContent) throws BlackbirdResourceCopyMergeException;
+
 }
