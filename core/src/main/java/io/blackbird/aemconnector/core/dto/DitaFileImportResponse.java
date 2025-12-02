@@ -3,8 +3,8 @@ package io.blackbird.aemconnector.core.dto;
 import java.io.Serializable;
 
 public class DitaFileImportResponse implements Serializable {
-    public String message;
-    public String path;
+    String message;
+    String path;
 
     public DitaFileImportResponse(String message, String path) {
         this.message = message;
