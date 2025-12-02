@@ -29,4 +29,9 @@ public class ContentFragmentImporter implements ContentImporter {
             throw new BlackbirdServiceException(String.format("Can not import content fragment, sourcePath: %s, targetPath: %s", sourcePath, targetPath), ex);
         }
     }
+
+    @Override
+    public Resource importResource(String sourcePath, String targetPath, String targetContent) throws BlackbirdServiceException {
+        throw new BlackbirdServiceException(String.format("Can not import content fragment in xml format, sourcePath: %s, targetPath: %s", sourcePath, targetPath));
+    }
 }

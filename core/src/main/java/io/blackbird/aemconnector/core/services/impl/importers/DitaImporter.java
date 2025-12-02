@@ -29,4 +29,13 @@ public class DitaImporter implements ContentImporter {
             throw new BlackbirdServiceException(String.format("Can not import dita file, sourcePath: %s, targetPath: %s", sourcePath, targetPath), ex);
         }
     }
+
+    @Override
+    public Resource importResource(String sourcePath, String targetPath, String targetContent) throws BlackbirdServiceException {
+        try {
+            return ditaCopyMergeService.copyAndMerge(sourcePath, targetPath, targetContent);
+        } catch (BlackbirdResourceCopyMergeException ex) {
+            throw new BlackbirdServiceException(String.format("Can not import dita file, sourcePath: %s, targetPath: %s", sourcePath, targetPath), ex);
+        }
+    }
 }

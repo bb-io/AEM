@@ -9,4 +9,6 @@ public interface ContentImporter {
     boolean canImport(ContentType contentType);
 
     Resource importResource(String sourcePath, String targetPath, JsonNode targetContent, JsonNode references) throws BlackbirdServiceException;
+
+    Resource importResource(String sourcePath, String targetPath, String targetContent) throws BlackbirdServiceException;
 }
