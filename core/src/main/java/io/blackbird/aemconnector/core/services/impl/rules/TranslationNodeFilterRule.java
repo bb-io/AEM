@@ -1,5 +1,6 @@
 package io.blackbird.aemconnector.core.services.impl.rules;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.blackbird.aemconnector.core.exceptions.BlackbirdInternalErrorException;
 import io.blackbird.aemconnector.core.services.TranslationRulesService;
 import io.blackbird.aemconnector.core.utils.RepositoryUtils;
@@ -9,6 +10,8 @@ import lombok.ToString;
 
 import javax.jcr.Node;
 
+import java.io.Serializable;
+
 import static io.blackbird.aemconnector.core.utils.RepositoryUtils.ROOT_PATH;
 import static io.blackbird.aemconnector.core.utils.RepositoryUtils.getParent;
 
@@ -17,8 +20,11 @@ import static io.blackbird.aemconnector.core.utils.RepositoryUtils.getParent;
 @ToString
 public class TranslationNodeFilterRule {
 
+    @JsonProperty
     private final String propertyName;
+    @JsonProperty
     private final String propertyValue;
+    @JsonProperty
     private final boolean isDeep;
 
     public boolean appliesTo(Node node) throws BlackbirdInternalErrorException {

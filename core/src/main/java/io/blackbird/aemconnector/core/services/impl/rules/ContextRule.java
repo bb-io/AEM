@@ -1,5 +1,6 @@
 package io.blackbird.aemconnector.core.services.impl.rules;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.blackbird.aemconnector.core.exceptions.BlackbirdInternalErrorException;
 import io.blackbird.aemconnector.core.services.TranslationRulesService;
 import io.blackbird.aemconnector.core.utils.RepositoryUtils;
@@ -10,19 +11,24 @@ import lombok.ToString;
 
 import javax.jcr.Node;
 import javax.jcr.Property;
+import java.io.Serializable;
 import java.util.List;
 
 @Builder
 @EqualsAndHashCode(callSuper = false)
 @ToString
-public class ContextRule {
+public class ContextRule implements Serializable {
 
     @Getter
     private final String contextPath;
 
+    @JsonProperty
     private final List<TranslationNodeFilterRule> translationNodeFilterRules;
+    @JsonProperty
     private final List<TranslationPropertyRule> propertyFilterRules;
+    @JsonProperty
     private final List<TranslationPropertyRule> resourceTypeRules;
+    @JsonProperty
     private final List<TranslationPropertyRule> generalRules;
 
     public boolean appliesTo(Property property) throws BlackbirdInternalErrorException {

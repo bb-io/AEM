@@ -77,6 +77,40 @@ public final class Node2JsonUtil {
         return jsonNode;
     }
 
+    public static ObjectNode serializeRecursively(Node jcrNode) throws BlackbirdInternalErrorException {
+        if (null == jcrNode) {
+            log.debug("Node is null, returning empty JSON object");
+            return MAPPER.createObjectNode();
+        }
+
+        ObjectNode jsonNode = MAPPER.createObjectNode();
+
+        try {
+            PropertyIterator propertyIterator = jcrNode.getProperties();
+            while (propertyIterator.hasNext()) {
+                Property property = propertyIterator.nextProperty();
+                String key = property.getName();
+
+                jsonNode.set(key, getPropertyAsJsonNode(property));
+            }
+
+            NodeIterator nodeIterator = jcrNode.getNodes();
+            if (null != nodeIterator) {
+                while (nodeIterator.hasNext()) {
+                    Node childNode = nodeIterator.nextNode();
+                    if (isNotPageNode(childNode)) {
+                        jsonNode.set(childNode.getName(), serializeRecursively(childNode));
+                    }
+                }
+            }
+
+        } catch (RepositoryException e) {
+            throw new BlackbirdInternalErrorException("Error accessing JCR node: " + e.getMessage());
+        }
+
+        return jsonNode;
+    }
+
     private static JsonNode getPropertyAsJsonNode(Property property) throws RepositoryException {
         if (property.isMultiple()) {
             ArrayNode arrayNode = MAPPER.createArrayNode();

@@ -1,5 +1,6 @@
 package io.blackbird.aemconnector.core.services.impl.rules;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.blackbird.aemconnector.core.exceptions.BlackbirdInternalErrorException;
 import io.blackbird.aemconnector.core.utils.RepositoryUtils;
 import lombok.Builder;
@@ -8,6 +9,7 @@ import lombok.ToString;
 
 import javax.jcr.Node;
 import javax.jcr.Property;
+import java.io.Serializable;
 import java.util.List;
 
 import static org.apache.sling.jcr.resource.api.JcrResourceConstants.SLING_RESOURCE_TYPE_PROPERTY;
@@ -17,7 +19,9 @@ import static org.apache.sling.jcr.resource.api.JcrResourceConstants.SLING_RESOU
 @ToString
 public class ResourceTypeRule implements TranslationPropertyRule {
 
+    @JsonProperty
     private final String resourceType;
+    @JsonProperty
     private final List<TranslationPropertyRule> propertyNameRules;
 
     @Override
