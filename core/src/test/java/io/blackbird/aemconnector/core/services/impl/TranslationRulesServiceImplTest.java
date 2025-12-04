@@ -59,7 +59,7 @@ class TranslationRulesServiceImplTest {
         Property property = mock(Property.class);
         ContextRule contextRule = mock(ContextRule.class);
         List<ContextRule> contextRules = Collections.singletonList(contextRule);
-        TranslationRules translationRules = new TranslationRules(contextRules, Collections.emptyList());
+        TranslationRules translationRules = new TranslationRules(contextRules, Collections.emptyList(), Collections.emptyList());
 
         try (MockedConstruction<TranslationRulesFileParser> ignored = Mockito.mockConstruction(
                 TranslationRulesFileParser.class,
@@ -86,7 +86,7 @@ class TranslationRulesServiceImplTest {
         Property property = mock(Property.class);
         ContextRule contextRule = mock(ContextRule.class);
         List<ContextRule> contextRules = Collections.singletonList(contextRule);
-        TranslationRules translationRules = new TranslationRules(contextRules, Collections.emptyList());
+        TranslationRules translationRules = new TranslationRules(contextRules, Collections.emptyList(), Collections.emptyList());
 
         try (MockedConstruction<TranslationRulesFileParser> ignored = Mockito.mockConstruction(
                 TranslationRulesFileParser.class,
@@ -113,7 +113,7 @@ class TranslationRulesServiceImplTest {
         Property property = mock(Property.class);
         ContextRule contextRule = mock(ContextRule.class);
         List<ContextRule> contextRules = Collections.singletonList(contextRule);
-        TranslationRules translationRules = new TranslationRules(contextRules, Collections.emptyList());
+        TranslationRules translationRules = new TranslationRules(contextRules, Collections.emptyList(), Collections.emptyList());
 
         try (MockedConstruction<TranslationRulesFileParser> ignored = Mockito.mockConstruction(
                 TranslationRulesFileParser.class,
@@ -139,7 +139,7 @@ class TranslationRulesServiceImplTest {
         Node node = mock(Node.class);
         ContextRule contextRule = mock(ContextRule.class);
         List<ContextRule> contextRules = Collections.singletonList(contextRule);
-        TranslationRules translationRules = new TranslationRules(contextRules, Collections.emptyList());
+        TranslationRules translationRules = new TranslationRules(contextRules, Collections.emptyList(), Collections.emptyList());
 
         try (MockedConstruction<TranslationRulesFileParser> ignored = Mockito.mockConstruction(
                 TranslationRulesFileParser.class,
@@ -166,7 +166,7 @@ class TranslationRulesServiceImplTest {
         Node node = mock(Node.class);
         ContextRule contextRule = mock(ContextRule.class);
         List<ContextRule> contextRules = Collections.singletonList(contextRule);
-        TranslationRules translationRules = new TranslationRules(contextRules, Collections.emptyList());
+        TranslationRules translationRules = new TranslationRules(contextRules, Collections.emptyList(), Collections.emptyList());
 
         try (MockedConstruction<TranslationRulesFileParser> ignored = Mockito.mockConstruction(
                 TranslationRulesFileParser.class,
@@ -192,7 +192,7 @@ class TranslationRulesServiceImplTest {
         Property property = mock(Property.class);
         AssetReferenceRule assetReferenceRule = mock(AssetReferenceRule.class);
         List<AssetReferenceRule> assetReferenceRules = Collections.singletonList(assetReferenceRule);
-        TranslationRules translationRules = new TranslationRules(Collections.emptyList(), assetReferenceRules);
+        TranslationRules translationRules = new TranslationRules(Collections.emptyList(), assetReferenceRules, Collections.emptyList());
 
         try (MockedConstruction<TranslationRulesFileParser> ignored = Mockito.mockConstruction(
                 TranslationRulesFileParser.class,
@@ -217,7 +217,7 @@ class TranslationRulesServiceImplTest {
         Property property = mock(Property.class);
         AssetReferenceRule assetReferenceRule = mock(AssetReferenceRule.class);
         List<AssetReferenceRule> assetReferenceRules = Collections.singletonList(assetReferenceRule);
-        TranslationRules translationRules = new TranslationRules(Collections.emptyList(), assetReferenceRules);
+        TranslationRules translationRules = new TranslationRules(Collections.emptyList(), assetReferenceRules, Collections.emptyList());
 
         try (MockedConstruction<TranslationRulesFileParser> ignored = Mockito.mockConstruction(
                 TranslationRulesFileParser.class,
