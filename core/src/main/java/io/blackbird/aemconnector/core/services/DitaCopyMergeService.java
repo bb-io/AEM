@@ -2,12 +2,13 @@ package io.blackbird.aemconnector.core.services;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import io.blackbird.aemconnector.core.exceptions.BlackbirdResourceCopyMergeException;
+import io.blackbird.aemconnector.core.exceptions.CopyMergeDitaValidationException;
 import org.apache.sling.api.resource.Resource;
 
 public interface DitaCopyMergeService {
 
-    Resource copyAndMerge(String sourcePath, String targetPath, JsonNode targetContent, JsonNode references) throws BlackbirdResourceCopyMergeException;
+    Resource copyAndMerge(String sourcePath, String targetPath, JsonNode targetContent, JsonNode references) throws BlackbirdResourceCopyMergeException, CopyMergeDitaValidationException;
 
-    Resource copyAndMerge(String sourcePath, String targetPath, String targetContent) throws BlackbirdResourceCopyMergeException;
+    Resource copyAndMerge(String sourcePath, String targetPath, String targetContent) throws BlackbirdResourceCopyMergeException, CopyMergeDitaValidationException;
 
 }
