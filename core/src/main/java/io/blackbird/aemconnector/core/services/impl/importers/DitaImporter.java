@@ -26,7 +26,7 @@ public class DitaImporter implements ContentImporter {
     public Resource importResource(String sourcePath, String targetPath, JsonNode targetContent, JsonNode references) throws BlackbirdServiceException {
         try {
             return ditaCopyMergeService.copyAndMerge(sourcePath, targetPath, targetContent, references);
-        } catch (Exception ex) {
+        } catch (CopyMergeDitaValidationException | BlackbirdResourceCopyMergeException ex) {
             throw mapException(ex, sourcePath, targetPath);
         }
     }
@@ -35,7 +35,7 @@ public class DitaImporter implements ContentImporter {
     public Resource importResource(String sourcePath, String targetPath, String targetContent) throws BlackbirdServiceException {
         try {
             return ditaCopyMergeService.copyAndMerge(sourcePath, targetPath, targetContent);
-        } catch (Exception ex) {
+        } catch (CopyMergeDitaValidationException | BlackbirdResourceCopyMergeException ex) {
             throw mapException(ex, sourcePath, targetPath);
         }
     }
