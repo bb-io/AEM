@@ -1,10 +1,12 @@
 package io.blackbird.aemconnector.core.services.impl;
 
 import com.adobe.granite.asset.api.AssetManager;
+import com.day.cq.commons.LanguageUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.blackbird.aemconnector.core.exceptions.BlackbirdInternalErrorException;
 import io.blackbird.aemconnector.core.exceptions.BlackbirdResourceCopyMergeException;
+import io.blackbird.aemconnector.core.exceptions.CopyMergeDitaValidationException;
 import io.blackbird.aemconnector.core.services.BlackbirdServiceUserResolverProvider;
 import io.blackbird.aemconnector.core.services.VersioningService;
 import io.wcm.testing.mock.aem.junit5.AemContext;
@@ -119,6 +121,18 @@ class DitaCopyMergeServiceImplTest {
                 () -> target.copyAndMerge(sourcePath, targetPath, targetContent, null));
 
         assertEquals("Source resource does not exist, /content/dita/en/source-does-not-exist.dita", exception.getMessage());
+    }
+
+    @Test
+    void shouldThrowExceptionWhenTargetPathNotContainsLanguageCode() {
+        String sourcePath = "/content/dita/en/source.dita";
+        String targetPath = "/content/dita/tu/target.dita";
+        JsonNode targetContent = new ObjectMapper().createObjectNode();
+
+        CopyMergeDitaValidationException exception = assertThrows(CopyMergeDitaValidationException.class,
+                () -> target.copyAndMerge(sourcePath, targetPath, targetContent, null));
+
+        assertEquals("Can not get language code, langRootPath is null", exception.getMessage());
     }
 
     @Test

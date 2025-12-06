@@ -156,5 +156,11 @@ Import-Package: javax.annotation;version=0.0.0,org.apache.commons.lang3;version=
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.ibm.icu</groupId>
+            <artifactId>icu4j</artifactId>
+            <version>74.2</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>
