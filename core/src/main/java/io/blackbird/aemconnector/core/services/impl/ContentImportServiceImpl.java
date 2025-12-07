@@ -41,7 +41,7 @@ public class ContentImportServiceImpl implements ContentImportService {
         ContentImporter importer = getImporter(contentType, sourcePath);
 
         Resource resource = importer.importResource(sourcePath, targetPath, targetContent, references);
-        log.info("Import successful for path: {}, content type: {}", resource.getPath(), contentType);
+        log.info("Import successful for path: {}, content type: {}, json format", resource.getPath(), contentType);
         return resource;
     }
 
@@ -50,7 +50,7 @@ public class ContentImportServiceImpl implements ContentImportService {
         ContentImporter importer = getImporter(contentType, sourcePath);
 
         Resource resource = importer.importResource(sourcePath, targetPath, targetContent);
-        log.info("Import successful for path: {}, content type: {}", resource.getPath(), contentType);
+        log.info("Import successful for path: {}, content type: {}, xml format", resource.getPath(), contentType);
         return resource;
     }
 
