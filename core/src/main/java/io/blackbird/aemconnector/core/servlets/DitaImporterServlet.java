@@ -1,5 +1,6 @@
 package io.blackbird.aemconnector.core.servlets;
 
+import com.day.cq.commons.LanguageUtil;
 import io.blackbird.aemconnector.core.constants.ServletConstants;
 import io.blackbird.aemconnector.core.dto.DitaFileImportResponse;
 import io.blackbird.aemconnector.core.exceptions.BlackbirdHttpErrorException;
@@ -33,9 +34,6 @@ import java.nio.charset.StandardCharsets;
 public class DitaImporterServlet extends BlackbirdAbstractBaseServlet {
 
     public static final String RESOURCE_TYPE = "bb-aem-connector/services/dita-file-importer";
-    private static final String SOURCE_PATH = "sourcePath";
-    private static final String TARGET_PATH = "targetPath";
-    private static final String TARGET_CONTENT = "targetContent";
 
     @Reference
     private transient ContentTypeService contentTypeService;
@@ -48,6 +46,7 @@ public class DitaImporterServlet extends BlackbirdAbstractBaseServlet {
         String sourcePath = ServletParameterHelper.getRequiredSourcePath(request);
         String targetPath = ServletParameterHelper.getRequiredTargetPath(request);
         String targetContent = getRequestPayload(request);
+        validateTargetPath(targetPath);
 
         try {
             ContentType contentType = contentTypeService.resolveContentType(sourcePath);
@@ -67,6 +66,13 @@ public class DitaImporterServlet extends BlackbirdAbstractBaseServlet {
             return targetContent;
         } catch (IOException e) {
             throw BlackbirdHttpErrorException.internalServerError(e.getMessage());
+        }
+    }
+
+    private void validateTargetPath(String targetPath) throws BlackbirdHttpErrorException {
+        String langRootPath = LanguageUtil.getLanguageRoot(targetPath);
+        if (langRootPath == null) {
+            throw BlackbirdHttpErrorException.badRequest(String.format("Folder for translated content must be named with the language code, targetPath: %s", targetPath));
         }
     }
 }
