@@ -195,7 +195,7 @@ public class DitaCopyMergeServiceImpl implements DitaCopyMergeService {
     }
 
     private String updateGuidLang(String targetContentString, String lang) {
-        return targetContentString.replaceAll(GUID_REGEX, "GUID-$1-".concat(lang).concat( "$3"));
+        return targetContentString.replaceAll(GUID_REGEX, "GUID-$1-".concat(lang).concat("$3"));
     }
 
     private String getTargetContent(ResourceResolver resolver, String sourcePath, JsonNode targetContent) throws RepositoryException, IOException {
