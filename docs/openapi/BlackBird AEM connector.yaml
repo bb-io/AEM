@@ -273,6 +273,46 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BlackbirdErrorResponse'
+  /content/services/bb-aem-connector/dita-file-exporter.xml:
+    get:
+      tags:
+        - Dita File Exporter
+      security:
+        - bearerAuth: [ ]
+      summary: Export Dita File Content
+      description: |
+        This API endpoint exports the content of dita file in XML format. 
+        Examples:
+              `/content/services/bb-aem-connector/dita-file-exporter.xml?contentPath=/content/dam/dita/en/test.dita`
+      parameters:
+        - in: query
+          name: contentPath
+          required: true
+          description: The absolute JCR path of the dita file to export. Must be an absolute path starting with '/'.
+          schema:
+            type: string
+            example: /content/dam/dita/en/test.dita
+      responses:
+        '200':
+          description: Successful dita file export.
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/DitaFileContent'
+        '400':
+          description: >
+            Bad Request - Either the "contentPath" query parameter is missing, the path does not start with '/'.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlackbirdErrorResponse'
+        '404':
+          description: >
+            Not Found - The resource for the given "contentPath" was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlackbirdErrorResponse'
   /content/services/bb-aem-connector/page-importer.json:
     post:
       tags:
@@ -518,6 +558,143 @@ paths:
                     format: date-time
                     description: Timestamp of the error in yyyy-MM-dd HH:mm:ss format (UTC).
                     example: "2025-05-28 15:14:00"
+  /content/services/bb-aem-connector/dita-file-importer.xml:
+    post:
+      tags:
+        - Dita File Importer
+      security:
+        - bearerAuth: [ ]
+      summary: Import updated dita file content
+      description: >
+        Copies an existing dita file from a given source path, updates dita file with the provided XML.
+      parameters:
+        - in: query
+          name: sourcePath
+          required: true
+          description: The absolute JCR path of the source dita file. Must be an absolute path starting with '/'.
+          schema:
+            type: string
+            example: /content/dam/dita/en/test.dita
+        - in: query
+          name: targetPath
+          required: true
+          description: The absolute JCR path of the target dita file to import. Must be an absolute path starting with '/'.
+          schema:
+            type: string
+            example: /content/dam/dita/pl/test.dita
+      requestBody:
+        required: true
+        content:
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/DitaFileContent'
+      responses:
+        '201':
+          description: Dita file content imported successfully.
+          content:
+            application/xml:
+              schema:
+                type: object
+                xml:
+                  name: response
+                properties:
+                  message:
+                    type: string
+                    xml:
+                      name: message
+                    example: Content imported successfully
+                  path:
+                    type: string
+                    xml:
+                      name: path
+                    example: /content/dam/dita/pl/test.dita
+        '400':
+          description: Bad Request – Missing required fields or request body.
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Represents an error response.
+                properties:
+                  status:
+                    type: integer
+                    description: HTTP status code.
+                    example: 400
+                  error:
+                    type: string
+                    description: Short error description.
+                    example: "Bad Request"
+                  message:
+                    type: string
+                    description: Detailed error message.
+                    example: "Missing required query parameter: 'sourcePath' / 'targetPath'. Request body is empty. Please add xml data for import."
+                  path:
+                    type: string
+                    description: The request path that resulted in the error.
+                    example: "/content/services/bb-aem-connector/dita-file-importer.xml"
+                  timestamp:
+                    type: string
+                    format: date-time
+                    description: Timestamp of the error in yyyy-MM-dd HH:mm:ss format (UTC).
+                    example: "2025-12-01 15:28:00"
+        '401':
+          description: Unauthorized – Login exception encountered.
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Represents an error response.
+                properties:
+                  status:
+                    type: integer
+                    description: HTTP status code.
+                    example: 401
+                  error:
+                    type: string
+                    description: Short error description.
+                    example: "Unauthorized"
+                  message:
+                    type: string
+                    description: Detailed error message.
+                    example: "Cannot derive user name for bundle bb-aem-connector.core and sub service blackbird-translation-writer-service"
+                  path:
+                    type: string
+                    description: The request path that resulted in the error.
+                    example: "/content/services/bb-aem-connector/dita-file-importer.xml"
+                  timestamp:
+                    type: string
+                    format: date-time
+                    description: Timestamp of the error in yyyy-MM-dd HH:mm:ss format (UTC).
+                    example: "2025-12-01 15:35:00"
+        '500':
+          description: Internal Server Error – An error occurred during the import process.
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Represents an error response.
+                properties:
+                  status:
+                    type: integer
+                    description: HTTP status code.
+                    example: 500
+                  error:
+                    type: string
+                    description: Short error description.
+                    example: "Internal Server Error"
+                  message:
+                    type: string
+                    description: Detailed error message.
+                    example: "Can not import dita file, sourcePath: /content/dam/dita/en/test.dita, targetPath: /content/dam/dita/pl/test.dita"
+                  path:
+                    type: string
+                    description: The request path that resulted in the error.
+                    example: "/content/services/bb-aem-connector/dita-file-importer.xml"
+                  timestamp:
+                    type: string
+                    format: date-time
+                    description: Timestamp of the error in yyyy-MM-dd HH:mm:ss format (UTC).
+                    example: "2025-12-01 15:14:00"
 components:
   securitySchemes:
     bearerAuth:
@@ -682,3 +859,34 @@ components:
           format: date-time
           description: Timestamp of the error in yyyy-MM-dd HH:mm:ss format (UTC).
           example: "2025-03-31 12:34:56"
+
+    DitaFileContent:
+      type: object
+      xml:
+        name: topic
+      properties:
+        id:
+          type: string
+          example: GUID-123456789
+          xml:
+            attribute: true
+        title:
+          type: string
+          example: test dita file
+          xml:
+            name: title
+        shortdesc:
+          type: string
+          example: description
+          xml:
+            name: shortdesc
+        body:
+          type: object
+          xml:
+            name: body
+          properties:
+            p:
+              type: string
+              example: some text
+              xml:
+                name: p

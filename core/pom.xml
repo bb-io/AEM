@@ -194,5 +194,11 @@ Import-Package: javax.annotation;version=0.0.0,org.apache.commons.lang3;version=
             <artifactId>commons-text</artifactId>
             <version>1.10.0</version>
         </dependency>
+        <dependency>
+            <groupId>com.ibm.icu</groupId>
+            <artifactId>icu4j</artifactId>
+            <version>74.2</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>

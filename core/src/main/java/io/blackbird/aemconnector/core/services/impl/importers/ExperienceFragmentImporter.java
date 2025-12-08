@@ -31,4 +31,9 @@ public class ExperienceFragmentImporter implements ContentImporter {
             throw new BlackbirdServiceException(String.format("Can not import experience fragment, sourcePath: %s, targetPath: %s", sourcePath, targetPath), ex);
         }
     }
+
+    @Override
+    public Resource importResource(String sourcePath, String targetPath, String targetContent) throws BlackbirdServiceException {
+        throw new BlackbirdServiceException(String.format("Can not import experience fragment in xml format, sourcePath: %s, targetPath: %s", sourcePath, targetPath));
+    }
 }

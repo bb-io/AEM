@@ -1,11 +1,14 @@
 package io.blackbird.aemconnector.core.services.impl;
 
 import com.adobe.granite.asset.api.AssetManager;
+import com.day.cq.commons.LanguageUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.blackbird.aemconnector.core.exceptions.BlackbirdInternalErrorException;
 import io.blackbird.aemconnector.core.exceptions.BlackbirdResourceCopyMergeException;
+import io.blackbird.aemconnector.core.exceptions.CopyMergeDitaValidationException;
 import io.blackbird.aemconnector.core.services.BlackbirdServiceUserResolverProvider;
+import io.blackbird.aemconnector.core.services.VersioningService;
 import io.wcm.testing.mock.aem.junit5.AemContext;
 import io.wcm.testing.mock.aem.junit5.AemContextExtension;
 import org.apache.sling.api.resource.LoginException;
@@ -25,6 +28,7 @@ import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -38,7 +42,8 @@ class DitaCopyMergeServiceImplTest {
 
     @Mock
     private BlackbirdServiceUserResolverProvider serviceUserResolverProvider;
-
+    @Mock
+    private VersioningService versioningService;
     @Mock
     private AssetManager mockAssetManager;
 
@@ -54,6 +59,7 @@ class DitaCopyMergeServiceImplTest {
         Mockito.doNothing().when(spyResolver).close();
 
         context.registerService(BlackbirdServiceUserResolverProvider.class, serviceUserResolverProvider);
+        context.registerService(VersioningService.class, versioningService);
         when(serviceUserResolverProvider.getTranslationWriterResolver()).thenReturn(spyResolver);
 
         target = context.registerInjectActivateService(new DitaCopyMergeServiceImpl());
@@ -70,6 +76,7 @@ class DitaCopyMergeServiceImplTest {
         verify(spyResolver).getResource(sourcePath);
         verify(spyResolver, times(2)).getResource(targetPath);
         verify(spyResolver).commit();
+        verify(versioningService).synchronizeVersion(eq(sourcePath), eq(targetPath));
         assertNotNull(result);
     }
 
@@ -115,5 +122,62 @@ class DitaCopyMergeServiceImplTest {
 
         assertEquals("Source resource does not exist, /content/dita/en/source-does-not-exist.dita", exception.getMessage());
     }
-}
 
+    @Test
+    void shouldThrowExceptionWhenTargetPathNotContainsLanguageCode() {
+        String sourcePath = "/content/dita/en/source.dita";
+        String targetPath = "/content/dita/tu/target.dita";
+        JsonNode targetContent = new ObjectMapper().createObjectNode();
+
+        CopyMergeDitaValidationException exception = assertThrows(CopyMergeDitaValidationException.class,
+                () -> target.copyAndMerge(sourcePath, targetPath, targetContent, null));
+
+        assertEquals("Can not get language code, langRootPath is null", exception.getMessage());
+    }
+
+    @Test
+    void shouldReplaceExistingDitaXmlDataWithNewCopyWhenTargetDitaExist() throws Exception {
+        String sourcePath = "/content/dita/en/source.dita";
+        String targetPath = "/content/dita/pl/target.dita";
+        String targetContent = "<xml>test</xml>";
+
+        Resource result = target.copyAndMerge(sourcePath, targetPath, targetContent);
+
+        verify(spyResolver).getResource(sourcePath);
+        verify(spyResolver, times(2)).getResource(targetPath);
+        verify(spyResolver).commit();
+        verify(versioningService).synchronizeVersion(eq(sourcePath), eq(targetPath));
+        assertNotNull(result);
+    }
+
+    @Test
+    void shouldCreateDitaXmlDataWhenTargetDitaDoesNotExist() throws Exception {
+        String sourcePath = "/content/dita/en/source.dita";
+        String targetPath = "/content/dita/ca/target.dita";
+        String targetContent = "<xml>test</xml>";
+
+        Resource jcrContentResource = mock(Resource.class);
+        Resource updatedResource = mock(Resource.class);
+        when(spyResolver.adaptTo(AssetManager.class)).thenReturn(mockAssetManager);
+
+        AtomicInteger targetCallCount = new AtomicInteger();
+        doAnswer(invocation -> {
+            String path = invocation.getArgument(0);
+            if (targetPath.equals(path) && targetCallCount.incrementAndGet() == 2) {
+                return updatedResource;
+            }
+            if ("/content/dita/ca/target.dita/jcr:content".equals(path) || "/content/dita/ca/target.dita/jcr:content/renditions/original/jcr:content".equals(path)) {
+                return jcrContentResource;
+            }
+            return invocation.callRealMethod();
+        }).when(spyResolver).getResource(anyString());
+        when(jcrContentResource.adaptTo(ModifiableValueMap.class)).thenReturn(mock(ModifiableValueMap.class));
+
+        Resource result = target.copyAndMerge(sourcePath, targetPath, targetContent);
+
+        verify(spyResolver).getResource(sourcePath);
+        verify(spyResolver, times(2)).getResource(targetPath);
+        verify(spyResolver, times(2)).commit();
+        assertNotNull(result);
+    }
+}
