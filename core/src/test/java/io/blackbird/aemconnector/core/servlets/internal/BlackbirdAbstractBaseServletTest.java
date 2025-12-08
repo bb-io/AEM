@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
+import org.apache.sling.api.request.RequestPathInfo;
 import org.apache.sling.servlets.post.JSONResponse;
 import org.apache.sling.testing.mock.sling.servlet.MockRequestPathInfo;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,6 +34,9 @@ public class BlackbirdAbstractBaseServletTest {
     @Mock
     private SlingHttpServletResponse response;
 
+    @Mock
+    private RequestPathInfo requestPathInfo;
+
     private StringWriter stringWriter;
     private PrintWriter printWriter;
 
@@ -56,6 +60,7 @@ public class BlackbirdAbstractBaseServletTest {
             }
         };
 
+        when(request.getRequestPathInfo()).thenReturn(requestPathInfo);
         when(response.getWriter()).thenReturn(printWriter);
         servlet.doGet(request, response);
 

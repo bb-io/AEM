@@ -38,13 +38,26 @@ public class ContentImportServiceImpl implements ContentImportService {
 
     @Override
     public Resource importContent(String sourcePath, String targetPath, JsonNode targetContent, JsonNode references, ContentType contentType) throws BlackbirdServiceException {
-        ContentImporter importer = importers.stream()
+        ContentImporter importer = getImporter(contentType, sourcePath);
+
+        Resource resource = importer.importResource(sourcePath, targetPath, targetContent, references);
+        log.info("Import successful for path: {}, content type: {}, json format", resource.getPath(), contentType);
+        return resource;
+    }
+
+    @Override
+    public Resource importContent(String sourcePath, String targetPath, String targetContent, ContentType contentType) throws BlackbirdServiceException {
+        ContentImporter importer = getImporter(contentType, sourcePath);
+
+        Resource resource = importer.importResource(sourcePath, targetPath, targetContent);
+        log.info("Import successful for path: {}, content type: {}, xml format", resource.getPath(), contentType);
+        return resource;
+    }
+
+    private ContentImporter getImporter(ContentType contentType, String sourcePath) throws BlackbirdServiceException {
+        return importers.stream()
                 .filter(i -> i.canImport(contentType))
                 .findFirst()
                 .orElseThrow(() -> new BlackbirdServiceException(String.format("No importer for content type: %s at %s", contentType, sourcePath)));
-
-        Resource resource = importer.importResource(sourcePath, targetPath, targetContent, references);
-        log.info("Import successful for path: {}, content type: {}", resource.getPath(), contentType);
-        return resource;
     }
 }

@@ -2,9 +2,11 @@ package io.blackbird.aemconnector.core.services.impl;
 
 import com.adobe.granite.asset.api.AssetManager;
 import com.day.cq.commons.jcr.JcrUtil;
+import com.day.cq.commons.LanguageUtil;
 import com.day.cq.wcm.api.WCMException;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.blackbird.aemconnector.core.exceptions.BlackbirdResourceCopyMergeException;
+import io.blackbird.aemconnector.core.exceptions.CopyMergeDitaValidationException;
 import io.blackbird.aemconnector.core.objects.VersionSyncResult;
 import io.blackbird.aemconnector.core.services.BlackbirdServiceUserResolverProvider;
 import io.blackbird.aemconnector.core.services.DitaCopyMergeService;
@@ -14,6 +16,7 @@ import io.blackbird.aemconnector.core.utils.PathUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
+import org.apache.jackrabbit.util.Text;
 import org.apache.sling.api.resource.ModifiableValueMap;
 import org.apache.sling.api.resource.PersistenceException;
 import org.apache.sling.api.resource.Resource;
@@ -50,6 +53,8 @@ public class DitaCopyMergeServiceImpl implements DitaCopyMergeService {
 
     private static final Pattern XML_PATTERN = Pattern.compile("<\\?xml[^>]+\\?>");
     private static final Pattern DOCTYPE_PATTERN = Pattern.compile("<!DOCTYPE[^>]+>");
+    private static final Pattern GUID_PATTERN = Pattern.compile("^(GUID-[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})(?:-([a-zA-Z]{2}))?$");
+    private static final String GUID_REGEX = "GUID-([A-Za-z0-9\\-]+?)(?:-([a-z]{2}))(\\.(dita|ditaval|ditamap))";
     private static final String DITA_GUID_PREFIX = "GUID-";
     private static final String DITA_BINARY_PATH = "/jcr:content/renditions/original/jcr:content";
     private static final String FM_UUID = "fmUuid";
@@ -58,7 +63,10 @@ public class DitaCopyMergeServiceImpl implements DitaCopyMergeService {
     private static final String UNDERSCORE = "_";
     private static final String LEFT_BRACKET = "<";
     private static final String RIGHT_BRACKET = ">";
+    private static final String DASH = "-";
+    private static final String DOT = ".";
     private static final String TAG_INDEX_REGEX = "_(\\d+)$";
+    private static final String DITAMAP = "ditamap";
 
     @Reference
     private BlackbirdServiceUserResolverProvider serviceUserResolverProvider;
@@ -66,33 +74,48 @@ public class DitaCopyMergeServiceImpl implements DitaCopyMergeService {
     private transient VersioningService versioningService;
 
     @Override
-    public Resource copyAndMerge(String sourcePath, String targetPath, JsonNode targetContent, JsonNode references) throws BlackbirdResourceCopyMergeException {
+    public Resource copyAndMerge(String sourcePath, String targetPath, JsonNode targetContent, JsonNode references) throws BlackbirdResourceCopyMergeException, CopyMergeDitaValidationException {
+        return handleCopyAndMerge(sourcePath, targetPath, targetContent, references, true);
+    }
+
+    @Override
+    public Resource copyAndMerge(String sourcePath, String targetPath, String targetContent) throws BlackbirdResourceCopyMergeException, CopyMergeDitaValidationException {
+        return handleCopyAndMerge(sourcePath, targetPath, targetContent, null, false);
+    }
+
+    private Resource handleCopyAndMerge(String sourcePath, String targetPath, Object targetContent, JsonNode references, boolean isJson) throws BlackbirdResourceCopyMergeException, CopyMergeDitaValidationException {
         try (ResourceResolver resolver = serviceUserResolverProvider.getTranslationWriterResolver()) {
-
-            handleTargetResource(sourcePath, targetPath, resolver);
-
+            String lang = getTargetLanguageCode(targetPath);
+            Resource sourceResource = handleSourceResource(resolver, sourcePath);
+            String targetContentString = isJson ? getTargetContent(resolver, sourcePath, (JsonNode) targetContent) : targetContent.toString();
+            handleTargetResource(sourceResource, targetPath, resolver, lang);
             Resource updatedTargetResource = resolver.getResource(targetPath);
-
             if (updatedTargetResource != null) {
-                String targetContentString = getTargetContent(resolver, sourcePath, targetContent);
-                updateJcrDataBinaryProperty(targetPath, resolver, targetContentString);
+                updateJcrDataBinaryProperty(targetPath, resolver, targetContentString, lang);
             }
-
             if (references != null && references.isArray() && updatedTargetResource != null) {
                 CopyMergeUtils.updateResourceReferences(updatedTargetResource, references);
             }
-
             resolver.commit();
-
             Resource nonNullableTargetResource = requireNonNull(updatedTargetResource, String.format("Target resource does not exist, %s", targetPath));
-
-            synchronizeVersion(sourcePath, nonNullableTargetResource.getPath());
-
+            synchronizeVersion(sourceResource.getPath(), nonNullableTargetResource.getPath());
             return nonNullableTargetResource;
+        } catch (CopyMergeDitaValidationException ex) {
+            log.error("Failure in getTargetLanguageCode: {}", ex.getMessage(), ex);
+            throw new CopyMergeDitaValidationException(ex.getMessage(), ex);
         } catch (Exception ex) {
             log.error("Failure in copyAndMerge: {}", ex.getMessage(), ex);
             throw new BlackbirdResourceCopyMergeException(ex.getMessage(), ex);
         }
+    }
+
+
+    private String getTargetLanguageCode(String targetPath) throws CopyMergeDitaValidationException {
+        String langRootPath = LanguageUtil.getLanguageRoot(targetPath);
+        if (langRootPath == null) {
+            throw new CopyMergeDitaValidationException("Can not get language code, langRootPath is null");
+        }
+        return Text.getName(langRootPath);
     }
 
     private void synchronizeVersion(String sourcePath, String targetPath) {
@@ -100,16 +123,10 @@ public class DitaCopyMergeServiceImpl implements DitaCopyMergeService {
         log.info("Result of version synchronization for source {}, target {}, {} ", sourcePath, targetPath, versionSyncResult);
     }
 
-    private void handleTargetResource(String sourcePath, String targetPath, ResourceResolver resolver ) throws BlackbirdResourceCopyMergeException, PersistenceException, WCMException, RepositoryException {
-        Resource sourceResource = requireNonNull(
-                resolver.getResource(sourcePath),
-                String.format("Source resource does not exist, %s", sourcePath)
-        );
-
+    private void handleTargetResource(Resource sourceResource, String targetPath, ResourceResolver resolver, String lang) throws BlackbirdResourceCopyMergeException, PersistenceException, WCMException, RepositoryException {
         Resource targetResource = resolver.getResource(targetPath);
-
         if (targetResource == null) {
-            createCopyForTargetResource(targetPath, sourceResource, resolver, generateNewUuid());
+            createCopyForTargetResource(targetPath, sourceResource, resolver, generateNewUuid(sourceResource, lang));
             return;
         }
         int versionCountDifference = versioningService.getVersionCountDifference(
@@ -117,7 +134,7 @@ public class DitaCopyMergeServiceImpl implements DitaCopyMergeService {
         );
 
         if (versionCountDifference < 0) {
-            recreateTargetResource(sourceResource, targetResource, resolver);
+            recreateTargetResource(sourceResource, targetResource, resolver, lang);
             return;
         }
 
@@ -129,17 +146,39 @@ public class DitaCopyMergeServiceImpl implements DitaCopyMergeService {
         replaceExistingResourceWithNewCopy(sourceResource, targetResource, resolver, currentUuid);
     }
 
-    private void recreateTargetResource(Resource source, Resource target, ResourceResolver resolver) throws PersistenceException, BlackbirdResourceCopyMergeException, WCMException {
-        String targetPath = target.getPath();
-        resolver.delete(target);
-        createCopyForTargetResource(targetPath, source, resolver, generateNewUuid());
+    private Resource handleSourceResource(ResourceResolver resolver, String sourcePath) {
+        return requireNonNull(resolver.getResource(sourcePath),
+                String.format("Source resource does not exist, %s", sourcePath)
+        );
     }
 
-    private String generateNewUuid() {
+    private void recreateTargetResource(Resource source, Resource target, ResourceResolver resolver, String lang) throws PersistenceException, BlackbirdResourceCopyMergeException, WCMException {
+        String targetPath = target.getPath();
+        resolver.delete(target);
+        createCopyForTargetResource(targetPath, source, resolver, generateNewUuid(source, lang));
+    }
+
+    private String generateNewUuid(Resource sourceResource, String lang) {
+        Resource sourceJcrContent = requireNonNull(sourceResource.getChild(JCR_CONTENT),
+                String.format("Source jcr:content resource does not exist, %s", sourceResource.getPath())
+        );
+        String sourceUuid = requireNonNull(sourceJcrContent.getValueMap().get(FM_UUID, String.class),
+                String.format("Source resource does not have fmUuid property, %s", sourceResource.getPath())
+        );
+        Matcher matcher = GUID_PATTERN.matcher(sourceUuid);
+        if (matcher.matches()) {
+            return matcher.group(1).concat(DASH).concat(lang);
+        }
+        log.error("Fallback GUID created, source GUID does not match pattern: {}", sourceUuid);
         return DITA_GUID_PREFIX.concat(UUID.randomUUID().toString());
     }
 
-    private void updateJcrDataBinaryProperty(String targetPath, ResourceResolver resolver, String targetContentString) {
+    private void updateJcrDataBinaryProperty(String targetPath, ResourceResolver resolver, String targetContentString, String lang) {
+        String extension = StringUtils.substringAfterLast(targetPath, DOT);
+        if (DITAMAP.equals(extension)) {
+            targetContentString = updateGuidLang(targetContentString, lang);
+        }
+
         Resource targetJcrData = requireNonNull(resolver.getResource(targetPath.concat(DITA_BINARY_PATH)),
                 String.format("Target resource does not exist, %s", targetPath));
         Session session = requireNonNull(resolver.adaptTo(Session.class), "Can not adapt resourceResolver to session");
@@ -153,6 +192,10 @@ public class DitaCopyMergeServiceImpl implements DitaCopyMergeService {
         } catch (Exception ex) {
             log.error("Error while setting binary property: {}", ex.getMessage(), ex);
         }
+    }
+
+    private String updateGuidLang(String targetContentString, String lang) {
+        return targetContentString.replaceAll(GUID_REGEX, "GUID-$1-".concat(lang).concat("$3"));
     }
 
     private String getTargetContent(ResourceResolver resolver, String sourcePath, JsonNode targetContent) throws RepositoryException, IOException {

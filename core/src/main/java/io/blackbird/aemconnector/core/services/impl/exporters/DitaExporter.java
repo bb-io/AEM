@@ -2,8 +2,10 @@ package io.blackbird.aemconnector.core.services.impl.exporters;
 
 import java.io.InputStream;
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.sling.api.resource.Resource;
 import org.osgi.service.component.annotations.Component;
 
@@ -18,6 +20,8 @@ import lombok.extern.slf4j.Slf4j;
 @Component(service = ContentExporter.class)
 public class DitaExporter implements ContentExporter {
     private static final String DITA_FILE_BINARY_PATH = "jcr:content/renditions/original";
+    private static final String TYPE = "type";
+    private static final String XML = "xml";
 
     @Override
     public boolean canExport(ContentType contentType) {
@@ -36,7 +40,9 @@ public class DitaExporter implements ContentExporter {
                         ditaFileBinaryResource.getPath())));
 
         try {
-            return Xml2JsonUtil.convert(ditaFileInputStream);
+            return XML.equals(options.get(TYPE))
+                    ? IOUtils.toString(ditaFileInputStream, StandardCharsets.UTF_8)
+                    : Xml2JsonUtil.convert(ditaFileInputStream);
         } catch (Exception e) {
             throw new BlackbirdServiceException(e.getMessage(), e);
         }

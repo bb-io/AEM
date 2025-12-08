@@ -29,4 +29,9 @@ public class AssetImporter implements ContentImporter {
             throw new BlackbirdServiceException(String.format("Can not import asset, sourcePath: %s, targetPath: %s", sourcePath, targetPath), ex);
         }
     }
+
+    @Override
+    public Resource importResource(String sourcePath, String targetPath, String targetContent) throws BlackbirdServiceException {
+        throw new BlackbirdServiceException(String.format("Can not import asset in xml format, sourcePath: %s, targetPath: %s", sourcePath, targetPath));
+    }
 }

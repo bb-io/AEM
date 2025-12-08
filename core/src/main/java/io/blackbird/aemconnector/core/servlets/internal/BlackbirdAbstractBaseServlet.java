@@ -2,6 +2,7 @@ package io.blackbird.aemconnector.core.servlets.internal;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.blackbird.aemconnector.core.constants.ServletConstants;
 import io.blackbird.aemconnector.core.dto.BlackbirdErrorResponse;
 import io.blackbird.aemconnector.core.dto.ErrorMessageXml;
 import io.blackbird.aemconnector.core.exceptions.BlackbirdHttpErrorException;
@@ -63,6 +64,12 @@ public abstract class BlackbirdAbstractBaseServlet extends SlingAllMethodsServle
                 ObjectUtils.ensureNotNull(payload,
                         () -> BlackbirdHttpErrorException.notFound("No Content available"));
 
+            if (ServletConstants.XML.equals(request.getRequestPathInfo().getExtension())) {
+                writeXmlResponse(response, payload);
+            } else {
+                writeJsonResponse(response, payload);
+            }
+            configureResponseHeaders(response);
                 configureResponseHeaders(response);
                 writeJsonResponse(response, payload);
             }
@@ -78,7 +85,13 @@ public abstract class BlackbirdAbstractBaseServlet extends SlingAllMethodsServle
     }
 
     private void writeJsonResponse(SlingHttpServletResponse response, Serializable payload) throws IOException {
+        response.setContentType(JSONResponse.RESPONSE_CONTENT_TYPE);
         response.getWriter().write(OBJECT_MAPPER.writeValueAsString(payload));
+    }
+
+    private void writeXmlResponse(SlingHttpServletResponse response, Serializable payload) throws IOException {
+        response.setContentType("application/xml");
+        response.getWriter().write(payload.toString());
     }
 
     private void ensureValidRequest(SlingHttpServletRequest request) throws BlackbirdHttpErrorException {
