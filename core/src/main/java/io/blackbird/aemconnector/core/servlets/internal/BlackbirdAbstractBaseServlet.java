@@ -27,6 +27,7 @@ import java.io.Serializable;
 public abstract class BlackbirdAbstractBaseServlet extends SlingAllMethodsServlet {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
+    public static final String XML_EXTENSION = "xml";
 
     @Override
     protected void doGet(SlingHttpServletRequest request, SlingHttpServletResponse response) throws IOException {
@@ -51,7 +52,7 @@ public abstract class BlackbirdAbstractBaseServlet extends SlingAllMethodsServle
             ensureValidRequest(request);
             String extension = request.getRequestPathInfo().getExtension();
 
-            if ("xml".equals(extension)) {
+            if (XML_EXTENSION.equals(extension)) {
                 InputStream inputStream = buildXmlResponsePayload(request, response);
                 response.setContentType("application/xml");
                 response.setCharacterEncoding("UTF-8");

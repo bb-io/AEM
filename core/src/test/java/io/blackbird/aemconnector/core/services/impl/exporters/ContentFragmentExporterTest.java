@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.blackbird.aemconnector.core.dto.v2.ContentReference;
 import io.blackbird.aemconnector.core.services.ContentType;
+import io.blackbird.aemconnector.core.services.TranslationRulesService;
 import org.apache.sling.api.resource.Resource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -44,12 +45,15 @@ class ContentFragmentExporterTest {
     private ContentFragment contentFragment;
     @Mock
     private FragmentTemplate template;
+    @Mock
+    private TranslationRulesService translationRulesService;
 
     private ContentFragmentExporter target;
 
     @BeforeEach
     void setUp() {
-        target = new ContentFragmentExporter();
+
+        target = new ContentFragmentExporter(translationRulesService);
     }
 
     @Test
