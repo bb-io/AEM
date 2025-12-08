@@ -5,6 +5,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
 import org.apache.sling.servlets.post.JSONResponse;
+import org.apache.sling.testing.mock.sling.servlet.MockRequestPathInfo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,6 +40,7 @@ public class BlackbirdAbstractBaseServletTest {
 
     @BeforeEach
     public void setUp() throws IOException {
+        when(request.getRequestPathInfo()).thenReturn(new MockRequestPathInfo(null));
         stringWriter = new StringWriter();
         printWriter = new PrintWriter(stringWriter);
     }

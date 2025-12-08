@@ -22,6 +22,7 @@ import io.blackbird.aemconnector.core.utils.ObjectUtils;
 import io.blackbird.aemconnector.core.utils.StreamUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.sling.api.resource.Resource;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -46,8 +47,13 @@ public class ContentFragmentExporter implements ContentExporter {
     private static final ObjectMapper MAPPER = Node2JsonUtil.getMapper();
     public static final String DATA = "data";
 
-    @Reference
+
     private TranslationRulesService translationRulesService;
+
+    @Activate
+    public ContentFragmentExporter(@Reference TranslationRulesService translationRulesService) {
+        this.translationRulesService = translationRulesService;
+    }
 
     @Override
     public boolean canExport(ContentType contentType) {

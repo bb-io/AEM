@@ -17,6 +17,8 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.util.Optional;
 
+import static io.blackbird.aemconnector.core.constants.ServletConstants.TRANSLATION_RULES_FILE_NOT_FOUND;
+
 @Slf4j
 @Component(service = Servlet.class)
 @SlingServletResourceTypes(
@@ -49,7 +51,7 @@ public class TranslationRulesServlet extends BlackbirdAbstractBaseServlet {
         Optional<InputStream> translationRulesFileInputStream = translationRulesService.getTranslationRulesFileInputStream();
 
         return translationRulesFileInputStream.orElseThrow(
-                () -> BlackbirdHttpErrorException.notFound("Translation Rules file not found")
+                () -> BlackbirdHttpErrorException.notFound(TRANSLATION_RULES_FILE_NOT_FOUND)
         );
     }
 }
