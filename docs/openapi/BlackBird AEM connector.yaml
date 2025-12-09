@@ -248,6 +248,14 @@ paths:
           schema:
             type: string
             example: /content/wknd/language-masters/en/adventures/ski-touring-mont-blanc
+        - in: query
+          name: ignoreTranslationRules
+          required: false
+          description: Exports content ignoring all translation rules.
+          schema:
+            type: boolean
+            example: ignoreTranslationRules
+          allowEmptyValue: true
 
       responses:
         '200':

@@ -1,7 +1,6 @@
 package io.blackbird.aemconnector.core.servlets;
 
 import com.day.cq.commons.LanguageUtil;
-import io.blackbird.aemconnector.core.constants.ServletConstants;
 import io.blackbird.aemconnector.core.dto.DitaFileImportResponse;
 import io.blackbird.aemconnector.core.exceptions.BlackbirdHttpErrorException;
 import io.blackbird.aemconnector.core.exceptions.BlackbirdServiceException;
@@ -21,15 +20,18 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.servlet.Servlet;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.Serializable;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+
+import static io.blackbird.aemconnector.core.constants.ServletConstants.XML_EXTENSION;
 
 @Component(service = Servlet.class)
 @SlingServletResourceTypes(
         resourceTypes = DitaImporterServlet.RESOURCE_TYPE,
         methods = HttpConstants.METHOD_POST,
-        extensions = ServletConstants.XML
+        extensions = XML_EXTENSION
 )
 public class DitaImporterServlet extends BlackbirdAbstractBaseServlet {
 
@@ -42,7 +44,7 @@ public class DitaImporterServlet extends BlackbirdAbstractBaseServlet {
     private transient ContentImportService contentImportService;
 
     @Override
-    public Serializable buildResponsePayload(SlingHttpServletRequest request, SlingHttpServletResponse response) throws BlackbirdHttpErrorException {
+    public InputStream buildXmlResponsePayload(SlingHttpServletRequest request, SlingHttpServletResponse response) throws BlackbirdHttpErrorException {
         String sourcePath = ServletParameterHelper.getRequiredSourcePath(request);
         String targetPath = ServletParameterHelper.getRequiredTargetPath(request);
         String targetContent = getRequestPayload(request);
@@ -51,11 +53,12 @@ public class DitaImporterServlet extends BlackbirdAbstractBaseServlet {
         try {
             ContentType contentType = contentTypeService.resolveContentType(sourcePath);
             Resource resource = contentImportService.importContent(sourcePath, targetPath, targetContent, contentType);
-            return new DitaFileImportResponse("Content imported successfully", resource.getPath()).toString();
+            return new ByteArrayInputStream(new DitaFileImportResponse("Content imported successfully", resource.getPath()).toString().getBytes(StandardCharsets.UTF_8));
         } catch (BlackbirdServiceException ex) {
             throw BlackbirdHttpErrorException.internalServerError(ex.getMessage());
         }
     }
+
 
     private String getRequestPayload(SlingHttpServletRequest request) throws BlackbirdHttpErrorException {
         try {

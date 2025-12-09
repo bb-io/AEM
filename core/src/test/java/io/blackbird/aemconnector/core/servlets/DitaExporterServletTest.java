@@ -9,15 +9,20 @@ import io.wcm.testing.mock.aem.junit5.AemContext;
 import io.wcm.testing.mock.aem.junit5.AemContextExtension;
 import org.apache.sling.testing.mock.sling.servlet.MockSlingHttpServletRequest;
 import org.apache.sling.testing.mock.sling.servlet.MockSlingHttpServletResponse;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
+import static io.blackbird.aemconnector.core.utils.TestUtils.inputStreamToString;
 import static junit.framework.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -64,11 +69,12 @@ public class DitaExporterServletTest {
         when(contentTypeService.resolveContentType(contentPath)).thenReturn(contentType);
         when(contentExportService.exportContent(eq(contentPath), eq(contentType), anyMap())).thenReturn(exported);
 
-        Serializable result = servlet.buildResponsePayload(request, response);
+        InputStream result = servlet.buildXmlResponsePayload(request, response);
 
         assertNotNull(result);
-        assertEquals(exported, result);
+        assertEquals(exported, inputStreamToString(result));
     }
+
 
     @Test
     void shouldThrowBlackbirdHttpErrorExceptionWhenContentPathIsMissing() {
@@ -134,8 +140,8 @@ public class DitaExporterServletTest {
             return exported;
         }).when(contentExportService).exportContent(eq(contentPath), eq(contentType), anyMap());
 
-        Serializable result = servlet.buildResponsePayload(request, response);
+        InputStream result = servlet.buildXmlResponsePayload(request, response);
 
-        assertEquals(exported, result);
+        assertEquals(exported, inputStreamToString(result));
     }
 }
