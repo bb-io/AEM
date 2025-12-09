@@ -66,7 +66,7 @@ class AssetExporterTest {
         Resource resource = context.resourceResolver().getResource("/asset");
 
         JsonNode actual = (JsonNode) assetExporter.export(resource, options);
-        JsonNode expected = getJsonNodeByResourcePath("content/test-asset.json");
+        JsonNode expected = getJsonNodeByResourcePath();
 
         JSONAssert.assertEquals(actual.toPrettyString(), expected.toPrettyString(), JSONCompareMode.LENIENT);
     }
@@ -117,8 +117,8 @@ class AssetExporterTest {
         }
     }
 
-    private JsonNode getJsonNodeByResourcePath(String resourcePath) throws IOException {
-        URL url = getClass().getClassLoader().getResource(resourcePath);
+    private JsonNode getJsonNodeByResourcePath() throws IOException {
+        URL url = getClass().getClassLoader().getResource("content/test-asset.json");
         assertNotNull(url);
         File file = new File(url.getFile());
         ObjectMapper mapper = Node2JsonUtil.getMapper();

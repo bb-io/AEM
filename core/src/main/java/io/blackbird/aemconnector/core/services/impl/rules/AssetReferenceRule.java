@@ -12,12 +12,14 @@ import org.apache.commons.lang3.StringUtils;
 import javax.jcr.Node;
 import javax.jcr.Property;
 
+import java.io.Serializable;
+
 import static org.apache.sling.jcr.resource.api.JcrResourceConstants.SLING_RESOURCE_TYPE_PROPERTY;
 
 @Builder
 @EqualsAndHashCode(callSuper = false)
 @ToString
-public class AssetReferenceRule {
+public class AssetReferenceRule implements Serializable {
 
     @JsonProperty("referenceType")
     private final String assetReferenceAttribute;

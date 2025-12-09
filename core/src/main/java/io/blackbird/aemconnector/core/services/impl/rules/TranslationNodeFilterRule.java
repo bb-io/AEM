@@ -18,7 +18,7 @@ import static io.blackbird.aemconnector.core.utils.RepositoryUtils.getParent;
 @Builder
 @EqualsAndHashCode(callSuper = false)
 @ToString
-public class TranslationNodeFilterRule {
+public class TranslationNodeFilterRule implements Serializable {
 
     @JsonProperty
     private final String propertyName;
