@@ -25,10 +25,9 @@ import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 
 import javax.jcr.Node;
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
-import java.net.URL;
 import java.util.Collections;
 import java.util.Map;
 
@@ -118,10 +117,10 @@ class AssetExporterTest {
     }
 
     private JsonNode getJsonNodeByResourcePath() throws IOException {
-        URL url = getClass().getClassLoader().getResource("content/test-asset.json");
-        assertNotNull(url);
-        File file = new File(url.getFile());
-        ObjectMapper mapper = Node2JsonUtil.getMapper();
-        return mapper.readTree(file);
+        try (InputStream is = getClass().getClassLoader().getResourceAsStream("content/test-asset.json")) {
+            assertNotNull(is, "Resource not found: content/test-asset.json");
+            ObjectMapper mapper = Node2JsonUtil.getMapper();
+            return mapper.readTree(is);
+        }
     }
 }
