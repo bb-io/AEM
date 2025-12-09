@@ -17,7 +17,7 @@ import static org.apache.sling.jcr.resource.api.JcrResourceConstants.SLING_RESOU
 @Builder
 @EqualsAndHashCode(callSuper = false)
 @ToString
-public class ResourceTypeRule implements TranslationPropertyRule {
+public class ResourceTypeRule implements TranslationPropertyRule, Serializable {
 
     @JsonProperty
     private final String resourceType;

@@ -13,7 +13,7 @@ import java.io.Serializable;
 @Builder
 @EqualsAndHashCode(callSuper = false)
 @ToString
-public class PropertyFilterRule implements TranslationPropertyRule {
+public class PropertyFilterRule implements TranslationPropertyRule, Serializable {
 
     @JsonProperty
     private final String pathContains;
