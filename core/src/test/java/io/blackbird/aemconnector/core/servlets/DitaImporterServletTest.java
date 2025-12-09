@@ -20,10 +20,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.Serializable;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
+import static io.blackbird.aemconnector.core.utils.TestUtils.inputStreamToString;
 import static junit.framework.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -78,10 +79,10 @@ public class DitaImporterServletTest {
         when(contentImportService.importContent(eq(sourcePath), eq(targetPath), eq(payload), eq(contentType))).thenReturn(resultResource);
         when(resultResource.getPath()).thenReturn(targetPath);
 
-        Serializable result = servlet.buildResponsePayload(request, response);
+        InputStream result = servlet.buildXmlResponsePayload(request, response);
 
         assertNotNull(result);
-        assertEquals(new DitaFileImportResponse("Content imported successfully", targetPath).toString(), result);
+        assertEquals(new DitaFileImportResponse("Content imported successfully", targetPath).toString(), inputStreamToString(result));
     }
 
     @Test
@@ -101,7 +102,7 @@ public class DitaImporterServletTest {
         request.setContent(inputStream);
 
         BlackbirdHttpErrorException exception = assertThrows(BlackbirdHttpErrorException.class,
-                () -> servlet.buildResponsePayload(request, response)
+                () -> servlet.buildXmlResponsePayload(request, response)
         );
 
         assertEquals(400, exception.getStatus());
@@ -121,7 +122,7 @@ public class DitaImporterServletTest {
         request.setContent(inputStream);
 
         BlackbirdHttpErrorException exception = assertThrows(BlackbirdHttpErrorException.class,
-                () -> servlet.buildResponsePayload(request, response)
+                () -> servlet.buildXmlResponsePayload(request, response)
         );
 
         assertEquals(400, exception.getStatus());
@@ -145,7 +146,7 @@ public class DitaImporterServletTest {
         request.setContent(inputStream);
 
         BlackbirdHttpErrorException exception = assertThrows(BlackbirdHttpErrorException.class,
-                () -> servlet.buildResponsePayload(request, response)
+                () -> servlet.buildXmlResponsePayload(request, response)
         );
 
         assertEquals(400, exception.getStatus());
@@ -164,7 +165,7 @@ public class DitaImporterServletTest {
         when(request.getParameter("targetPath")).thenReturn(targetPath);
 
         BlackbirdHttpErrorException exception = assertThrows(BlackbirdHttpErrorException.class,
-                () -> servlet.buildResponsePayload(request, response)
+                () -> servlet.buildXmlResponsePayload(request, response)
         );
 
         assertEquals(500, exception.getStatus());

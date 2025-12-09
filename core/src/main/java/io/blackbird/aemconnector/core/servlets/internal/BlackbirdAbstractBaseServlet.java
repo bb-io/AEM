@@ -2,7 +2,7 @@ package io.blackbird.aemconnector.core.servlets.internal;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.blackbird.aemconnector.core.constants.ServletConstants;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.blackbird.aemconnector.core.dto.BlackbirdErrorResponse;
 import io.blackbird.aemconnector.core.dto.ErrorMessageXml;
 import io.blackbird.aemconnector.core.exceptions.BlackbirdHttpErrorException;
@@ -25,10 +25,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 
+import static io.blackbird.aemconnector.core.constants.ServletConstants.APPLICATION_XML;
+import static io.blackbird.aemconnector.core.constants.ServletConstants.UTF_8;
+import static io.blackbird.aemconnector.core.constants.ServletConstants.XML_EXTENSION;
+import static io.blackbird.aemconnector.core.constants.ServletConstants.XML_HANDLER_NOT_IMPLEMENTED_FOR_SERVLET_ERROR_MSG;
+
 public abstract class BlackbirdAbstractBaseServlet extends SlingAllMethodsServlet {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
-    public static final String XML_EXTENSION = "xml";
 
     @Override
     protected void doGet(SlingHttpServletRequest request, SlingHttpServletResponse response) throws IOException {
@@ -54,22 +58,15 @@ public abstract class BlackbirdAbstractBaseServlet extends SlingAllMethodsServle
             String extension = request.getRequestPathInfo().getExtension();
 
             if (XML_EXTENSION.equals(extension)) {
-                InputStream inputStream = buildXmlResponsePayload(request, response);
-                response.setContentType("application/xml");
-                response.setCharacterEncoding("UTF-8");
-                IOUtils.copy(inputStream, response.getOutputStream());
+                InputStream payload = buildXmlResponsePayload(request, response);
+                writeXmlResponse(response, payload);
+
             } else {
                 Serializable payload = buildResponsePayload(request, response);
 
                 ObjectUtils.ensureNotNull(payload,
                         () -> BlackbirdHttpErrorException.notFound("No Content available"));
 
-            if (ServletConstants.XML.equals(request.getRequestPathInfo().getExtension())) {
-                writeXmlResponse(response, payload);
-            } else {
-                writeJsonResponse(response, payload);
-            }
-            configureResponseHeaders(response);
                 configureResponseHeaders(response);
                 writeJsonResponse(response, payload);
             }
@@ -89,9 +86,10 @@ public abstract class BlackbirdAbstractBaseServlet extends SlingAllMethodsServle
         response.getWriter().write(OBJECT_MAPPER.writeValueAsString(payload));
     }
 
-    private void writeXmlResponse(SlingHttpServletResponse response, Serializable payload) throws IOException {
-        response.setContentType("application/xml");
-        response.getWriter().write(payload.toString());
+    private void writeXmlResponse(SlingHttpServletResponse response, InputStream payload) throws IOException {
+        response.setContentType(APPLICATION_XML);
+        response.setCharacterEncoding(UTF_8);
+        IOUtils.copy(payload, response.getOutputStream());
     }
 
     private void ensureValidRequest(SlingHttpServletRequest request) throws BlackbirdHttpErrorException {
@@ -121,8 +119,7 @@ public abstract class BlackbirdAbstractBaseServlet extends SlingAllMethodsServle
     }
 
     private void configureResponseHeaders(SlingHttpServletResponse response) {
-        response.setContentType(JSONResponse.RESPONSE_CONTENT_TYPE);
-        response.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding(UTF_8);
         response.setHeader(HttpHeaders.CACHE_CONTROL, "no-cache, no-store");
     }
 
@@ -130,22 +127,32 @@ public abstract class BlackbirdAbstractBaseServlet extends SlingAllMethodsServle
         return OBJECT_MAPPER;
     }
 
-    abstract public Serializable buildResponsePayload(SlingHttpServletRequest request, SlingHttpServletResponse response) throws BlackbirdHttpErrorException;
+    public Serializable buildResponsePayload(SlingHttpServletRequest request, SlingHttpServletResponse response) throws BlackbirdHttpErrorException {
+        return defaultJsonResponse();
+    }
 
     public InputStream buildXmlResponsePayload(SlingHttpServletRequest request, SlingHttpServletResponse response) throws BlackbirdHttpErrorException {
-        ErrorMessageXml errorMsg = new ErrorMessageXml("XML response handling is not implemented for this servlet");
-
         try {
-            JAXBContext context = JAXBContext.newInstance(ErrorMessageXml.class);
-            Marshaller marshaller = context.createMarshaller();
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            marshaller.marshal(errorMsg, outputStream);
-
-            return new ByteArrayInputStream(outputStream.toByteArray());
-
+            return defaultXmlResponse();
         } catch (JAXBException e) {
             throw BlackbirdHttpErrorException.internalServerError(e.getMessage());
         }
+    }
+
+    private Serializable defaultJsonResponse() {
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode node = mapper.createObjectNode();
+        node.put("message", "JSON response handling is not implemented for this servlet");
+        return node;
+    }
+
+    private InputStream defaultXmlResponse() throws JAXBException {
+        ErrorMessageXml errorMsg = new ErrorMessageXml(XML_HANDLER_NOT_IMPLEMENTED_FOR_SERVLET_ERROR_MSG);
+        JAXBContext context = JAXBContext.newInstance(ErrorMessageXml.class);
+        Marshaller marshaller = context.createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        marshaller.marshal(errorMsg, outputStream);
+        return new ByteArrayInputStream(outputStream.toByteArray());
     }
 }
