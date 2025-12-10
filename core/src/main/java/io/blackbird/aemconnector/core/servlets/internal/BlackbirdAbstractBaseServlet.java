@@ -2,11 +2,13 @@ package io.blackbird.aemconnector.core.servlets.internal;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.blackbird.aemconnector.core.constants.ServletConstants;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.blackbird.aemconnector.core.dto.BlackbirdErrorResponse;
+import io.blackbird.aemconnector.core.dto.ErrorMessageXml;
 import io.blackbird.aemconnector.core.exceptions.BlackbirdHttpErrorException;
 import io.blackbird.aemconnector.core.utils.ObjectUtils;
 import io.blackbird.aemconnector.core.vo.BlackbirdRequestFilter;
+import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpHeaders;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
@@ -14,8 +16,19 @@ import org.apache.sling.api.servlets.SlingAllMethodsServlet;
 import org.apache.sling.servlets.post.JSONResponse;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
+
+import static io.blackbird.aemconnector.core.constants.ServletConstants.APPLICATION_XML;
+import static io.blackbird.aemconnector.core.constants.ServletConstants.UTF_8;
+import static io.blackbird.aemconnector.core.constants.ServletConstants.XML_EXTENSION;
+import static io.blackbird.aemconnector.core.constants.ServletConstants.XML_HANDLER_NOT_IMPLEMENTED_FOR_SERVLET_ERROR_MSG;
 
 public abstract class BlackbirdAbstractBaseServlet extends SlingAllMethodsServlet {
 
@@ -42,17 +55,21 @@ public abstract class BlackbirdAbstractBaseServlet extends SlingAllMethodsServle
     private void handleRequest(SlingHttpServletRequest request, SlingHttpServletResponse response, int successStatusCode) throws IOException {
         try {
             ensureValidRequest(request);
-            Serializable payload = buildResponsePayload(request, response);
+            String extension = request.getRequestPathInfo().getExtension();
 
-            ObjectUtils.ensureNotNull(payload,
-                    () -> BlackbirdHttpErrorException.notFound("No Content available"));
-
-            if (ServletConstants.XML.equals(request.getRequestPathInfo().getExtension())) {
+            if (XML_EXTENSION.equals(extension)) {
+                InputStream payload = buildXmlResponsePayload(request, response);
                 writeXmlResponse(response, payload);
+
             } else {
+                Serializable payload = buildResponsePayload(request, response);
+
+                ObjectUtils.ensureNotNull(payload,
+                        () -> BlackbirdHttpErrorException.notFound("No Content available"));
+
+                configureResponseHeaders(response);
                 writeJsonResponse(response, payload);
             }
-            configureResponseHeaders(response);
             response.setStatus(successStatusCode);
         } catch (BlackbirdHttpErrorException e) {
             writeErrorResponse(response, BlackbirdErrorResponse.builder()
@@ -69,9 +86,10 @@ public abstract class BlackbirdAbstractBaseServlet extends SlingAllMethodsServle
         response.getWriter().write(OBJECT_MAPPER.writeValueAsString(payload));
     }
 
-    private void writeXmlResponse(SlingHttpServletResponse response, Serializable payload) throws IOException {
-        response.setContentType("application/xml");
-        response.getWriter().write(payload.toString());
+    private void writeXmlResponse(SlingHttpServletResponse response, InputStream payload) throws IOException {
+        response.setContentType(APPLICATION_XML);
+        response.setCharacterEncoding(UTF_8);
+        IOUtils.copy(payload, response.getOutputStream());
     }
 
     private void ensureValidRequest(SlingHttpServletRequest request) throws BlackbirdHttpErrorException {
@@ -101,7 +119,7 @@ public abstract class BlackbirdAbstractBaseServlet extends SlingAllMethodsServle
     }
 
     private void configureResponseHeaders(SlingHttpServletResponse response) {
-        response.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding(UTF_8);
         response.setHeader(HttpHeaders.CACHE_CONTROL, "no-cache, no-store");
     }
 
@@ -109,5 +127,32 @@ public abstract class BlackbirdAbstractBaseServlet extends SlingAllMethodsServle
         return OBJECT_MAPPER;
     }
 
-    abstract public Serializable buildResponsePayload(SlingHttpServletRequest request, SlingHttpServletResponse response) throws BlackbirdHttpErrorException;
+    public Serializable buildResponsePayload(SlingHttpServletRequest request, SlingHttpServletResponse response) throws BlackbirdHttpErrorException {
+        return defaultJsonResponse();
+    }
+
+    public InputStream buildXmlResponsePayload(SlingHttpServletRequest request, SlingHttpServletResponse response) throws BlackbirdHttpErrorException {
+        try {
+            return defaultXmlResponse();
+        } catch (JAXBException e) {
+            throw BlackbirdHttpErrorException.internalServerError(e.getMessage());
+        }
+    }
+
+    private Serializable defaultJsonResponse() {
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode node = mapper.createObjectNode();
+        node.put("message", "JSON response handling is not implemented for this servlet");
+        return node;
+    }
+
+    private InputStream defaultXmlResponse() throws JAXBException {
+        ErrorMessageXml errorMsg = new ErrorMessageXml(XML_HANDLER_NOT_IMPLEMENTED_FOR_SERVLET_ERROR_MSG);
+        JAXBContext context = JAXBContext.newInstance(ErrorMessageXml.class);
+        Marshaller marshaller = context.createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        marshaller.marshal(errorMsg, outputStream);
+        return new ByteArrayInputStream(outputStream.toByteArray());
+    }
 }

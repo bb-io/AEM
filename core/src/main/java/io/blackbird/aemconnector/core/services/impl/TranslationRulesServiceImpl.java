@@ -2,6 +2,7 @@ package io.blackbird.aemconnector.core.services.impl;
 
 import io.blackbird.aemconnector.core.dto.TranslationRules;
 import io.blackbird.aemconnector.core.exceptions.BlackbirdInternalErrorException;
+import io.blackbird.aemconnector.core.exceptions.BlackbirdServiceException;
 import io.blackbird.aemconnector.core.services.BlackbirdServiceUserResolverProvider;
 import io.blackbird.aemconnector.core.services.TranslationRulesService;
 import io.blackbird.aemconnector.core.services.impl.rules.AssetReferenceRule;
@@ -18,9 +19,13 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.jcr.Node;
 import javax.jcr.Property;
+import javax.jcr.PropertyIterator;
+import javax.jcr.RepositoryException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -86,7 +91,8 @@ public class TranslationRulesServiceImpl implements TranslationRulesService {
         return IsAssetReference.NOT_REFERENCE;
     }
 
-    private TranslationRules getTranslationsRules() throws BlackbirdInternalErrorException {
+    @Override
+    public TranslationRules getTranslationsRules() throws BlackbirdInternalErrorException {
         TranslationRules translationRules = translationRulesSupplier.get();
 
         if (TranslationRules.EMPTY.equals(translationRules)) {
@@ -94,6 +100,48 @@ public class TranslationRulesServiceImpl implements TranslationRulesService {
         }
 
         return translationRules;
+    }
+
+    @Override
+    public Optional<InputStream> getTranslationRulesFileInputStream() {
+        try (ResourceResolver resolver = serviceUserResolverProvider.getTranslationRulesReaderResolver()) {
+            return getTranslationRulesFileInputStream(resolver);
+        } catch (LoginException e) {
+            throw new BlackbirdServiceException(e.getMessage());
+        }
+    }
+
+    @Override
+    public List<String> collectTranslatableProperties(Node node) {
+
+        if (node == null) {
+            return Collections.emptyList();
+        }
+        try {
+            PropertyIterator propertyIterator = node.getProperties();
+            List<String> translatableProperties = collectTranslatableProperties(propertyIterator);
+            log.info("Collected translatable properties, size: {}", translatableProperties.size());
+            return translatableProperties;
+        } catch (RepositoryException e) {
+            log.error("Error occurred while iterating over properties, error: {}", e.getMessage());
+            return Collections.emptyList();
+        }
+    }
+
+    private List<String> collectTranslatableProperties(PropertyIterator propertyIterator) {
+        List<String> result = new ArrayList<>();
+        while (propertyIterator.hasNext()) {
+            Property property = propertyIterator.nextProperty();
+            try {
+                if (isTranslatable(property)) {
+                    String propertyName = property.getName();
+                    result.add(propertyName);
+                }
+            } catch (BlackbirdInternalErrorException | RepositoryException e) {
+                log.error("Error occurred while iterating node properties. Error: {}", e.getMessage());
+            }
+        }
+        return Collections.unmodifiableList(result);
     }
 
     private TranslationRules readTranslationRules() {

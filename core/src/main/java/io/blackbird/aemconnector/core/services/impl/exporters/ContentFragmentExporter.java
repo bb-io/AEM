@@ -11,17 +11,22 @@ import com.day.cq.commons.jcr.JcrConstants;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.blackbird.aemconnector.core.constants.ServletConstants;
 import io.blackbird.aemconnector.core.dto.v2.ContentReference;
 import io.blackbird.aemconnector.core.exceptions.BlackbirdServiceException;
 import io.blackbird.aemconnector.core.services.ContentExporter;
 import io.blackbird.aemconnector.core.services.ContentType;
+import io.blackbird.aemconnector.core.services.TranslationRulesService;
 import io.blackbird.aemconnector.core.utils.Node2JsonUtil;
 import io.blackbird.aemconnector.core.utils.ObjectUtils;
 import io.blackbird.aemconnector.core.utils.StreamUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.sling.api.resource.Resource;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
+import javax.jcr.Node;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
@@ -40,6 +45,15 @@ public class ContentFragmentExporter implements ContentExporter {
     public static final String VARIATION_KEY = "variation";
 
     private static final ObjectMapper MAPPER = Node2JsonUtil.getMapper();
+    public static final String DATA = "data";
+
+
+    private TranslationRulesService translationRulesService;
+
+    @Activate
+    public ContentFragmentExporter(@Reference TranslationRulesService translationRulesService) {
+        this.translationRulesService = translationRulesService;
+    }
 
     @Override
     public boolean canExport(ContentType contentType) {
@@ -55,18 +69,35 @@ public class ContentFragmentExporter implements ContentExporter {
 
         String selectedVariation = resolveVariation(resource, contentFragment, options);
 
+        List<String> translatablePropertiesFromTranslationRules = getTranslatablePropertiesFromVariation(selectedVariation, resource);
+
+        boolean ignoreTranslationRules = options.containsKey(ServletConstants.IGNORE_TRANSLATION_RULES);
         ObjectNode result = MAPPER.createObjectNode();
         ObjectNode variationNode = initializeResultTree(result, selectedVariation);
         ArrayNode references = result.putArray(REFERENCES);
+
+
 
         processFragment(
                 contentFragment,
                 variationNode,
                 references,
-                selectedVariation
+                selectedVariation,
+                translatablePropertiesFromTranslationRules,
+                ignoreTranslationRules
         );
 
         return result;
+    }
+
+    private List<String> getTranslatablePropertiesFromVariation(String variation, Resource resource) {
+        String pathToVariation = resource.getPath() + "/" + JcrConstants.JCR_CONTENT + "/data/" + variation;
+        Node variationNode = Optional.ofNullable(resource)
+                .map(Resource::getResourceResolver)
+                .map(resolver -> resolver.getResource(pathToVariation))
+                .map(res -> res.adaptTo(Node.class))
+                .orElse(null);
+        return translationRulesService.collectTranslatableProperties(variationNode);
     }
 
     static String resolveVariation(Resource resource, ContentFragment contentFragment, Map<String, Object> options) {
@@ -87,16 +118,16 @@ public class ContentFragmentExporter implements ContentExporter {
                 .orElse(DEFAULT_VARIATION);
     }
 
-    private void processFragment(ContentFragment contentFragment, ObjectNode variationNode, ArrayNode references, String variationName) {
+    private void processFragment(ContentFragment contentFragment, ObjectNode variationNode, ArrayNode references, String variationName, List<String> translatablePropertiesFromTranslationRules, boolean ignoreTranslationRules) {
         FragmentTemplate template = contentFragment.getTemplate();
         Map<String, Map<String, Object>> propertyConfig = StreamUtils.stream(template.getElements())
                 .collect(Collectors.toMap(
                         ElementTemplate::getName,
                         ElementTemplate::getMetaData));
-        contentFragment.getElements().forEachRemaining(element -> handleElement(element, propertyConfig, variationNode, references, variationName));
+        contentFragment.getElements().forEachRemaining(element -> handleElement(element, propertyConfig, variationNode, references, variationName, translatablePropertiesFromTranslationRules, ignoreTranslationRules));
     }
 
-    private void handleElement(ContentElement element, Map<String, Map<String, Object>> propertyConfig, ObjectNode variationNode, ArrayNode references, String variationName) {
+    private void handleElement(ContentElement element, Map<String, Map<String, Object>> propertyConfig, ObjectNode variationNode, ArrayNode references, String variationName, List<String> translatablePropertiesFromTranslationRules, boolean ignoreTranslationRules) {
         String name = element.getName();
         Map<String, Object> metadata = propertyConfig.get(name);
 
@@ -105,8 +136,15 @@ public class ContentFragmentExporter implements ContentExporter {
         }
 
         FragmentData fragmentData = getFragmentData(element, variationName);
+        if (fragmentData == null) {
+            return;
+        }
+
         Object value = fragmentData.getValue();
-        boolean isTranslatable = Boolean.TRUE.equals(metadata.get(TRANSLATABLE));
+        boolean isTranslatable = ignoreTranslationRules
+                || Boolean.TRUE.equals(metadata.get(TRANSLATABLE))
+                || translatablePropertiesFromTranslationRules.contains(name);
+
         if (isTranslatable && value != null) {
             variationNode.set(name, MAPPER.valueToTree(value));
         }
@@ -125,12 +163,15 @@ public class ContentFragmentExporter implements ContentExporter {
             return element.getValue();
         }
         ContentVariation variation = element.getVariation(variationName);
+        if (variation == null) {
+            return null;
+        }
         return variation.getValue();
     }
 
     private static ObjectNode initializeResultTree(ObjectNode result, String variationNodeName) {
         ObjectNode jcrContent = result.putObject(JcrConstants.JCR_CONTENT);
-        ObjectNode data = jcrContent.putObject("data");
+        ObjectNode data = jcrContent.putObject(DATA);
         return data.putObject(variationNodeName);
     }
 }

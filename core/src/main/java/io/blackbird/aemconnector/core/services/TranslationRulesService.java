@@ -1,9 +1,14 @@
 package io.blackbird.aemconnector.core.services;
 
+import io.blackbird.aemconnector.core.dto.TranslationRules;
 import io.blackbird.aemconnector.core.exceptions.BlackbirdInternalErrorException;
+import org.apache.sling.api.resource.ResourceResolver;
 
 import javax.jcr.Node;
 import javax.jcr.Property;
+import java.io.InputStream;
+import java.util.List;
+import java.util.Optional;
 
 public interface TranslationRulesService {
 
@@ -25,4 +30,9 @@ public interface TranslationRulesService {
 
     IsAssetReference isAssetReference(Property property) throws BlackbirdInternalErrorException;
 
+    TranslationRules getTranslationsRules() throws BlackbirdInternalErrorException;
+
+    Optional<InputStream> getTranslationRulesFileInputStream();
+
+    List<String> collectTranslatableProperties(Node node);
 }

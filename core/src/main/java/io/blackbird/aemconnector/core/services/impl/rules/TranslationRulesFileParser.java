@@ -40,6 +40,7 @@ public class TranslationRulesFileParser {
     private static final String AN_CHECK_IN_CHILD_NODES = "checkInChildNodes";
     private static final String AN_CONTAINS_PROPERTY = "containsProperty";
     private static final String AN_CREATE_LANG_COPY = "createLangCopy";
+    private static final String AN_CREATE_LANGUAGE_COPY = "createLanguageCopy";
     private static final String AN_INHERIT = "inherit";
     private static final String AN_IS_DEEP = "isDeep";
     private static final String AN_NAME = "name";
@@ -49,7 +50,10 @@ public class TranslationRulesFileParser {
     private static final String AN_RESOURCE_TYPE = "resourceType";
     private static final String AN_TRANSLATE = "translate";
     private static final String AN_UPDATE_DESTINATION_LANGUAGE = "updateDestinationLanguage";
+    private static final String AN_KEY = "key";
+    private static final String AN_VALUE = "value";
     private static final String NN_ASSET_NODE = "assetNode";
+    private static final String NN_CONTENT_FILTER_NODE = "contentFilterNode";
     private static final String NN_FILTER = "filter";
     private static final String NN_NODE = "node";
     private static final String NN_PROPERTY = "property";
@@ -72,10 +76,16 @@ public class TranslationRulesFileParser {
                     && HAS_ATTRIBUTE.test(node, AN_RESOURCE_TYPE)
                     && HAS_ATTRIBUTE.test(node, AN_CHECK_IN_CHILD_NODES)
                     && HAS_ATTRIBUTE.test(node, AN_CREATE_LANG_COPY);
+    private static final Predicate<Node> IS_CONTENT_FILTER_NODE =
+            node -> NN_CONTENT_FILTER_NODE.equals(node.getNodeName())
+                    && HAS_ATTRIBUTE.test(node, AN_CREATE_LANGUAGE_COPY)
+                    && HAS_ATTRIBUTE.test(node, AN_KEY)
+                    && HAS_ATTRIBUTE.test(node, AN_VALUE);
     private static final Predicate<Node> UNRECOGNIZED_RULE = node -> true;
 
     private final Map<Predicate<Node>, Consumer<Node>> ruleParserMap = new LinkedHashMap<>();
     private final List<AssetReferenceRule> assetReferenceRules = new ArrayList<>();
+    private final List<ContentFilterRule> contentFilterRules = new ArrayList<>();
     private List<TranslationNodeFilterRule> translationNodeFilterRules = new ArrayList<>();
     private List<TranslationPropertyRule> propertyFilterRules = new ArrayList<>();
     private List<TranslationPropertyRule> resourceTypeRules = new ArrayList<>();
@@ -109,7 +119,7 @@ public class TranslationRulesFileParser {
                     .filter(Objects::nonNull)
                     .sorted(Comparator.comparing(ContextRule::getContextPath).reversed())
                     .collect(Collectors.toList());
-            return new TranslationRules(contextRules, assetReferenceRules);
+            return new TranslationRules(contextRules, assetReferenceRules, contentFilterRules);
         } catch (ParserConfigurationException | SAXException | IOException e) {
             log.error("Error parsing translation rules XML", e);
         }
@@ -122,6 +132,8 @@ public class TranslationRulesFileParser {
             return parseContextRule(node);
         } else if (IS_ASSET_NODE.test(node)) {
             addNonNullRule(parseAssetReferenceRule(node), assetReferenceRules);
+        } else if (IS_CONTENT_FILTER_NODE.test(node)) {
+            addNonNullRule(parseContentFilterRule(node), contentFilterRules);
         }
         return null;
     }
@@ -239,6 +251,14 @@ public class TranslationRulesFileParser {
                 .checkInChildNodes(Boolean.parseBoolean(getAttribute(node, AN_CHECK_IN_CHILD_NODES)))
                 .createLangCopy(Boolean.parseBoolean(getAttribute(node, AN_CREATE_LANG_COPY)))
                 .build();
+    }
+
+    private ContentFilterRule parseContentFilterRule(Node node) {
+        return new ContentFilterRule(
+                getAttribute(node, AN_KEY),
+                getAttribute(node, AN_VALUE),
+                Boolean.parseBoolean(getAttribute(node, AN_CREATE_LANGUAGE_COPY))
+        );
     }
 
     private String getAttribute(Node node, String attributeName) {

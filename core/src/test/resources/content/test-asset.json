@@ -1,0 +1,24 @@
+{
+  "jcr:primaryType": "dam:Asset",
+  "jcr:content": {
+    "jcr:primaryType": "dam:AssetContent",
+    "jcr:title": "Climber Gear Outdoor",
+    "cq:name": "climber-gear-outdoor.jpg",
+    "metadata": {
+      "jcr:primaryType": "nt:unstructured",
+      "jcr:title": "Climber Gear Outdoor",
+      "dam:Fileformat": "JPEG",
+      "xmp:CreatorTool": "Adobe Photoshop CC 2015",
+
+
+      "dam:predictedColors": [
+        15025,
+        12018,
+        16018,
+        40016,
+        7013,
+        25010
+      ]
+    }
+  }
+}
