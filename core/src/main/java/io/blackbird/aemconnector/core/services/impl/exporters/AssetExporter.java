@@ -35,9 +35,9 @@ public class AssetExporter implements ContentExporter {
         try {
             Node node = resource.adaptTo(Node.class);
             if (options.containsKey(ServletConstants.IGNORE_TRANSLATION_RULES)) {
-                return Node2JsonUtil.serializeRecursively(node);
+                return Node2JsonUtil.serializeRecursively(node, false);
             }
-            ObjectNode jsonNode = Node2JsonUtil.serializeRecursively(node, translationRulesService);
+            ObjectNode jsonNode = Node2JsonUtil.serializeRecursively(node, translationRulesService, false);
             removeEmptyObjects(jsonNode);
             return jsonNode;
         } catch (BlackbirdInternalErrorException e) {
