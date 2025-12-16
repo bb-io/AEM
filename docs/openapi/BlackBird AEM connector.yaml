@@ -176,58 +176,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BlackbirdErrorResponse'
-  /content/services/bb-aem-connector/page-exporter.json:
-    get:
-      tags:
-        - Page Exporter
-      security:
-        - bearerAuth: [ ]
-      summary: Export AEM Page Content
-      description: |
-        This API endpoint exports the content of an AEM page in JSON format. It serializes the page content recursively, filtering out blacklisted properties
-        and nodes based on the configured BlackbirdPageContentFilterService.
-        Examples: 
-              `/content/services/bb-aem-connector/page-exporter.json?pagePath=/content/wknd/language-masters/en/adventures/ski-touring-mont-blanc`
-      parameters:
-        - in: query
-          name: pagePath
-          required: true
-          description: The absolute JCR path of the page to export. Must be an absolute path starting with '/'.
-          schema:
-            type: string
-            example: /content/wknd/language-masters/en/adventures/ski-touring-mont-blanc
-
-      responses:
-        '200':
-          description: Successful page export.
-          content:
-            application/json:
-              schema:
-                type: object
-                description: JSON representation of the page content.
-                additionalProperties: true
-        '400':
-          description: >
-            Bad Request - Either the "pagePath" query parameter is missing, the path does not start with '/',
-            or the resource does not represent a valid CQ page.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BlackbirdErrorResponse'
-        '404':
-          description: >
-            Not Found - The resource for the given "pagePath" was not found.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BlackbirdErrorResponse'
-        '409':
-          description: >
-            Conflict - The page exists but does not have a "jcr:content" node.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BlackbirdErrorResponse'
   /content/services/bb-aem-connector/content-exporter.json:
     get:
       tags:
@@ -255,6 +203,14 @@ paths:
           schema:
             type: boolean
             example: ignoreTranslationRules
+          allowEmptyValue: true
+        - in: query
+          name: checkLiveCopy
+          required: false
+          description: Exports content for which inheritance is cancelled or there is no inheritance with parent.
+          schema:
+            type: boolean
+            example: checkLiveCopy
           allowEmptyValue: true
 
       responses:
@@ -317,83 +273,6 @@ paths:
         '404':
           description: >
             Not Found - The resource for the given "contentPath" was not found.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BlackbirdErrorResponse'
-  /content/services/bb-aem-connector/page-importer.json:
-    post:
-      tags:
-        - Page Importer
-      security:
-        - bearerAuth: [ ]
-      summary: Import a Page with Merged Content
-      description: >
-        Copies an existing page from a given source path, merges the page with the provided JSON content, 
-        and creates or updates a page at the target path.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - sourcePath
-                - targetPath
-                - targetContent
-              properties:
-                sourcePath:
-                  type: string
-                  description: Absolute path of the source page to be copied.
-                  example: "/content/bb-aem-connector/us/en/products/category-page"
-                targetPath:
-                  type: string
-                  description: Absolute path for the destination or target page.
-                  example: "/content/bb-aem-connector/pl/pl/products/category-page"
-                targetContent:
-                  type: object
-                  description: >
-                    An object containing the target content to be merged into the copied page.
-                    This must be a valid JSON object and repeat the structure of the source page.
-                  example:
-                    jcr:content:
-                      jcr:title: "Strona kategorii"
-                      text: "Witamy w hotelu California"
-                      root:
-                        container:
-                          container:
-                            months:
-                              - "Marzec"
-                              - "Kwiecień"
-                              - "Maj"
-      responses:
-        '200':
-          description: Page imported successfully.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: "Page imported successfully"
-                  path:
-                    type: string
-                    example: "/content/bb-aem-connector/pl/pl/products/category-page"
-        '400':
-          description: Bad Request – Missing required fields or invalid payload.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BlackbirdErrorResponse'
-        '401':
-          description: Unauthorized – Login exception encountered.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BlackbirdErrorResponse'
-        '500':
-          description: Internal Server Error – An error occurred during the import process.
           content:
             application/json:
               schema:
@@ -726,22 +605,22 @@ paths:
 
   /content/services/bb-aem-connector/translation-rules.xml:
     get:
-        tags:
-          - Translation Rules XML
-        summary: Get AEM Translation Rules (XML)
-        description: |
-          Returns the translation rules in XML format.  
-          Equivalent to the JSON endpoint but serialized as XML.
-        responses:
-          '200':
-            description: Successful XML response
-            content:
-              application/xml:
-                schema:
-                  type: object
-                  description: XML representation of translation rules
-          '404':
-            description: Rules not found
+      tags:
+        - Translation Rules XML
+      summary: Get AEM Translation Rules (XML)
+      description: |
+        Returns the translation rules in XML format.  
+        Equivalent to the JSON endpoint but serialized as XML.
+      responses:
+        '200':
+          description: Successful XML response
+          content:
+            application/xml:
+              schema:
+                type: object
+                description: XML representation of translation rules
+        '404':
+          description: Rules not found
 components:
   securitySchemes:
     bearerAuth:

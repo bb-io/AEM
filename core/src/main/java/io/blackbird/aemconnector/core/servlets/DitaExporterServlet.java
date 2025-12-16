@@ -46,7 +46,6 @@ public class DitaExporterServlet extends BlackbirdAbstractBaseServlet {
         return export(contentPath, ServletParameterHelper.extractOptions(request));
     }
 
-
     @Override
     public InputStream buildXmlResponsePayload(SlingHttpServletRequest request, SlingHttpServletResponse response) throws BlackbirdHttpErrorException {
         String contentPath = ServletParameterHelper.getRequiredContentPath(request);
