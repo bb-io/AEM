@@ -65,13 +65,16 @@ class Node2JsonUtilTest {
         context.create().resource("/content/test/additional-types",
                 "decimal", new BigDecimal("123.456"),
                 "date", calendar);
+
+        context.create().resource("/content/test-without-inheritance",
+                "text", "Test text");
     }
 
     @Test
     void testSerializeSimpleProperties() throws BlackbirdInternalErrorException {
         Node node = context.resourceResolver().getResource("/content/test").adaptTo(Node.class);
         assertNotNull(node);
-        ObjectNode json = Node2JsonUtil.serializeRecursively(node, translationRulesService);
+        ObjectNode json = Node2JsonUtil.serializeRecursively(node, translationRulesService, false);
 
         assertEquals("My Test Page", json.get("jcr:title").asText());
         assertTrue(json.get("isPublished").asBoolean());
@@ -83,7 +86,7 @@ class Node2JsonUtilTest {
     void testSerializeStringArray() throws BlackbirdInternalErrorException {
         Node node = context.resourceResolver().getResource("/content/test").adaptTo(Node.class);
         assertNotNull(node);
-        ObjectNode json = Node2JsonUtil.serializeRecursively(node, translationRulesService);
+        ObjectNode json = Node2JsonUtil.serializeRecursively(node, translationRulesService, false);
 
         assertTrue(json.has("tags"));
         assertEquals("aem", json.get("tags").get(0).asText());
@@ -94,7 +97,7 @@ class Node2JsonUtilTest {
     void testSerializeDoubleArray() throws BlackbirdInternalErrorException {
         Node node = context.resourceResolver().getResource("/content/test").adaptTo(Node.class);
         assertNotNull(node);
-        ObjectNode json = Node2JsonUtil.serializeRecursively(node, translationRulesService);
+        ObjectNode json = Node2JsonUtil.serializeRecursively(node, translationRulesService, false);
 
         assertTrue(json.has("ratings"));
         assertEquals(4.5, json.get("ratings").get(0).asDouble());
@@ -105,7 +108,7 @@ class Node2JsonUtilTest {
     void testSerializeNestedChild() throws BlackbirdInternalErrorException {
         Node node = context.resourceResolver().getResource("/content/test").adaptTo(Node.class);
         assertNotNull(node);
-        ObjectNode json = Node2JsonUtil.serializeRecursively(node, translationRulesService);
+        ObjectNode json = Node2JsonUtil.serializeRecursively(node, translationRulesService, false);
 
         assertTrue(json.has("child"));
         assertEquals("Child Node", json.get("child").get("text").asText());
@@ -118,7 +121,7 @@ class Node2JsonUtilTest {
         assertNotNull(node);
 
         BlackbirdInternalErrorException exception = assertThrows(BlackbirdInternalErrorException.class, () -> {
-            Node2JsonUtil.serializeRecursively(node, null);
+            Node2JsonUtil.serializeRecursively(node, null, false);
         });
 
         assertEquals("TranslationRulesService is null", exception.getMessage());
@@ -126,7 +129,7 @@ class Node2JsonUtilTest {
 
     @Test
     void testNullNode() throws BlackbirdInternalErrorException {
-        ObjectNode json = Node2JsonUtil.serializeRecursively(null, translationRulesService);
+        ObjectNode json = Node2JsonUtil.serializeRecursively(null, translationRulesService, false);
         assertNotNull(json);
         assertEquals(0, json.size());
     }
@@ -138,7 +141,7 @@ class Node2JsonUtilTest {
         Property titleProperty = node.getProperty("jcr:title");
         when(translationRulesService.isTranslatable(titleProperty)).thenReturn(false);
 
-        ObjectNode json = Node2JsonUtil.serializeRecursively(node, translationRulesService);
+        ObjectNode json = Node2JsonUtil.serializeRecursively(node, translationRulesService, false);
 
         assertFalse(json.has("jcr:title"));
     }
@@ -150,7 +153,7 @@ class Node2JsonUtilTest {
         when(translationRulesService.isTranslatable(node))
             .thenReturn(TranslationRulesService.IsNodeTranslatable.ONLY_CHILDREN_TRANSLATABLE);
 
-        ObjectNode json = Node2JsonUtil.serializeRecursively(node, translationRulesService);
+        ObjectNode json = Node2JsonUtil.serializeRecursively(node, translationRulesService, false);
 
         assertFalse(json.has("jcr:title"));
         assertTrue(json.has("child"));
@@ -161,7 +164,7 @@ class Node2JsonUtilTest {
         Node node = context.resourceResolver().getResource("/content/test/additional-types").adaptTo(Node.class);
         assertNotNull(node);
 
-        ObjectNode json = Node2JsonUtil.serializeRecursively(node, translationRulesService);
+        ObjectNode json = Node2JsonUtil.serializeRecursively(node, translationRulesService, false);
 
         assertTrue(json.has("decimal"));
         assertEquals(123.456, json.get("decimal").asDouble(), 0.001);
@@ -183,8 +186,8 @@ class Node2JsonUtilTest {
         when(mockPageNode.getNodes()).thenReturn(mockNodeIterator);
         when(mockNodeIterator.hasNext()).thenReturn(false);
 
-        ObjectNode pageJson = Node2JsonUtil.serializeRecursively(mockPageNode, translationRulesService);
-        ObjectNode regularJson = Node2JsonUtil.serializeRecursively(regularNode, translationRulesService);
+        ObjectNode pageJson = Node2JsonUtil.serializeRecursively(mockPageNode, translationRulesService, false);
+        ObjectNode regularJson = Node2JsonUtil.serializeRecursively(regularNode, translationRulesService, false);
 
         assertTrue(regularJson.has("child"));
         assertEquals(0, pageJson.size());
@@ -196,9 +199,21 @@ class Node2JsonUtilTest {
         when(mockNode.getProperties()).thenThrow(new RepositoryException("Test exception"));
 
         BlackbirdInternalErrorException exception = assertThrows(BlackbirdInternalErrorException.class,
-                () -> Node2JsonUtil.serializeRecursively(mockNode, translationRulesService));
+                () -> Node2JsonUtil.serializeRecursively(mockNode, translationRulesService, false));
 
         assertEquals("Error accessing JCR node: Test exception", exception.getMessage());
+    }
+
+    @Test
+    void testCancelInheritance() throws BlackbirdInternalErrorException, RepositoryException {
+        Node node = context.resourceResolver().getResource("/content/test-without-inheritance").adaptTo(Node.class);
+        assertNotNull(node);
+        Property textProperty = node.getProperty("text");
+        when(translationRulesService.isTranslatable(textProperty)).thenReturn(true);
+
+        ObjectNode json = Node2JsonUtil.serializeRecursively(node, translationRulesService, true);
+
+        assertTrue(json.has("text"));
     }
 
 }

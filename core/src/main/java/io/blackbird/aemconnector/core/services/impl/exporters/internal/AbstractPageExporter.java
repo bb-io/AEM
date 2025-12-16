@@ -40,7 +40,7 @@ public class AbstractPageExporter {
         collectPageReferences(resource, references);
         collectTemplateReferences(resource, references);
 
-        ObjectNode jsonNode = Node2JsonUtil.serializeRecursively(resource.adaptTo(Node.class), translationRulesService);
+        ObjectNode jsonNode = Node2JsonUtil.serializeRecursively(resource.adaptTo(Node.class), translationRulesService, false);
         jsonNode.set(REFERENCES_PROP_NAME, Node2JsonUtil.getMapper().valueToTree(references));
 
         return jsonNode;
@@ -51,17 +51,18 @@ public class AbstractPageExporter {
         collectPageReferences(resource, references);
         collectTemplateReferences(resource, references);
         boolean ignoreTranslationRules = options.containsKey(ServletConstants.IGNORE_TRANSLATION_RULES);
+        boolean isLiveCopy = options.containsKey(ServletConstants.CHECK_LIVE_COPY);
         Node node = resource.adaptTo(Node.class);
         ObjectNode jsonNode = ignoreTranslationRules
-                ? Node2JsonUtil.serializeRecursively(node)
-                : serializeWithTranslationRules(node);
+                ? Node2JsonUtil.serializeRecursively(node, isLiveCopy)
+                : serializeWithTranslationRules(node, isLiveCopy);
         jsonNode.set(REFERENCES_PROP_NAME, Node2JsonUtil.getMapper().valueToTree(references));
 
         return jsonNode;
     }
 
-    private ObjectNode serializeWithTranslationRules(Node node) throws BlackbirdInternalErrorException {
-        ObjectNode jsonNode = Node2JsonUtil.serializeRecursively(node, translationRulesService);
+    private ObjectNode serializeWithTranslationRules(Node node, boolean isLiveCopy) throws BlackbirdInternalErrorException {
+        ObjectNode jsonNode = Node2JsonUtil.serializeRecursively(node, translationRulesService, isLiveCopy);
         removeEmptyObjects(jsonNode);
         return jsonNode;
     }

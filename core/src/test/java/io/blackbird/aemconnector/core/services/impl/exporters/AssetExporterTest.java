@@ -81,7 +81,7 @@ class AssetExporterTest {
             mockedJson.put("title", "Translatable title");
 
             utilities
-                    .when(() -> Node2JsonUtil.serializeRecursively(node, translationRulesService))
+                    .when(() -> Node2JsonUtil.serializeRecursively(node, translationRulesService, false))
                     .thenReturn(mockedJson);
 
 
@@ -102,7 +102,8 @@ class AssetExporterTest {
 
             utilities.when(() -> Node2JsonUtil.serializeRecursively(
                     Mockito.eq(node),
-                    Mockito.eq(translationRulesService)
+                    Mockito.eq(translationRulesService),
+                    Mockito.eq(false)
             )).thenThrow(new BlackbirdInternalErrorException("Serialization error"));
 
             BlackbirdServiceException exception = assertThrows(

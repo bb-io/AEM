@@ -13,4 +13,5 @@ public final class ServletConstants {
     public static final String APPLICATION_XML = "application/xml";
     public static final String UTF_8 = "UTF-8";
     public static final String XML_HANDLER_NOT_IMPLEMENTED_FOR_SERVLET_ERROR_MSG = "XML response handling is not implemented for this servlet";
+    public static final String CHECK_LIVE_COPY = "checkLiveCopy";
 }

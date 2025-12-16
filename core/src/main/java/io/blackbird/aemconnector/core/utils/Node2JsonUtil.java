@@ -16,6 +16,8 @@ import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.Value;
 
+import static com.day.cq.wcm.api.constants.NameConstants.NT_PAGE;
+import static io.blackbird.aemconnector.core.utils.PageInheritanceUtils.shouldExportProperty;
 import static com.day.cq.wcm.api.NameConstants.NT_PAGE;
 import static org.apache.jackrabbit.JcrConstants.JCR_PRIMARYTYPE;
 
@@ -27,7 +29,7 @@ public final class Node2JsonUtil {
     private Node2JsonUtil() {
     }
 
-    public static ObjectNode serializeRecursively(Node jcrNode, TranslationRulesService translationRulesService) throws BlackbirdInternalErrorException {
+    public static ObjectNode serializeRecursively(Node jcrNode, TranslationRulesService translationRulesService, boolean isLiveCopy) throws BlackbirdInternalErrorException {
         if (null == translationRulesService) {
             log.error("TranslationRulesService is null");
             throw new BlackbirdInternalErrorException("TranslationRulesService is null");
@@ -53,7 +55,10 @@ public final class Node2JsonUtil {
                         log.trace("Property {}/{} is not translatable, skipping", jcrNode.getPath(), key);
                         continue;
                     }
-
+                    if (isLiveCopy && !shouldExportProperty(jcrNode, property)) {
+                        log.trace("Skipping inherited property {}/{}", jcrNode.getPath(), key);
+                        continue;
+                    }
                     jsonNode.set(key, getPropertyAsJsonNode(property));
                 }
             }
@@ -65,7 +70,7 @@ public final class Node2JsonUtil {
                     while (nodeIterator.hasNext()) {
                         Node childNode = nodeIterator.nextNode();
                         if (isNotPageNode(childNode)) {
-                            jsonNode.set(childNode.getName(), serializeRecursively(childNode, translationRulesService));
+                            jsonNode.set(childNode.getName(), serializeRecursively(childNode, translationRulesService, isLiveCopy));
                         }
                     }
                 }
@@ -77,7 +82,7 @@ public final class Node2JsonUtil {
         return jsonNode;
     }
 
-    public static ObjectNode serializeRecursively(Node jcrNode) throws BlackbirdInternalErrorException {
+    public static ObjectNode serializeRecursively(Node jcrNode, boolean isLiveCopy) throws BlackbirdInternalErrorException {
         if (null == jcrNode) {
             log.debug("Node is null, returning empty JSON object");
             return MAPPER.createObjectNode();
@@ -91,6 +96,10 @@ public final class Node2JsonUtil {
                 Property property = propertyIterator.nextProperty();
                 String key = property.getName();
 
+                if (isLiveCopy && !shouldExportProperty(jcrNode, property)) {
+                    log.trace("Skipping inherited property {}/{}", jcrNode.getPath(), key);
+                    continue;
+                }
                 jsonNode.set(key, getPropertyAsJsonNode(property));
             }
 
@@ -99,7 +108,7 @@ public final class Node2JsonUtil {
                 while (nodeIterator.hasNext()) {
                     Node childNode = nodeIterator.nextNode();
                     if (isNotPageNode(childNode)) {
-                        jsonNode.set(childNode.getName(), serializeRecursively(childNode));
+                        jsonNode.set(childNode.getName(), serializeRecursively(childNode, isLiveCopy));
                     }
                 }
             }
