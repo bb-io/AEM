@@ -168,5 +168,9 @@ Import-Package: javax.annotation;version=0.0.0,org.apache.commons.lang3;version=
             <version>1.5.0</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+        </dependency>
     </dependencies>
 </project>
