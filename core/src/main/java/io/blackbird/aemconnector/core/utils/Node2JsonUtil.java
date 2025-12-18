@@ -16,7 +16,6 @@ import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.Value;
 
-import static com.day.cq.wcm.api.constants.NameConstants.NT_PAGE;
 import static io.blackbird.aemconnector.core.utils.PageInheritanceUtils.shouldExportProperty;
 import static com.day.cq.wcm.api.NameConstants.NT_PAGE;
 import static org.apache.jackrabbit.JcrConstants.JCR_PRIMARYTYPE;
