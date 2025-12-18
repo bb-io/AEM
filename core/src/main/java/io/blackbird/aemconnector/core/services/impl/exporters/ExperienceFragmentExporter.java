@@ -33,7 +33,7 @@ public class ExperienceFragmentExporter extends AbstractPageExporter implements 
     @Override
     public Serializable export(Resource resource, Map<String, Object> options) throws BlackbirdServiceException {
         try {
-            return exportContent(resource);
+            return exportContent(resource, options);
         } catch (BlackbirdInternalErrorException e) {
             throw new BlackbirdServiceException(e.getMessage(), e);
         }

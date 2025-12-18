@@ -1,5 +1,6 @@
 package io.blackbird.aemconnector.core.services.impl.rules;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.blackbird.aemconnector.core.exceptions.BlackbirdInternalErrorException;
 import io.blackbird.aemconnector.core.services.TranslationRulesService;
 import io.blackbird.aemconnector.core.utils.RepositoryUtils;
@@ -11,16 +12,22 @@ import org.apache.commons.lang3.StringUtils;
 import javax.jcr.Node;
 import javax.jcr.Property;
 
+import java.io.Serializable;
+
 import static org.apache.sling.jcr.resource.api.JcrResourceConstants.SLING_RESOURCE_TYPE_PROPERTY;
 
 @Builder
 @EqualsAndHashCode(callSuper = false)
 @ToString
-public class AssetReferenceRule {
+public class AssetReferenceRule implements Serializable {
 
+    @JsonProperty("referenceType")
     private final String assetReferenceAttribute;
+    @JsonProperty
     private final String resourceType;
+    @JsonProperty
     private final boolean checkInChildNodes;
+    @JsonProperty
     private final boolean createLangCopy;
 
     public TranslationRulesService.IsAssetReference isAssetReference(Property property) throws BlackbirdInternalErrorException {

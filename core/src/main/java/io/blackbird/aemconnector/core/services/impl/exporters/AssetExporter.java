@@ -1,6 +1,7 @@
 package io.blackbird.aemconnector.core.services.impl.exporters;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.blackbird.aemconnector.core.constants.ServletConstants;
 import io.blackbird.aemconnector.core.exceptions.BlackbirdInternalErrorException;
 import io.blackbird.aemconnector.core.exceptions.BlackbirdServiceException;
 import io.blackbird.aemconnector.core.services.ContentExporter;
@@ -32,7 +33,11 @@ public class AssetExporter implements ContentExporter {
     public Serializable export(Resource resource, Map<String, Object> options) throws BlackbirdServiceException {
 
         try {
-            ObjectNode jsonNode = Node2JsonUtil.serializeRecursively(resource.adaptTo(Node.class), translationRulesService);
+            Node node = resource.adaptTo(Node.class);
+            if (options.containsKey(ServletConstants.IGNORE_TRANSLATION_RULES)) {
+                return Node2JsonUtil.serializeRecursively(node, false);
+            }
+            ObjectNode jsonNode = Node2JsonUtil.serializeRecursively(node, translationRulesService, false);
             removeEmptyObjects(jsonNode);
             return jsonNode;
         } catch (BlackbirdInternalErrorException e) {

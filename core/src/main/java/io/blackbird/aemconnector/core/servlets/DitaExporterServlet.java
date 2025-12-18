@@ -17,15 +17,17 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.servlet.Servlet;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 @Slf4j
 @Component(service = Servlet.class)
 @SlingServletResourceTypes(
         resourceTypes = DitaExporterServlet.RESOURCE_TYPE,
-        methods = HttpConstants.METHOD_GET,
-        extensions = ServletConstants.XML
+        methods = HttpConstants.METHOD_GET
 )
 public class DitaExporterServlet extends BlackbirdAbstractBaseServlet {
     public static final String RESOURCE_TYPE = "bb-aem-connector/services/dita-file-exporter";
@@ -41,9 +43,19 @@ public class DitaExporterServlet extends BlackbirdAbstractBaseServlet {
     @Override
     public Serializable buildResponsePayload(SlingHttpServletRequest request, SlingHttpServletResponse response) throws BlackbirdHttpErrorException {
         String contentPath = ServletParameterHelper.getRequiredContentPath(request);
-        Map<String, Object> options = ServletParameterHelper.extractOptions(request);
-        options.put(TYPE, ServletConstants.XML);
+        return export(contentPath, ServletParameterHelper.extractOptions(request));
+    }
 
+    @Override
+    public InputStream buildXmlResponsePayload(SlingHttpServletRequest request, SlingHttpServletResponse response) throws BlackbirdHttpErrorException {
+        String contentPath = ServletParameterHelper.getRequiredContentPath(request);
+        Map<String, Object> options = ServletParameterHelper.extractOptions(request);
+        options.put(TYPE, ServletConstants.XML_EXTENSION);
+        Serializable result = export(contentPath, options);
+        return new ByteArrayInputStream((String.valueOf(result)).getBytes(StandardCharsets.UTF_8));
+    }
+
+    private Serializable export(String contentPath, Map<String, Object> options) throws BlackbirdHttpErrorException {
         try {
             ContentType contentType = contentTypeService.resolveContentType(contentPath);
             Serializable result = contentExportService.exportContent(contentPath, contentType, options);
