@@ -7,6 +7,7 @@ import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.jcr.Node;
@@ -16,6 +17,8 @@ import javax.jcr.Value;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @ExtendWith({AemContextExtension.class, MockitoExtension.class})
 public class PageInheritanceUtilsTest {
@@ -36,7 +39,9 @@ public class PageInheritanceUtilsTest {
 
     @Test
     void shouldReturnFalseWhenNodeHasLiveRelationshipMixin() throws RepositoryException {
-        node.addMixin("cq:LiveRelationship");
+        Node node = mock(Node.class);
+        when(node.isNodeType("cq:LiveRelationship")).thenReturn(true);
+
         assertFalse(PageInheritanceUtils.isLocalNode(node));
     }
 
@@ -48,7 +53,9 @@ public class PageInheritanceUtilsTest {
 
     @Test
     void shouldReturnTrueWhenNodeHasLiveSyncCancelledMixin() throws RepositoryException {
-        node.addMixin("cq:LiveSyncCancelled");
+        Node node = mock(Node.class);
+        when(node.isNodeType("cq:LiveSyncCancelled")).thenReturn(true);
+
         assertTrue(PageInheritanceUtils.isNodeInheritanceCancelled(node));
     }
 
@@ -60,26 +67,33 @@ public class PageInheritanceUtilsTest {
 
     @Test
     void shouldReturnTrueWhenNodeHasPropertyLiveSyncCancelledMixinAndPropertyInCancelledList() throws RepositoryException {
-        node.addMixin("cq:PropertyLiveSyncCancelled");
+        Node node = mock(Node.class);
+        Property property = mock(Property.class);
+        Value value = mock(Value.class);
 
-        Value value = context.resourceResolver().adaptTo(javax.jcr.Session.class)
-                .getValueFactory().createValue("jcr:title");
-
-        node.setProperty("cq:propertyInheritanceCancelled", new Value[]{value});
-        Property property = node.setProperty("jcr:title", "Test");
+        when(node.isNodeType("cq:PropertyLiveSyncCancelled")).thenReturn(true);
+        when(property.getName()).thenReturn("jcr:title");
+        when(value.getString()).thenReturn("jcr:title");
+        when(node.hasProperty("cq:propertyInheritanceCancelled")).thenReturn(true);
+        when(node.getProperty("cq:propertyInheritanceCancelled")).thenReturn(mock(Property.class));
+        when(node.getProperty("cq:propertyInheritanceCancelled").getValues()).thenReturn(new Value[]{value});
 
         assertTrue(PageInheritanceUtils.isPropertyInheritanceCancelled(node, property));
     }
 
     @Test
     void shouldReturnFalseWhenNodeHasPropertyLiveSyncCancelledMixinAndPropertyNotInCancelledList() throws RepositoryException {
-        node.addMixin("cq:PropertyLiveSyncCancelled");
+        Node node = mock(Node.class);
+        Property property = mock(Property.class);
+        Value value = mock(Value.class);
+        Property cancelledProperty = mock(Property.class);
 
-        Value value = context.resourceResolver().adaptTo(javax.jcr.Session.class)
-                .getValueFactory().createValue("cq:description");
-
-        node.setProperty("cq:propertyInheritanceCancelled", new Value[]{value});
-        Property property = node.setProperty("jcr:title", "Test");
+        when(node.isNodeType("cq:PropertyLiveSyncCancelled")).thenReturn(true);
+        when(property.getName()).thenReturn("jcr:title");
+        when(value.getString()).thenReturn("cq:description");
+        when(cancelledProperty.getValues()).thenReturn(new Value[]{value});
+        when(node.hasProperty("cq:propertyInheritanceCancelled")).thenReturn(true);
+        when(node.getProperty("cq:propertyInheritanceCancelled")).thenReturn(cancelledProperty);
 
         assertFalse(PageInheritanceUtils.isPropertyInheritanceCancelled(node, property));
     }
@@ -99,22 +113,32 @@ public class PageInheritanceUtilsTest {
 
     @Test
     void shouldExportPropertyWhenPropertyInheritanceCancelled() throws RepositoryException {
-        node.addMixin("cq:PropertyLiveSyncCancelled");
+        Node node = mock(Node.class);
+        Property property = mock(Property.class);
+        Value value = mock(Value.class);
+        Property cancelledProperty = mock(Property.class);
 
-        Value value = context.resourceResolver().adaptTo(javax.jcr.Session.class)
-                .getValueFactory().createValue("jcr:title");
-
-        node.setProperty("cq:propertyInheritanceCancelled", new Value[]{value});
-        Property property = node.setProperty("jcr:title", "Test");
+        when(node.isNodeType("cq:LiveRelationship")).thenReturn(true);
+        when(node.isNodeType("cq:LiveSyncCancelled")).thenReturn(false);
+        when(node.hasProperty("cq:isCancelledForChildren")).thenReturn(false);
+        when(node.isNodeType("cq:PropertyLiveSyncCancelled")).thenReturn(true);
+        when(value.getString()).thenReturn("jcr:title");
+        when(cancelledProperty.getValues()).thenReturn(new Value[]{value});
+        when(node.hasProperty("cq:propertyInheritanceCancelled")).thenReturn(true);
+        when(node.getProperty("cq:propertyInheritanceCancelled")).thenReturn(cancelledProperty);
+        when(property.getName()).thenReturn("jcr:title");
 
         assertTrue(PageInheritanceUtils.shouldExportProperty(node, property));
     }
 
     @Test
     void shouldNotExportPropertyWhenNodeNotLocalAndInheritanceNotCancelled() throws RepositoryException {
-        node.addMixin("cq:LiveRelationship");
-        node.setProperty("cq:master", "/content/test");
-        Property property = node.setProperty("jcr:title", "Test");
+        Node node = mock(Node.class);
+        Property property = mock(Property.class);
+
+        when(node.isNodeType("cq:LiveRelationship")).thenReturn(true);
+        when(node.isNodeType("cq:LiveSyncCancelled")).thenReturn(false);
+        when(node.isNodeType("cq:PropertyLiveSyncCancelled")).thenReturn(false);
 
         assertFalse(PageInheritanceUtils.shouldExportProperty(node, property));
     }
