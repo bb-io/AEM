@@ -1,6 +1,6 @@
 package io.blackbird.aemconnector.core.services.impl.rules;
 
-import com.day.cq.wcm.api.constants.NameConstants;
+import com.day.cq.wcm.api.NameConstants;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.blackbird.aemconnector.core.exceptions.BlackbirdInternalErrorException;
 import io.blackbird.aemconnector.core.utils.RepositoryUtils;
