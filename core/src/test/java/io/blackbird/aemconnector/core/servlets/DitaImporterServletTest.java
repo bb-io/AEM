@@ -18,11 +18,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.Map;
+import java.util.Collections;
+import java.util.HashMap;
 
 import static io.blackbird.aemconnector.core.utils.TestUtils.inputStreamToString;
 import static junit.framework.Assert.assertNotNull;
@@ -64,12 +64,13 @@ public class DitaImporterServletTest {
         String payload = "<xml>test payload</xml>";
 
         request.setParameterMap(
-                Map.of(
-                        "sourcePath", sourcePath,
-                        "targetPath", targetPath
-                )
+                new HashMap<String, Object>(){{
+                    put("sourcePath", sourcePath);
+                    put("targetPath", targetPath);
+                }}
         );
-        byte[] inputStream = new ByteArrayInputStream(payload.getBytes(StandardCharsets.UTF_8)).readAllBytes();
+
+        byte[] inputStream = payload.getBytes(StandardCharsets.UTF_8);
         request.setContent(inputStream);
 
         ContentType contentType = mock(ContentType.class);
@@ -92,13 +93,13 @@ public class DitaImporterServletTest {
         String payload = "<xml>test payload</xml>";
 
         request.setParameterMap(
-                Map.of(
-                        "sourcePath", sourcePath,
-                        "targetPath", targetPath
-                )
+                new HashMap<String, Object>(){{
+                    put("sourcePath", sourcePath);
+                    put("targetPath", targetPath);
+                }}
         );
 
-        byte[] inputStream = new ByteArrayInputStream(payload.getBytes(StandardCharsets.UTF_8)).readAllBytes();
+        byte[] inputStream = payload.getBytes(StandardCharsets.UTF_8);
         request.setContent(inputStream);
 
         BlackbirdHttpErrorException exception = assertThrows(BlackbirdHttpErrorException.class,
@@ -115,10 +116,10 @@ public class DitaImporterServletTest {
         String payload = "<xml>test payload</xml>";
 
         request.setParameterMap(
-                Map.of("sourcePath", sourcePath)
+                Collections.singletonMap("sourcePath", sourcePath)
         );
 
-        byte[] inputStream = new ByteArrayInputStream(payload.getBytes(StandardCharsets.UTF_8)).readAllBytes();
+        byte[] inputStream = payload.getBytes(StandardCharsets.UTF_8);
         request.setContent(inputStream);
 
         BlackbirdHttpErrorException exception = assertThrows(BlackbirdHttpErrorException.class,
@@ -136,13 +137,13 @@ public class DitaImporterServletTest {
         String payload = "";
 
         request.setParameterMap(
-                Map.of(
-                        "sourcePath", sourcePath,
-                        "targetPath", targetPath
-                )
+                new HashMap<String, Object>(){{
+                    put("sourcePath", sourcePath);
+                    put("targetPath", targetPath);
+                }}
         );
 
-        byte[] inputStream = new ByteArrayInputStream(payload.getBytes(StandardCharsets.UTF_8)).readAllBytes();
+        byte[] inputStream = payload.getBytes(StandardCharsets.UTF_8);
         request.setContent(inputStream);
 
         BlackbirdHttpErrorException exception = assertThrows(BlackbirdHttpErrorException.class,
