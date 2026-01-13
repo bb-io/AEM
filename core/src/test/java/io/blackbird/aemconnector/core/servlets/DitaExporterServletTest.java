@@ -9,17 +9,14 @@ import io.wcm.testing.mock.aem.junit5.AemContext;
 import io.wcm.testing.mock.aem.junit5.AemContextExtension;
 import org.apache.sling.testing.mock.sling.servlet.MockSlingHttpServletRequest;
 import org.apache.sling.testing.mock.sling.servlet.MockSlingHttpServletResponse;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
-import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 import static io.blackbird.aemconnector.core.utils.TestUtils.inputStreamToString;
@@ -108,7 +105,7 @@ public class DitaExporterServletTest {
     }
 
     @Test
-    void shouldThrowBlackbirdHttpErrorExceptionWhenBlackbirdServiceExceptionOccurs() {
+    void shouldThrowexceptionWhenBlackbirdServiceExceptionOccurs() {
         String contentPath = "/content/dam/dita/en/test.dita";
 
         request.setParameterMap(Map.of("contentPath", contentPath));

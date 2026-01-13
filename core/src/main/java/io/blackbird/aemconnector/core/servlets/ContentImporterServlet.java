@@ -9,7 +9,7 @@ import io.blackbird.aemconnector.core.services.ContentImportService;
 import io.blackbird.aemconnector.core.services.ContentType;
 import io.blackbird.aemconnector.core.services.ContentTypeService;
 import io.blackbird.aemconnector.core.servlets.internal.BlackbirdAbstractBaseServlet;
-import org.apache.commons.io.IOUtils;
+import io.blackbird.aemconnector.core.utils.ServletParameterHelper;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
@@ -20,9 +20,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.servlet.Servlet;
-import java.io.IOException;
 import java.io.Serializable;
-import java.nio.charset.StandardCharsets;
 
 @Component(service = Servlet.class)
 @SlingServletResourceTypes(
@@ -47,7 +45,7 @@ public class ContentImporterServlet extends BlackbirdAbstractBaseServlet {
 
     @Override
     public Serializable buildResponsePayload(SlingHttpServletRequest request, SlingHttpServletResponse response) throws BlackbirdHttpErrorException {
-        JsonNode payload = getRequestPayload(request);
+        JsonNode payload = ServletParameterHelper.getRequestPayload(request);
 
         String sourcePath = payload.path(SOURCE_PATH).asText(null);
         String targetPath = payload.path(TARGET_PATH).asText(null);
@@ -64,15 +62,6 @@ public class ContentImporterServlet extends BlackbirdAbstractBaseServlet {
             return node;
         } catch (BlackbirdServiceException ex) {
             throw BlackbirdHttpErrorException.internalServerError(ex.getMessage());
-        }
-    }
-
-    private JsonNode getRequestPayload(SlingHttpServletRequest request) throws BlackbirdHttpErrorException {
-        try {
-            String requestBody = IOUtils.toString(request.getInputStream(), StandardCharsets.UTF_8);
-            return objectMapper.readTree(requestBody);
-        } catch (IOException e) {
-            throw BlackbirdHttpErrorException.internalServerError(e.getMessage());
         }
     }
 
