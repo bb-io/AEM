@@ -106,7 +106,7 @@ public class DitaExporterServletTest {
     }
 
     @Test
-    void shouldThrowexceptionWhenBlackbirdServiceExceptionOccurs() {
+    void shouldThrowBlackbirdHttpErrorExceptionWhenBlackbirdServiceExceptionOccurs() {
         String contentPath = "/content/dam/dita/en/test.dita";
 
         request.setParameterMap(Collections.singletonMap("contentPath", new String[]{contentPath}));
