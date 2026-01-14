@@ -9,17 +9,15 @@ import io.wcm.testing.mock.aem.junit5.AemContext;
 import io.wcm.testing.mock.aem.junit5.AemContextExtension;
 import org.apache.sling.testing.mock.sling.servlet.MockSlingHttpServletRequest;
 import org.apache.sling.testing.mock.sling.servlet.MockSlingHttpServletResponse;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
-import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.Map;
 
 import static io.blackbird.aemconnector.core.utils.TestUtils.inputStreamToString;
@@ -63,7 +61,7 @@ public class DitaExporterServletTest {
         String contentPath = "/content/dam/dita/en/test.dita";
         Serializable exported = "<xml>test</xml>";
 
-        request.setParameterMap(Map.of("contentPath", contentPath));
+        request.setParameterMap(Collections.singletonMap("contentPath", new String[]{contentPath}));
 
         ContentType contentType = mock(ContentType.class);
         when(contentTypeService.resolveContentType(contentPath)).thenReturn(contentType);
@@ -78,7 +76,7 @@ public class DitaExporterServletTest {
 
     @Test
     void shouldThrowBlackbirdHttpErrorExceptionWhenContentPathIsMissing() {
-        request.setParameterMap(Map.of());
+        request.setParameterMap(Collections.emptyMap());
 
         BlackbirdHttpErrorException ex = assertThrows(BlackbirdHttpErrorException.class,
                 () -> servlet.buildResponsePayload(request, response)
@@ -92,7 +90,7 @@ public class DitaExporterServletTest {
     void shouldThrowBlackbirdHttpErrorExceptionWhenResourceNotFound() {
         String contentPath = "/content/dam/missing.dita";
 
-        request.setParameterMap(Map.of("contentPath", contentPath));
+        request.setParameterMap(Collections.singletonMap("contentPath", new String[]{contentPath}));
 
         when(contentTypeService.resolveContentType(contentPath)).thenReturn(mock(ContentType.class));
         when(contentExportService.exportContent(eq(contentPath), any(), anyMap())).thenThrow(new BlackbirdServiceException(
@@ -111,7 +109,7 @@ public class DitaExporterServletTest {
     void shouldThrowBlackbirdHttpErrorExceptionWhenBlackbirdServiceExceptionOccurs() {
         String contentPath = "/content/dam/dita/en/test.dita";
 
-        request.setParameterMap(Map.of("contentPath", contentPath));
+        request.setParameterMap(Collections.singletonMap("contentPath", new String[]{contentPath}));
         when(contentTypeService.resolveContentType(contentPath)).thenReturn(mock(ContentType.class));
         when(contentExportService.exportContent(eq(contentPath), any(), anyMap()))
                 .thenThrow(new BlackbirdServiceException("BlackbirdServiceException occurs"));
@@ -129,7 +127,7 @@ public class DitaExporterServletTest {
         String contentPath = "/content/dam/dita/en/test.dita";
         Serializable exported = "<xml>test</xml>";
 
-        request.setParameterMap(Map.of("contentPath", contentPath));
+        request.setParameterMap(Collections.singletonMap("contentPath", new String[]{contentPath}));
 
         ContentType contentType = mock(ContentType.class);
         when(contentTypeService.resolveContentType(contentPath)).thenReturn(contentType);
