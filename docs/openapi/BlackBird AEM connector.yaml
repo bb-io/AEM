@@ -621,6 +621,137 @@ paths:
                 description: XML representation of translation rules
         '404':
           description: Rules not found
+  /content/services/bb-aem-connector/update-tags.json:
+    post:
+      tags:
+        - Update Tags
+      security:
+        - bearerAuth: [ ]
+      summary: Update content tags
+      description: >
+        Update content tags - add or remove to different content types: pages, experience fragments, content fragments, assets, dita files.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - contentPath
+              properties:
+                contentPath:
+                  type: string
+                  description: Absolute path of the content to be updated with tags.
+                  example: "/content/page"
+                add:
+                  type: string
+                  description: A list of tags to add. Multiple values can be provided.
+                  example: [ "do-not-translate", "workflow:dam" ]
+                remove:
+                  type: string
+                  description: A list of tags to remove. Multiple values can be provided.
+                  example: [ "workflow:wcm/translation", "workflow:wcm/translatelanguagecopy" ]
+      responses:
+        '200':
+          description: Tags imported successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Tags updated successfully"
+                  path:
+                    type: string
+                    example: "/content/page"
+        '400':
+          description: Bad Request – Missing required fields or invalid payload.
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Represents an error response.
+                properties:
+                  status:
+                    type: integer
+                    description: HTTP status code.
+                    example: 400
+                  error:
+                    type: string
+                    description: Short error description.
+                    example: "Bad Request"
+                  message:
+                    type: string
+                    description: Detailed error message.
+                    example: "Missing required fields: sourcePath, targetPath, or targetContent"
+                  path:
+                    type: string
+                    description: The request path that resulted in the error.
+                    example: "/content/services/bb-aem-connector/update-tags.json"
+                  timestamp:
+                    type: string
+                    format: date-time
+                    description: Timestamp of the error in yyyy-MM-dd HH:mm:ss format (UTC).
+                    example: "2026-01-14 15:27:00"
+        '401':
+          description: Unauthorized – Login exception encountered.
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Represents an error response.
+                properties:
+                  status:
+                    type: integer
+                    description: HTTP status code.
+                    example: 401
+                  error:
+                    type: string
+                    description: Short error description.
+                    example: "Unauthorized"
+                  message:
+                    type: string
+                    description: Detailed error message.
+                    example: "Cannot derive user name for bundle bb-aem-connector.core and sub service blackbird-translation-writer-service"
+                  path:
+                    type: string
+                    description: The request path that resulted in the error.
+                    example: "/content/services/bb-aem-connector/update-tags.json"
+                  timestamp:
+                    type: string
+                    format: date-time
+                    description: Timestamp of the error in yyyy-MM-dd HH:mm:ss format (UTC).
+                    example: "2025-05-28 15:35:00"
+        '500':
+          description: Internal Server Error – An error occurred during the tags update.
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Represents an error response.
+                properties:
+                  status:
+                    type: integer
+                    description: HTTP status code.
+                    example: 500
+                  error:
+                    type: string
+                    description: Short error description.
+                    example: "Internal Server Error"
+                  message:
+                    type: string
+                    description: Detailed error message.
+                    example: "Can not update tags"
+                  path:
+                    type: string
+                    description: The request path that resulted in the error.
+                    example: "/content/services/bb-aem-connector/content-importer.json"
+                  timestamp:
+                    type: string
+                    format: date-time
+                    description: Timestamp of the error in yyyy-MM-dd HH:mm:ss format (UTC).
+                    example: "2025-05-28 15:14:00"
 components:
   securitySchemes:
     bearerAuth:

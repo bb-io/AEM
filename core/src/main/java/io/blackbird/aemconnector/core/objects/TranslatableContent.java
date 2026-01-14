@@ -5,9 +5,8 @@ import lombok.Value;
 import java.io.Serializable;
 import java.util.Map;
 
-
 @Value
 public class TranslatableContent implements Serializable {
     String path;
-    Map<String, String> properties;
+    private Map<String, String> properties;
 }

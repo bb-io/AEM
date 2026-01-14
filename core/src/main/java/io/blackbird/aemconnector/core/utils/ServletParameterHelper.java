@@ -1,11 +1,16 @@
 package io.blackbird.aemconnector.core.utils;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.blackbird.aemconnector.core.exceptions.BlackbirdHttpErrorException;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 
 import javax.servlet.http.HttpServletResponse;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -41,6 +46,15 @@ public final class ServletParameterHelper {
                             ? values[0]
                             : Arrays.asList(values);
                 }));
+    }
+
+    public static JsonNode getRequestPayload(SlingHttpServletRequest request) throws BlackbirdHttpErrorException {
+        try {
+            String requestBody = IOUtils.toString(request.getInputStream(), StandardCharsets.UTF_8);
+            return new ObjectMapper().readTree(requestBody);
+        } catch (IOException e) {
+            throw BlackbirdHttpErrorException.internalServerError(e.getMessage());
+        }
     }
 
     private static String getRequiredAbsolutePath(SlingHttpServletRequest request, String parameterName) throws BlackbirdHttpErrorException {
